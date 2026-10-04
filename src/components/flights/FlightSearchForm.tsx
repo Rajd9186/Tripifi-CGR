@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
+import { AutocompleteInput } from "@/components/ui/AutocompleteInput";
 import { validateFlightSearch, type FieldErrors } from "@/lib/validation";
 import { useApp } from "@/lib/store";
 import { todayISO } from "@/lib/utils";
+import { searchAirports } from "@/data/autocomplete";
 
 export default function FlightSearchForm({ initial }: { initial?: Record<string, string | undefined> }) {
   const router = useRouter();
@@ -18,6 +20,30 @@ export default function FlightSearchForm({ initial }: { initial?: Record<string,
   const [travellers, setTravellers] = useState("1 Traveller, Economy");
   const [tripType, setTripType] = useState("One Way");
   const [errors, setErrors] = useState<FieldErrors>({});
+  const [fromOptions, setFromOptions] = useState(() => searchAirports(initial?.from ?? ""));
+  const [toOptions, setToOptions] = useState(() => searchAirports(initial?.to ?? ""));
+
+  const handleFromChange = (option: { label: string }) => {
+    setFrom(option.label);
+    setFromOptions(searchAirports(option.label));
+  };
+
+  const handleToChange = (option: { label: string }) => {
+    setTo(option.label);
+    setToOptions(searchAirports(option.label));
+  };
+
+  const handleFromInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setFrom(value);
+    setFromOptions(searchAirports(value));
+  };
+
+  const handleToInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setTo(value);
+    setToOptions(searchAirports(value));
+  };
 
   const submit = () => {
     const count = parseInt(travellers, 10) || 1;
@@ -34,10 +60,28 @@ export default function FlightSearchForm({ initial }: { initial?: Record<string,
     <Card padding="lg">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-2">
-          <Input label="From" placeholder="Delhi (DEL)" value={from} onChange={(e) => setFrom(e.target.value)} error={errors.from} id="sf-from" />
+          <AutocompleteInput
+            label="From"
+            placeholder="Delhi (DEL)"
+            value={from}
+            onChange={handleFromInput}
+            onSelect={handleFromChange}
+            options={fromOptions}
+            error={errors.from}
+            id="sf-from"
+          />
         </div>
         <div className="lg:col-span-2">
-          <Input label="To" placeholder="Mumbai (BOM)" value={to} onChange={(e) => setTo(e.target.value)} error={errors.to} id="sf-to" />
+          <AutocompleteInput
+            label="To"
+            placeholder="Mumbai (BOM)"
+            value={to}
+            onChange={handleToInput}
+            onSelect={handleToChange}
+            options={toOptions}
+            error={errors.to}
+            id="sf-to"
+          />
         </div>
         <div>
           <Input label="Departure" type="date" value={departure} min={todayISO()} onChange={(e) => setDeparture(e.target.value)} error={errors.departure} id="sf-date" />
