@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DESTINATIONS } from "@/lib/destinations";
+import DestinationCard from "@/components/destinations/DestinationCard";
 
 const trending = DESTINATIONS.slice(0, 8);
 
@@ -38,33 +39,13 @@ export default function TrendingDestinations() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {trending.map((dest) => (
-            <Link
+          {trending.map((dest, index) => (
+            <DestinationCard
               key={dest.slug}
-              href={`/destinations/${dest.slug}`}
-              className="group relative overflow-hidden rounded-2xl bg-ink-900 h-72"
-            >
-              <img
-                src={dest.heroImage}
-                alt={dest.name}
-                className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/30 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-4">
-                <div className="text-xs text-white/80 uppercase tracking-wider mb-1">
-                  {dest.region}
-                </div>
-                <h3 className="font-display text-xl font-semibold text-white">
-                  {dest.name}
-                </h3>
-                <p className="text-sm text-white/90 mt-1 line-clamp-2">
-                  {dest.tagline}
-                </p>
-                <div className="mt-2 text-xs text-white/80">
-                  From ₹{dest.estimatedBudget.split("₹")[1]?.split("–")[0] || "15,000"} onwards
-                </div>
-              </div>
-            </Link>
+              destination={dest}
+              variant="default"
+              priority={index < 4}
+            />
           ))}
         </div>
       </div>
