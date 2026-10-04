@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useApp } from "@/lib/store";
+import { validateCabSearch, validateFlightSearch, validateHotelSearch, validateTrainSearch, type FieldErrors } from "@/lib/validation";
 import { AIRPORTS } from "@/data/airports";
 import { STATIONS } from "@/data/stations";
 import {
@@ -46,6 +48,8 @@ function SearchInput({
   className,
   autoComplete,
   list,
+  error,
+  id,
 }: {
   label: string;
   placeholder: string;
@@ -56,11 +60,13 @@ function SearchInput({
   className?: string;
   autoComplete?: string;
   list?: string;
+  error?: string;
+  id?: string;
 }) {
   const [focused, setFocused] = useState(false);
   return (
     <div className={cn("relative", className)}>
-      <label className="input-label">{label}</label>
+      <label className="input-label" htmlFor={id}>{label}</label>
       <div className="relative">
         {icon && (
           <span
@@ -72,6 +78,7 @@ function SearchInput({
           </span>
         )}
         <input
+          id={id}
           type={type}
           placeholder={placeholder}
           value={value}
@@ -80,9 +87,12 @@ function SearchInput({
           onBlur={() => setFocused(false)}
           autoComplete={autoComplete}
           list={list}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error && id ? `${id}-error` : undefined}
           className={cn(
             "field transition-all duration-200",
             focused && "border-saffron-500 ring-2 ring-saffron-500/20",
+            error && "border-red-500",
             icon ? "field-with-icon" : ""
           )}
         />
@@ -91,6 +101,11 @@ function SearchInput({
           style={{ transform: focused ? "scaleX(1)" : "scaleX(0)" }}
         />
       </div>
+      {error && (
+        <p id={id ? `${id}-error` : undefined} role="alert" className="mt-1 text-xs text-red-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -167,23 +182,28 @@ function DateInput({
   value,
   onChange,
   min,
+  error,
+  id,
 }: {
   label: string;
   placeholder?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   min?: string;
+  error?: string;
+  id?: string;
 }) {
   const [focused, setFocused] = useState(false);
   return (
     <div className="relative">
-      <label className="input-label">{label}</label>
+      <label className="input-label" htmlFor={id}>{label}</label>
       <div className="relative">
         <CalendarIcon
           className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500 transition-colors duration-200"
           style={{ color: focused ? "rgb(242, 140, 40)" : "" }}
         />
         <input
+          id={id}
           type="date"
           placeholder={placeholder}
           value={value}
@@ -191,10 +211,11 @@ function DateInput({
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           min={min}
+          aria-invalid={Boolean(error)}
           className="field pl-10 transition-all duration-200"
           style={{
-            borderColor: focused ? "rgb(242, 140, 40)" : "",
-            boxShadow: focused ? "0 0 0 3px rgb(242 140 40 / 0.2)" : "",
+            borderColor: error ? "#D64545" : focused ? "rgb(242, 140, 40)" : "",
+            boxShadow: focused && !error ? "0 0 0 3px rgb(242 140 40 / 0.2)" : "",
           }}
         />
         <div
@@ -202,6 +223,11 @@ function DateInput({
           style={{ transform: focused ? "scaleX(1)" : "scaleX(0)" }}
         />
       </div>
+      {error && (
+        <p role="alert" className="mt-1 text-xs text-red-600">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -351,17 +377,33 @@ export default function BookingCommandCenter() {
 }
 
 function FlightForm({ airportOptions, today }: { airportOptions: React.ReactNode; today: string }) {
+  const router = useRouter();
+  const { updateSearchState } = useApp();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [departure, setDeparture] = useState(today);
   const [travellers, setTravellers] = useState("1 Traveller, Economy");
   const [tripType, setTripType] = useState<"oneway" | "round">("oneway");
   const [returnDate, setReturnDate] = useState("");
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   const handleSwap = () => {
     const temp = from;
     setFrom(to);
     setTo(temp);
+  };
+
+  const travellerCount = parseInt(travellers, 10) || 1;
+  const cabin = travellers.includes("Business") ? "Business" : "Economy";
+
+  const handleSubmit = () => {
+    const errs = validateFlightSearch({ from, to, departure, return: tripType === "round" ? returnDate : undefined, travellers: travellerCount });
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+    updateSearchState({ flights: { from, to, departure, return: tripType === "round" ? returnDate : undefined, travellers, class: cabin, tripType } });
+    const params = new URLSearchParams({ from, to, date: departure, travellers: String(travellerCount), class: cabin, trip: tripType });
+    if (tripType === "round" && returnDate) params.set("return", returnDate);
+    router.push(`/flights/results?${params.toString()}`);
   };
 
   return (
@@ -375,6 +417,8 @@ function FlightForm({ airportOptions, today }: { airportOptions: React.ReactNode
           list="airports"
           autoComplete="off"
           icon={<AirplaneIcon />}
+          error={errors.from}
+          id="flight-from"
         />
         <datalist id="airports">{airportOptions}</datalist>
       </div>
@@ -387,16 +431,18 @@ function FlightForm({ airportOptions, today }: { airportOptions: React.ReactNode
           list="airports"
           autoComplete="off"
           icon={<AirplaneIcon />}
+          error={errors.to}
+          id="flight-to"
         />
         <datalist id="airports">{airportOptions}</datalist>
         <SwapButton onClick={handleSwap} disabled={!from && !to} />
       </div>
       <div>
-        <DateInput label="Departure" value={departure} onChange={(e) => setDeparture(e.target.value)} min={today} />
+        <DateInput label="Departure" value={departure} onChange={(e) => setDeparture(e.target.value)} min={today} error={errors.departure} id="flight-departure" />
       </div>
       {tripType === "round" && (
         <div>
-          <DateInput label="Return" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} min={departure} />
+          <DateInput label="Return" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} min={departure} error={errors.return} id="flight-return" />
         </div>
       )}
       <div className="lg:col-span-2">
@@ -424,26 +470,38 @@ function FlightForm({ airportOptions, today }: { airportOptions: React.ReactNode
         </SelectInput>
       </div>
       <div className="flex items-end">
-        <Link href="/flights" className="btn-primary w-full justify-center group">
+        <button onClick={handleSubmit} className="btn-primary w-full justify-center group">
           Search Flights
           <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
-        </Link>
+        </button>
       </div>
     </div>
   );
 }
 
 function TrainForm({ stationOptions, today }: { stationOptions: React.ReactNode; today: string }) {
+  const router = useRouter();
+  const { updateSearchState } = useApp();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [departure, setDeparture] = useState(today);
   const [trainClass, setTrainClass] = useState("All Classes");
   const [quota, setQuota] = useState("General");
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   const handleSwap = () => {
     const t = from;
     setFrom(to);
     setTo(t);
+  };
+
+  const handleSubmit = () => {
+    const errs = validateTrainSearch({ from, to, date: departure, travellers: 1 });
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+    updateSearchState({ trains: { from, to, date: departure, class: trainClass, quota } });
+    const params = new URLSearchParams({ from, to, date: departure, class: trainClass, quota });
+    router.push(`/trains/results?${params.toString()}`);
   };
 
   return (
@@ -457,6 +515,8 @@ function TrainForm({ stationOptions, today }: { stationOptions: React.ReactNode;
           list="stations"
           autoComplete="off"
           icon={<TrainStationIcon />}
+          error={errors.from}
+          id="train-from"
         />
         <datalist id="stations">{stationOptions}</datalist>
       </div>
@@ -469,12 +529,14 @@ function TrainForm({ stationOptions, today }: { stationOptions: React.ReactNode;
           list="stations"
           autoComplete="off"
           icon={<TrainStationIcon />}
+          error={errors.to}
+          id="train-to"
         />
         <datalist id="stations">{stationOptions}</datalist>
         <SwapButton onClick={handleSwap} disabled={!from && !to} />
       </div>
       <div>
-        <DateInput label="Departure Date" value={departure} onChange={(e) => setDeparture(e.target.value)} min={today} />
+        <DateInput label="Departure Date" value={departure} onChange={(e) => setDeparture(e.target.value)} min={today} error={errors.date} id="train-date" />
       </div>
       <div>
         <SelectInput
@@ -504,26 +566,40 @@ function TrainForm({ stationOptions, today }: { stationOptions: React.ReactNode;
         </SelectInput>
       </div>
       <div className="flex items-end">
-        <Link href="/trains" className="btn-primary w-full justify-center group">
+        <button onClick={handleSubmit} className="btn-primary w-full justify-center group">
           Search Trains
           <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
-        </Link>
+        </button>
       </div>
     </div>
   );
 }
 
 function CabForm({ today }: { today: string }) {
+  const router = useRouter();
+  const { updateSearchState } = useApp();
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [pickupTime, setPickupTime] = useState("");
   const [tripType, setTripType] = useState<"oneway" | "round" | "local" | "multiday">("oneway");
   const [vehicle, setVehicle] = useState("All Vehicles");
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   const handleSwap = () => {
     const t = from;
     setFrom(to);
     setTo(t);
+  };
+
+  const handleSubmit = () => {
+    const date = pickupTime ? pickupTime.slice(0, 10) : "";
+    const errs = validateCabSearch({ pickup: from, drop: to, date });
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+    updateSearchState({ cabs: { pickup: from, drop: to, datetime: pickupTime, tripType, vehicle } });
+    const params = new URLSearchParams({ pickup: from, drop: to, trip: tripType, vehicle });
+    if (pickupTime) params.set("datetime", pickupTime);
+    router.push(`/cabs/results?${params.toString()}`);
   };
 
   return (
@@ -535,6 +611,8 @@ function CabForm({ today }: { today: string }) {
           value={from}
           onChange={(e) => setFrom(e.target.value)}
           icon={<CarIcon />}
+          error={errors.pickup}
+          id="cab-pickup"
         />
       </div>
       <div className="lg:col-span-3 relative">
@@ -544,6 +622,8 @@ function CabForm({ today }: { today: string }) {
           value={to}
           onChange={(e) => setTo(e.target.value)}
           icon={<CarIcon />}
+          error={errors.drop}
+          id="cab-drop"
         />
         <SwapButton onClick={handleSwap} disabled={!from && !to} />
       </div>
@@ -581,20 +661,32 @@ function CabForm({ today }: { today: string }) {
         </SelectInput>
       </div>
       <div className="flex items-end">
-        <Link href="/cabs" className="btn-primary w-full justify-center group">
+        <button onClick={handleSubmit} className="btn-primary w-full justify-center group">
           Search Cabs
           <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
-        </Link>
+        </button>
       </div>
     </div>
   );
 }
 
 function HotelForm({ today, tomorrow }: { today: string; tomorrow: string }) {
+  const router = useRouter();
+  const { updateSearchState } = useApp();
   const [destination, setDestination] = useState("");
   const [checkin, setCheckin] = useState(today);
   const [checkout, setCheckout] = useState(tomorrow);
   const [guests, setGuests] = useState("2 Guests, 1 Room");
+  const [errors, setErrors] = useState<FieldErrors>({});
+
+  const handleSubmit = () => {
+    const errs = validateHotelSearch({ destination, checkin, checkout });
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) return;
+    updateSearchState({ hotels: { destination, checkin, checkout, guests, rooms: guests } });
+    const params = new URLSearchParams({ destination, checkin, checkout, guests });
+    router.push(`/hotels/results?${params.toString()}`);
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 animate-form-morph">
@@ -605,13 +697,15 @@ function HotelForm({ today, tomorrow }: { today: string; tomorrow: string }) {
           value={destination}
           onChange={(e) => setDestination(e.target.value)}
           icon={<MapPinIcon />}
+          error={errors.destination}
+          id="hotel-destination"
         />
       </div>
       <div>
-        <DateInput label="Check-in" value={checkin} onChange={(e) => setCheckin(e.target.value)} min={today} />
+        <DateInput label="Check-in" value={checkin} onChange={(e) => setCheckin(e.target.value)} min={today} error={errors.checkin} id="hotel-checkin" />
       </div>
       <div>
-        <DateInput label="Check-out" value={checkout} onChange={(e) => setCheckout(e.target.value)} min={checkin} />
+        <DateInput label="Check-out" value={checkout} onChange={(e) => setCheckout(e.target.value)} min={checkin} error={errors.checkout} id="hotel-checkout" />
       </div>
       <div>
         <SelectInput
@@ -627,18 +721,29 @@ function HotelForm({ today, tomorrow }: { today: string; tomorrow: string }) {
         </SelectInput>
       </div>
       <div className="flex items-end">
-        <Link href="/hotels" className="btn-primary w-full justify-center group">
+        <button onClick={handleSubmit} className="btn-primary w-full justify-center group">
           Search Hotels
           <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
-        </Link>
+        </button>
       </div>
     </div>
   );
 }
 
 function PackageForm() {
+  const router = useRouter();
+  const { updateSearchState } = useApp();
   const [destination, setDestination] = useState("");
   const [budget, setBudget] = useState("Under ₹20,000");
+
+  const handlePackageSubmit = () => {
+    updateSearchState({ packages: { destination, budget, duration: "" } });
+    const params = new URLSearchParams();
+    if (destination.trim()) params.set("destination", destination.trim());
+    params.set("budget", budget);
+    const qs = params.toString();
+    router.push(qs ? `/packages?${qs}` : "/packages");
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 animate-form-morph">
@@ -665,17 +770,25 @@ function PackageForm() {
         </SelectInput>
       </div>
       <div className="flex items-end">
-        <Link href="/packages" className="btn-primary w-full justify-center group">
+        <button onClick={handlePackageSubmit} className="btn-primary w-full justify-center group">
           Explore Packages
           <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
-        </Link>
+        </button>
       </div>
     </div>
   );
 }
 
 function BuildForm() {
+  const router = useRouter();
+  const { updateSearchState, setPendingPlan } = useApp();
   const [plan, setPlan] = useState("");
+
+  const handleSubmit = () => {
+    updateSearchState({ build: { plan } });
+    if (plan.trim()) setPendingPlan(plan.trim());
+    router.push("/plan");
+  };
 
   return (
     <div className="flex flex-col md:flex-row gap-4 animate-form-morph">
@@ -686,13 +799,14 @@ function BuildForm() {
           value={plan}
           onChange={(e) => setPlan(e.target.value)}
           icon={<PlusIcon />}
+          id="build-plan"
         />
       </div>
       <div className="flex items-end">
-        <Link href="/plan" className="btn-primary w-full md:w-auto justify-center group">
+        <button onClick={handleSubmit} className="btn-primary w-full md:w-auto justify-center group">
           Build My Trip
           <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
-        </Link>
+        </button>
       </div>
     </div>
   );

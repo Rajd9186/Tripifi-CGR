@@ -135,6 +135,7 @@ interface AppState {
   /** Search state */
   searchState: SearchState;
   setSearchState: (state: Partial<SearchState>) => void;
+  updateSearchState: (state: Partial<SearchState>) => void;
   clearSearchState: (type?: keyof SearchState) => void;
   hydrated: boolean;
 }
