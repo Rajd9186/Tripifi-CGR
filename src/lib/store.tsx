@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { loadLegacy, loadPersistedState, saveLegacy, savePersistedState } from "./persistence/tripStorage";
 
 export type BookingType = "flight" | "train" | "cab" | "package" | "custom" | "hotel";
 export type BookingStatus = "upcoming" | "completed" | "cancelled";
@@ -48,12 +49,16 @@ export interface TripItem {
 export interface Trip {
   id: string;
   name: string;
+  title?: string;
+  destination?: string;
   status: TripStatus;
   origin?: string;
   destinations: string[];
   startDate: string;
   endDate: string;
   travellers: number;
+  budget?: number;
+  currency?: string;
   items: TripItem[];
   totalAmount: number;
   createdAt: string;
@@ -123,6 +128,7 @@ interface AppState {
   updateTrip: (id: string, updates: Partial<Trip>) => void;
   deleteTrip: (id: string) => void;
   setCurrentTrip: (trip: Trip | null) => void;
+  ensureDraftTrip: (seed?: { name?: string; origin?: string; destination?: string; startDate?: string; endDate?: string; travellers?: number }) => Trip;
   addItemToTrip: (tripId: string, item: Omit<TripItem, "id">) => void;
   removeItemFromTrip: (tripId: string, itemId: string) => void;
   updateTripItem: (tripId: string, itemId: string, updates: Partial<TripItem>) => void;
@@ -136,20 +142,21 @@ interface AppState {
 const Ctx = createContext<AppState | null>(null);
 
 function load<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
+  return loadLegacy(key, fallback);
 }
 
 function save(key: string, value: unknown) {
-  if (typeof window === "undefined") return;
+  saveLegacy(key, value);
+  // Mirror trip-relevant slices into the versioned state container.
   try {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } catch {}
+    if (key === "yatraa_trips") savePersistedState({ trips: value });
+    else if (key === "yatraa_wishlist") savePersistedState({ wishlist: value });
+    else if (key === "yatraa_travellers") savePersistedState({ travellers: value });
+    else if (key === "yatraa_bookings") savePersistedState({ bookings: value });
+    else if (key === "yatraa_search_state") savePersistedState({ searchState: value });
+  } catch {
+    // Persistence must never break the product.
+  }
 }
 
 const SEED_BOOKINGS: Booking[] = [
@@ -264,23 +271,25 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [searchState]);
 
   useEffect(() => {
+    // Prefer the versioned container; fall back to legacy keys (migrated on read).
+    const persisted = loadPersistedState();
     const savedUser = load<AppState["user"] | null>("yatraa_user", null);
     if (savedUser) setUser(savedUser);
-    const b = load<Booking[] | null>("yatraa_bookings", null);
+    const b = (persisted?.bookings as Booking[] | undefined) ?? load<Booking[] | null>("yatraa_bookings", null);
     if (b) setBookings([...b, ...SEED_BOOKINGS]);
-    const w = load<string[] | null>("yatraa_wishlist", null);
+    const w = (persisted?.wishlist as string[] | undefined) ?? load<string[] | null>("yatraa_wishlist", null);
     if (w) setWishlist(w);
-    const t = load<SavedTraveller[] | null>("yatraa_travellers", null);
+    const t = (persisted?.travellers as SavedTraveller[] | undefined) ?? load<SavedTraveller[] | null>("yatraa_travellers", null);
     if (t) setTravellers(t);
-    
+
     // Load trips from localStorage
-    const savedTrips = load<Trip[] | null>("yatraa_trips", null);
+    const savedTrips = (persisted?.trips as Trip[] | undefined) ?? load<Trip[] | null>("yatraa_trips", null);
     if (savedTrips) setTrips(savedTrips);
-    
+
     // Load search state
-    const savedSearchState = load<SearchState | null>("yatraa_search_state", null);
+    const savedSearchState = (persisted?.searchState as SearchState | undefined) ?? load<SearchState | null>("yatraa_search_state", null);
     if (savedSearchState) setSearchState(savedSearchState);
-    
+
     setHydrated(true);
   }, []);
 
@@ -388,6 +397,46 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   /** Trip management functions */
+  const ensureDraftTrip = useCallback(
+    (seed?: { name?: string; origin?: string; destination?: string; startDate?: string; endDate?: string; travellers?: number }) => {
+      const existing = trips.find((t) => t.status === "draft");
+      if (existing) {
+        const patch = Object.fromEntries(Object.entries(seed ?? {}).filter(([, v]) => v !== undefined));
+        const merged = { ...existing, ...patch } as Trip;
+        setTrips((prev) => {
+          const next = prev.map((t) => (t.id === existing.id ? merged : t));
+          save("yatraa_trips", next);
+          return next;
+        });
+        setCurrentTrip(merged);
+        return merged;
+      }
+      const now = new Date().toISOString();
+      const trip: Trip = {
+        id: `TRP-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        name: seed?.name ?? "My Journey",
+        status: "draft",
+        origin: seed?.origin,
+        destinations: seed?.destination ? [seed.destination] : [],
+        startDate: seed?.startDate ?? "",
+        endDate: seed?.endDate ?? "",
+        travellers: seed?.travellers ?? 2,
+        items: [],
+        totalAmount: 0,
+        createdAt: now,
+        updatedAt: now,
+      };
+      setTrips((prev) => {
+        const next = [trip, ...prev];
+        save("yatraa_trips", next);
+        return next;
+      });
+      setCurrentTrip(trip);
+      return trip;
+    },
+    [trips]
+  );
+
   const createTrip = useCallback(
     (trip: Omit<Trip, "id" | "createdAt" | "updatedAt">) => {
       const id = `TRP-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -574,6 +623,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       updateTrip,
       deleteTrip,
       setCurrentTrip,
+      ensureDraftTrip,
       addItemToTrip,
       removeItemFromTrip,
       updateTripItem,
@@ -609,6 +659,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       updateTrip,
       deleteTrip,
       setCurrentTrip,
+      ensureDraftTrip,
       addItemToTrip,
       removeItemFromTrip,
       updateTripItem,
