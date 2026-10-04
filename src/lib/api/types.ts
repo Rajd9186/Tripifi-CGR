@@ -120,3 +120,107 @@ export interface ApiErrorBody {
   message: string;
   request_id: string;
 }
+
+export type ProviderState =
+  | "SUCCESS"
+  | "NO_RESULTS"
+  | "UNAVAILABLE"
+  | "RATE_LIMITED"
+  | "AUTH_ERROR"
+  | "TIMEOUT"
+  | "NOT_SUPPORTED"
+  | "BOOKING_UNAVAILABLE"
+  | "NOT_CONFIGURED";
+
+export interface ProviderStatus {
+  provider: string;
+  mode: string;
+  state: string;
+  bookable: boolean;
+}
+
+export interface BookingCapability {
+  mode: "LIVE_RESULTS" | "ASSISTED_BOOKING";
+  bookable: boolean;
+  enquiry: boolean;
+}
+
+export type DataSourceState = "LIVE" | "ESTIMATED" | "DEMO" | "SIMULATED" | "ASSISTED_BOOKING";
+
+export type EnquiryType =
+  | "FLIGHT"
+  | "TRAIN"
+  | "HOTEL"
+  | "CAB"
+  | "PACKAGE"
+  | "CUSTOM_TRIP"
+  | "MULTI_SERVICE";
+
+export type EnquiryStatus =
+  | "NEW"
+  | "CONTACTED"
+  | "QUOTED"
+  | "AWAITING_CUSTOMER"
+  | "CONFIRMED"
+  | "CLOSED"
+  | "CANCELLED"
+  | "LOST";
+
+export interface BookingEnquiry {
+  type: EnquiryType;
+  customer_name: string;
+  phone: string;
+  email: string;
+  origin?: string;
+  destination?: string;
+  travel_start_date?: string;
+  travel_end_date?: string;
+  traveller_count: number;
+  budget?: number;
+  service_details?: Record<string, unknown>;
+  selected_option?: Record<string, unknown>;
+  special_requirements?: string;
+  source?: string;
+  trip_snapshot?: Record<string, unknown>;
+  consent: boolean;
+  idempotency_key?: string;
+}
+
+export interface EnquiryReceipt {
+  id: string;
+  reference_number: string;
+  type: string;
+  status: string;
+  customer_name: string;
+  origin?: string | null;
+  destination?: string | null;
+  travel_start_date?: string | null;
+  travel_end_date?: string | null;
+  traveller_count: number;
+  created_at: string;
+}
+
+export interface RouteResult {
+  distance_km: number;
+  duration_minutes: number;
+  provider: string;
+  is_demo: boolean;
+}
+
+export interface CabFareEstimate {
+  vehicle: string;
+  trip_type: string;
+  distance_km: number;
+  included_km: number;
+  extra_km: number;
+  base_fare: number;
+  extra_km_charge: number;
+  driver_allowance: number;
+  night_charge: number;
+  toll_estimate: number;
+  taxes: number;
+  total: number;
+  currency: string;
+  label: string;
+  is_demo: boolean;
+}

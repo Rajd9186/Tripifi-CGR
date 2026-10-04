@@ -77,4 +77,38 @@ export const aiApi = {
     const { apiRequest: req } = await import("./client");
     return req("/ai/chat", { method: "POST", body: JSON.stringify({ message, trip_id: tripId }) });
   },
+
+  /** AI-driven assisted booking: validated server-side, consent required upstream. */
+  async createBookingEnquiry(input: {
+    type: string;
+    customer_name: string;
+    phone: string;
+    email: string;
+    origin?: string;
+    destination?: string;
+    travel_start_date?: string;
+    travel_end_date?: string;
+    traveller_count?: number;
+    special_requirements?: string;
+  }) {
+    const { enquiriesApi } = await import("./enquiries");
+    const { newIdempotencyKey } = await import("./enquiries");
+    return enquiriesApi.create(
+      {
+        type: input.type as "FLIGHT" | "TRAIN" | "HOTEL" | "CAB" | "PACKAGE" | "CUSTOM_TRIP" | "MULTI_SERVICE",
+        customer_name: input.customer_name,
+        phone: input.phone,
+        email: input.email,
+        origin: input.origin,
+        destination: input.destination,
+        travel_start_date: input.travel_start_date,
+        travel_end_date: input.travel_end_date,
+        traveller_count: input.traveller_count ?? 2,
+        special_requirements: input.special_requirements,
+        source: "ai",
+        consent: true,
+      },
+      newIdempotencyKey()
+    );
+  },
 };

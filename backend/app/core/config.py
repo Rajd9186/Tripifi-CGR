@@ -28,6 +28,22 @@ class Settings(BaseSettings):
     payment_provider: str = "demo"
     payment_webhook_secret: str = ""
 
+    # Phase 5 — free-first provider selection (env-driven, replaceable)
+    flight_provider: str = "demo"
+    train_provider: str = "demo"
+    hotel_provider: str = "demo"
+    cab_provider: str = "tripifi"
+    routing_provider: str = "osrm"
+    geocoding_provider: str = "nominatim"
+    aviation_api_key: str = ""
+    graphhopper_api_key: str = ""
+    osrm_base_url: str = "https://router.project-osrm.org"
+    nominatim_base_url: str = "https://nominatim.openstreetmap.org"
+
+    email_provider: str = "none"
+    email_api_key: str = ""
+    admin_email: str = ""
+
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]

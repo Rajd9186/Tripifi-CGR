@@ -69,5 +69,30 @@ NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1 npm run dev
 See `backend/README.md` and `backend/.env.example` for backend setup
 (PostgreSQL, migrations, seed, auth, providers). Never commit `.env`.
 
+## Phase 5 — Free APIs + Booking Assistance
+
+**Rule:** live flow only when a legitimate provider supports the operation;
+otherwise the product creates an assisted booking enquiry (`TFC-YYYY-000001`).
+No fake availability, bookings, or payments — ever.
+
+- **Maps:** MapLibre-ready `MapProvider`; OSM Nominatim geocoding (server-side,
+  rate-limited, cached, attributed) + OSRM routing behind `/api/v1/geo/*`.
+- **Cabs:** internal `CabPricingService` (base + included km + extra km +
+  driver/night/toll + tax) — always labeled **Estimated fare**.
+- **Flights:** Aviationstack dev adapter (non-commercial free tier, key stays
+  server-side). Schedules only — booking falls back to assistance.
+- **Trains/hotels:** demo data for planning; booking via enquiry.
+- **Customer flow:** `/assistance?type=…` (prefilled from search) →
+  `POST /api/v1/enquiries` → `/assistance/success?ref=` → `/assistance/track`.
+- **Admin:** `/admin/enquiries` (queue + provider health) → detail
+  (status workflow, assign, private notes, history).
+- **AI:** `aiApi.createBookingEnquiry()` + backend `app/ai/tools.py`
+  (`create_booking_enquiry` requires details + consent).
+
+**Free-tier licensing (must verify before commercial use):** Nominatim (strict
+usage policy), OSRM public server (no SLA), GraphHopper free (non-commercial
+only), Aviationstack free (100 req/mo, non-commercial). See
+`backend/.env.example` (`*_PROVIDER` selectors).
+
 ## License
 MIT

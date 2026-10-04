@@ -264,3 +264,74 @@ class RewardLedger(Base):
     points: Mapped[int] = mapped_column(Integer)
     reason: Mapped[str] = mapped_column(String(200))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class EnquiryType(str, enum.Enum):
+    FLIGHT = "FLIGHT"
+    TRAIN = "TRAIN"
+    HOTEL = "HOTEL"
+    CAB = "CAB"
+    PACKAGE = "PACKAGE"
+    CUSTOM_TRIP = "CUSTOM_TRIP"
+    MULTI_SERVICE = "MULTI_SERVICE"
+
+
+class EnquiryStatus(str, enum.Enum):
+    NEW = "NEW"
+    CONTACTED = "CONTACTED"
+    QUOTED = "QUOTED"
+    AWAITING_CUSTOMER = "AWAITING_CUSTOMER"
+    CONFIRMED = "CONFIRMED"
+    CLOSED = "CLOSED"
+    CANCELLED = "CANCELLED"
+    LOST = "LOST"
+
+
+class Enquiry(Base):
+    __tablename__ = "enquiries"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    reference_number: Mapped[str] = mapped_column(String(32), unique=True, index=True)
+    type: Mapped[EnquiryType] = mapped_column(Enum(EnquiryType), index=True)
+    status: Mapped[EnquiryStatus] = mapped_column(Enum(EnquiryStatus), default=EnquiryStatus.NEW, index=True)
+    customer_name: Mapped[str] = mapped_column(String(200))
+    phone: Mapped[str] = mapped_column(String(32), index=True)
+    email: Mapped[str] = mapped_column(String(320), index=True)
+    origin: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    destination: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    travel_start_date: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    travel_end_date: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    traveller_count: Mapped[int] = mapped_column(Integer, default=1)
+    budget: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    service_details: Mapped[str] = mapped_column(Text, default="{}")  # JSON
+    selected_option: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON
+    special_requirements: Mapped[str | None] = mapped_column(Text, nullable=True)
+    source: Mapped[str] = mapped_column(String(64), default="web")
+    trip_snapshot: Mapped[str | None] = mapped_column(Text, nullable=True)  # JSON snapshot
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    assigned_to: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    admin_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    idempotency_key: Mapped[str | None] = mapped_column(String(200), nullable=True, unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class EnquiryStatusHistory(Base):
+    __tablename__ = "enquiry_status_history"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    enquiry_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("enquiries.id", ondelete="CASCADE"), index=True)
+    status: Mapped[EnquiryStatus] = mapped_column(Enum(EnquiryStatus), index=True)
+    changed_by: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+
+
+class EnquiryNote(Base):
+    __tablename__ = "enquiry_notes"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=_uuid)
+    enquiry_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("enquiries.id", ondelete="CASCADE"), index=True)
+    author: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    note: Mapped[str] = mapped_column(Text)  # private — never exposed to customers
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)

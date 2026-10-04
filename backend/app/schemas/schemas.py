@@ -222,6 +222,81 @@ class WishlistAdd(BaseModel):
     item_id: str
 
 
+class EnquiryCreate(BaseModel):
+    type: str  # FLIGHT|TRAIN|HOTEL|CAB|PACKAGE|CUSTOM_TRIP|MULTI_SERVICE
+    customer_name: str = Field(min_length=2, max_length=200)
+    phone: str = Field(min_length=10, max_length=20)
+    email: str = Field(min_length=5, max_length=320)
+    origin: str | None = Field(default=None, max_length=200)
+    destination: str | None = Field(default=None, max_length=200)
+    travel_start_date: str | None = None
+    travel_end_date: str | None = None
+    traveller_count: int = Field(default=1, ge=1, le=50)
+    budget: int | None = Field(default=None, ge=0)
+    service_details: dict = Field(default_factory=dict)
+    selected_option: dict | None = None
+    special_requirements: str | None = Field(default=None, max_length=2000)
+    source: str = Field(default="web", max_length=64)
+    trip_snapshot: dict | None = None
+    consent: bool = False
+    idempotency_key: str | None = None
+
+
+class EnquiryOut(BaseModel):
+    id: str
+    reference_number: str
+    type: str
+    status: str
+    customer_name: str
+    origin: str | None = None
+    destination: str | None = None
+    travel_start_date: str | None = None
+    travel_end_date: str | None = None
+    traveller_count: int
+    created_at: datetime
+
+
+class EnquiryDetailOut(EnquiryOut):
+    email: str
+    phone: str
+    budget: int | None = None
+    service_details: dict = Field(default_factory=dict)
+    selected_option: dict | None = None
+    special_requirements: str | None = None
+    source: str
+    assigned_to: str | None = None
+    updated_at: datetime
+
+
+class EnquiryStatusUpdate(BaseModel):
+    status: str
+    comment: str | None = None
+    changed_by: str | None = None
+
+
+class EnquiryNoteAdd(BaseModel):
+    author: str | None = None
+    note: str = Field(min_length=1, max_length=4000)
+
+
+class EnquiryAssign(BaseModel):
+    assigned_to: str = Field(min_length=1, max_length=200)
+
+
+class RouteRequest(BaseModel):
+    origin: str  # "lat,lon" preferred; names fall back to estimate
+    destination: str
+    vehicle: str = "sedan"
+    trip_type: str = "oneway"
+    tolls: int = 0
+    night_halt: bool = False
+
+
+class GeocodeRequest(BaseModel):
+    query: str = Field(min_length=2, max_length=200)
+    limit: int = Field(default=5, ge=1, le=5)
+
+
 class AIAction(BaseModel):
     type: str  # ADD_DESTINATION|ADD_HOTEL|ADD_FLIGHT|ADD_CAB|ADD_ACTIVITY|CHANGE_DATE|CHANGE_BUDGET|REMOVE_ITEM|OPTIMIZE_TRIP
     payload: dict = Field(default_factory=dict)

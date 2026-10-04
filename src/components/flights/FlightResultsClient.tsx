@@ -7,6 +7,7 @@ import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import BottomSheet from "@/components/ui/BottomSheet";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
+import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
 
 const FILTERS = ["Non-stop", "Morning", "Refundable", "Under ₹12,000"];
 const SORTS = ["Recommended", "Cheapest", "Fastest", "Earliest"];
@@ -105,6 +106,15 @@ export default function FlightResultsClient() {
               <span className="font-medium">Note:</span> These are simulated fares for demonstration purposes only. Actual prices and availability may vary.
             </p>
           </Card>
+
+          <div className="mt-6">
+            <AssistedBookingCTA
+              title="Need help booking this flight?"
+              description="Flight information can't be ticketed instantly yet. Share your details and our travel team will check availability and arrange the best option."
+              href="/assistance"
+              prefill={{ type: "FLIGHT" }}
+            />
+          </div>
 
           <div className="mt-8 hidden">
             <EmptyState

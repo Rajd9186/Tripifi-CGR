@@ -81,16 +81,23 @@ export default function PlanClient() {
             )}
           </div>
 
-          <div className="card sticky bottom-[96px] p-4 safe-bottom">
+          <div className="card sticky bottom-[96px] space-y-3 p-4 safe-bottom">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <span className="text-xs text-ink-500">TOTAL · 2 TRAVELLERS</span>
+                <span className="text-xs text-ink-500">TOTAL · 2 TRAVELLERS · ESTIMATED</span>
                 <div className="text-xl font-semibold tabular-nums text-ink-900">₹48,500</div>
               </div>
               <Link href="/checkout" className="btn-primary inline-flex min-h-[52px] flex-1 justify-center sm:flex-none sm:px-8">
                 Continue
               </Link>
             </div>
+            <Link
+              href="/assistance?type=CUSTOM_TRIP"
+              className="btn-teal inline-flex min-h-[48px] w-full justify-center text-sm"
+            >
+              Request Complete Trip Assistance
+            </Link>
+            <p className="text-center text-[11px] text-ink-400">Hotel & cab availability requires confirmation — one consolidated enquiry.</p>
           </div>
         </div>
       </div>

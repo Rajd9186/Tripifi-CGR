@@ -44,6 +44,19 @@ class MapsProvider(Protocol):
     async def route(self, origin: str, destination: str) -> dict: ...
 
 
+class GeocodingProvider(Protocol):
+    name: str
+
+    async def geocode(self, query: str, limit: int = 5) -> list[dict]: ...
+
+
+class RoutingProvider(Protocol):
+    name: str
+
+    async def calculate_route(self, origin: str, destination: str) -> dict: ...
+    async def calculate_distance(self, origin: str, destination: str) -> dict: ...
+
+
 class AIProvider(Protocol):
     name: str
 
