@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { adminEnquiriesApi } from "@/lib/api/enquiries";
+import { adminEnquiriesApi, listLocalEnquiries } from "@/lib/api/enquiries";
 import { isBackendConfigured } from "@/lib/api/client";
 import ProviderStatusBadge from "@/components/booking/ProviderStatusBadge";
 import { geoApi } from "@/lib/api/geo";
@@ -23,7 +23,14 @@ export default function AdminEnquiriesPage() {
           adminEnquiriesApi.list(status || undefined).catch(() => []),
           geoApi.providersHealth().catch(() => ({ providers: [] })),
         ]);
-        setRows(Array.isArray(list) ? list : []);
+        const rows = Array.isArray(list) ? list : [];
+        // Local prototype queue so enquiries submitted on-device are reviewable.
+        const local = isBackendConfigured()
+          ? []
+          : listLocalEnquiries()
+              .filter((e) => !status || e.status === status)
+              .map((e) => ({ ...e, id: e.reference_number, _local: true }));
+        setRows([...local, ...rows]);
         setHealth((h as { providers?: unknown }).providers as never[] ?? []);
       } finally {
         setLoading(false);
@@ -37,7 +44,7 @@ export default function AdminEnquiriesPage() {
       <h1 className="fluid-section mt-1 font-display font-semibold text-ink-900">Enquiries</h1>
       {!isBackendConfigured() && (
         <p className="mt-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Backend not configured — showing an empty queue. Connect <code>NEXT_PUBLIC_API_URL</code> to review live enquiries.
+          Prototype queue — enquiries submitted on this device appear below. Connect <code>NEXT_PUBLIC_API_URL</code> for the live backend queue.
         </p>
       )}
 
