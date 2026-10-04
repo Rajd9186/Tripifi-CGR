@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import FlightCard from "@/components/flights/FlightCard";
-import { flightProvider } from "@/lib/providers/providers";
-import type { FlightOffer } from "@/lib/api/types";
+import { searchFlights } from "@/lib/api";
+import type { FlightResult, FlightOffer } from "@/lib/api/types";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import BottomSheet from "@/components/ui/BottomSheet";
@@ -31,7 +31,7 @@ export default function FlightResultsClient() {
   const travellers = Math.max(1, parseInt(params.get("travellers") ?? "1", 10) || 1);
   const cabin = params.get("class") ?? "Economy";
 
-  const [offers, setOffers] = useState<FlightOffer[]>([]);
+  const [offers, setOffers] = useState<FlightResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -43,16 +43,19 @@ export default function FlightResultsClient() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    flightProvider
-      .searchFlights({ origin: from, destination: to, departure_date: date || undefined, travellers })
+    searchFlights({ origin: from, destination: to, departure_date: date || undefined, travellers })
       .then((r) => {
         if (cancelled) return;
         setOffers(r.results);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((e: Error & { code?: string }) => {
         if (cancelled) return;
-        setError("We couldn't retrieve live availability right now.");
+        if (e.code === "NO_RESULTS") {
+          setOffers([]);
+        } else {
+          setError("We couldn't retrieve live availability right now.");
+        }
         setLoading(false);
       });
     return () => {

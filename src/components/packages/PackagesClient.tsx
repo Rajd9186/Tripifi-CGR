@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import PackageCard from "@/components/packages/PackageCard";
-import { MOCK_PACKAGES } from "@/data/mockPackages";
+import { listPackages } from "@/lib/api";
 import Card from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import type { PackageOffer } from "@/lib/api/types";
 
 const categories = [
   "All",
@@ -33,15 +34,38 @@ export default function PackagesClient() {
   const urlBudget = params.get("budget") ?? "";
   const [category, setCategory] = useState("All");
   const [query, setQuery] = useState(urlDestination);
+  const [packages, setPackages] = useState<PackageOffer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
+    listPackages()
+      .then((r) => {
+        if (cancelled) return;
+        setPackages(r.results);
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setError(true);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const visible = useMemo(() => {
-    return MOCK_PACKAGES.filter((pkg) => {
+    return packages.filter((pkg) => {
       if (category !== "All" && !pkg.tags.some((t) => t.toLowerCase() === category.toLowerCase())) return false;
       if (query && !`${pkg.title} ${pkg.route} ${pkg.tags.join(" ")}`.toLowerCase().includes(query.toLowerCase())) return false;
-      if (urlBudget && budgetBand(pkg.price) !== urlBudget) return false;
+      if (urlBudget && budgetBand(pkg.base_price) !== urlBudget) return false;
       return true;
     });
-  }, [category, query, urlBudget]);
+  }, [packages, category, query, urlBudget]);
 
   return (
     <div className="pb-16">
@@ -92,9 +116,25 @@ export default function PackagesClient() {
       <section className="mt-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-8xl mx-auto">
           <p className="mb-4 text-sm text-ink-600">
-            Showing {visible.length} package{visible.length === 1 ? "" : "s"}
+            {loading ? "Loading packages…" : `Showing ${visible.length} package${visible.length === 1 ? "" : "s"}`}
           </p>
-          {visible.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="card p-4">
+                  <div className="skeleton h-8 w-3/4" />
+                  <div className="skeleton mt-4 h-10 w-1/2" />
+                  <div className="skeleton mt-4 h-10 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : error ? (
+            <Card padding="lg" className="text-center">
+              <h3 className="text-lg font-semibold text-ink-900 mb-2">Couldn't load packages.</h3>
+              <p className="text-sm text-ink-600 mb-4">Please try again.</p>
+              <button onClick={() => window.location.reload()} className="btn-primary min-h-[48px] text-sm">Retry</button>
+            </Card>
+          ) : visible.length === 0 ? (
             <Card padding="lg" className="text-center">
               <h3 className="text-lg font-semibold text-ink-900 mb-2">No packages match those filters.</h3>
               <p className="text-sm text-ink-600 mb-4">Try another destination, budget, or category — or let our team craft one for you.</p>

@@ -1,6 +1,6 @@
 /** Deterministic cab pricing. UI never hardcodes totals. */
 
-export type CabTripType = "local" | "airport" | "oneway" | "roundtrip" | "multiday";
+export type CabTripType = "local" | "airport" | "oneway" | "roundtrip" | "multiday" | "outstation";
 export type CabVehicle = "sedan" | "suv" | "premium" | "luxury";
 
 const VEHICLES: Record<CabVehicle, { base: number; includedKm: number; perKm: number }> = {
@@ -31,7 +31,10 @@ export function estimateTolls(distanceKm: number): number {
 
 export function calculateCabFare(distanceKm: number, vehicle: CabVehicle, tripType: CabTripType, tolls?: number): CabFare {
   const v = VEHICLES[vehicle] ?? VEHICLES.sedan;
-  const distance = Math.max(0, tripType === "roundtrip" ? distanceKm * 2 : distanceKm);
+  const isRoundTrip = tripType === "roundtrip";
+  const isMultiDay = tripType === "multiday";
+  const isOutstation = tripType === "outstation";
+  const distance = Math.max(0, (isRoundTrip || isOutstation) ? distanceKm * 2 : distanceKm);
   const extraKm = Math.max(0, Math.round(distance - v.includedKm));
   const extraKmCharge = extraKm * v.perKm;
   const tollEstimate = tolls ?? estimateTolls(distance);

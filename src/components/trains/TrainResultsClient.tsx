@@ -4,8 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import TrainCard from "@/components/trains/TrainCard";
-import { trainProvider } from "@/lib/providers/providers";
-import type { TrainOffer } from "@/lib/api/types";
+import { searchTrains } from "@/lib/api";
+import type { TrainResult, TrainOffer } from "@/lib/api/types";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
@@ -21,7 +21,7 @@ export default function TrainResultsClient() {
   const to = params.get("to") ?? "New Delhi (NDLS)";
   const date = params.get("date") ?? "";
 
-  const [offers, setOffers] = useState<TrainOffer[]>([]);
+  const [offers, setOffers] = useState<TrainResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [classFilter, setClassFilter] = useState(params.get("class") ?? "All Classes");
@@ -31,16 +31,19 @@ export default function TrainResultsClient() {
     let cancelled = false;
     setLoading(true);
     setError(false);
-    trainProvider
-      .searchTrains({ origin: from, destination: to, departure_date: date || undefined })
+    searchTrains({ origin: from, destination: to, departure_date: date || undefined })
       .then((r) => {
         if (cancelled) return;
         setOffers(r.results);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((e: Error & { code?: string }) => {
         if (cancelled) return;
-        setError(true);
+        if (e.code === "NO_RESULTS") {
+          setOffers([]);
+        } else {
+          setError(true);
+        }
         setLoading(false);
       });
     return () => {

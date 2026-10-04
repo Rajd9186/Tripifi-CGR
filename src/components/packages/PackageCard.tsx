@@ -7,6 +7,7 @@ import Badge from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, ClockIcon, MapPinIcon, ArrowRightIcon, StarIcon, ShieldIcon, HeartIcon, TagIcon, PlusIcon, ChevronDownIcon, ShieldCheckIcon, SparkleIcon } from "@/components/icons/BookingIcons";
 import { useApp } from "@/lib/store";
+import type { PackageOffer } from "@/lib/api/types";
 
 function PackageWishlistButton({ slug, title }: { slug: string; title: string }) {
   const { wishlist, toggleWishlist } = useApp();
@@ -28,6 +29,7 @@ function PackageWishlistButton({ slug, title }: { slug: string; title: string })
   );
 }
 
+/** Local UI shape — richer than API, includes image/highlights/rating for display */
 export interface Package {
   slug: string;
   title: string;
@@ -42,17 +44,43 @@ export interface Package {
   originalPrice?: number;
 }
 
+/** Convert backend PackageOffer to frontend Package UI shape with sensible defaults */
+function toUIPackage(p: PackageOffer): Package {
+  const destImages: Record<string, string> = {
+    "sikkim": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
+    "kashmir": "https://images.unsplash.com/photo-1584285405429-136bf988919c?w=1200&q=80",
+    "ladakh": "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=1200&q=80",
+    "goa": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1200&q=80",
+    "kerala": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=80",
+    "rajasthan": "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&q=80",
+    "andaman": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80",
+  };
+  return {
+    slug: p.slug,
+    title: p.title,
+    route: p.route,
+    duration: p.duration,
+    price: p.base_price,
+    image: destImages[p.destination.toLowerCase()] || "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80",
+    tags: p.tags,
+    highlights: p.inclusions.slice(0, 4),
+    inclusions: p.inclusions,
+    rating: 4.5,
+  };
+}
+
 interface PackageCardProps {
-  pkg: Package;
+  pkg: Package | PackageOffer;
   variant?: "default" | "featured" | "compact";
   priority?: boolean;
 }
 
 export default function PackageCard({
-  pkg,
+  pkg: rawPkg,
   variant = "default",
   priority = false,
 }: PackageCardProps) {
+  const pkg = "id" in rawPkg ? toUIPackage(rawPkg) : rawPkg;
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [showInclusions, setShowInclusions] = useState(false);

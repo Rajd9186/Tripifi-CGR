@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import HotelCard from "@/components/hotels/HotelCard";
-import { hotelProvider } from "@/lib/providers/providers";
-import type { HotelOffer } from "@/lib/api/types";
+import { searchHotels } from "@/lib/api";
+import type { HotelResult, HotelOffer } from "@/lib/api/types";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
 import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
 import { useApp } from "@/lib/store";
@@ -20,7 +20,7 @@ export default function HotelResultsClient() {
   const guests = params.get("guests") ?? "2 Guests, 1 Room";
 
   const nights = checkin && checkout ? Math.max(1, nightsBetween(checkin, checkout)) : 3;
-  const [offers, setOffers] = useState<HotelOffer[]>([]);
+  const [offers, setOffers] = useState<HotelResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -29,23 +29,26 @@ export default function HotelResultsClient() {
     let cancelled = false;
     setLoading(true);
     setError(false);
-    hotelProvider
-      .searchHotels({ destination })
+    searchHotels({ destination, checkin: checkin || undefined, checkout: checkout || undefined, guests: 2 })
       .then((r) => {
         if (cancelled) return;
         setOffers(r.results);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((e: Error & { code?: string }) => {
         if (cancelled) return;
-        setError(true);
+        if (e.code === "NO_RESULTS") {
+          setOffers([]);
+        } else {
+          setError(true);
+        }
         setLoading(false);
       });
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [destination]);
+  }, [destination, checkin, checkout]);
 
   const handleSelect = (hotel: HotelOffer) => {
     setSelected(hotel.id);

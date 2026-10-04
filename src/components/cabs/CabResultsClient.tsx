@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import CabCard from "@/components/cabs/CabCard";
-import { cabProvider } from "@/lib/providers/providers";
-import type { CabOffer } from "@/lib/api/types";
+import { searchCabs } from "@/lib/api";
+import type { CabResult, CabOffer } from "@/lib/api/types";
 import Badge from "@/components/ui/Badge";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
 import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
@@ -21,7 +21,7 @@ export default function CabResultsClient() {
   const drop = params.get("drop") ?? "Park Street";
   const trip = (params.get("trip") ?? "oneway") as CabTripType;
   const [vehicle, setVehicle] = useState(params.get("vehicle") ?? "All Vehicles");
-  const [offers, setOffers] = useState<CabOffer[]>([]);
+  const [offers, setOffers] = useState<CabResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
@@ -30,16 +30,19 @@ export default function CabResultsClient() {
     let cancelled = false;
     setLoading(true);
     setError(false);
-    cabProvider
-      .searchCabs({ origin: pickup, destination: drop })
+    searchCabs({ origin: pickup, destination: drop })
       .then((r) => {
         if (cancelled) return;
         setOffers(r.results);
         setLoading(false);
       })
-      .catch(() => {
+      .catch((e: Error & { code?: string }) => {
         if (cancelled) return;
-        setError(true);
+        if (e.code === "NO_RESULTS") {
+          setOffers([]);
+        } else {
+          setError(true);
+        }
         setLoading(false);
       });
     return () => {

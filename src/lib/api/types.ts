@@ -121,6 +121,85 @@ export interface ApiErrorBody {
   request_id: string;
 }
 
+/** Normalized frontend result types. Mirror backend contracts; UI uses only these. */
+
+export interface ResultProvenance {
+  source: "demo" | "tripifi-catalog" | "live";
+  provider: string;
+  status: "LIVE" | "DEMO" | "UNAVAILABLE";
+  retrieved_at?: string;
+}
+
+export interface FlightResult extends FlightOffer {
+  status: "LIVE" | "DEMO" | "UNAVAILABLE";
+  cabin: string;
+  price: number;
+}
+
+export interface TrainResult extends TrainOffer {
+  status: "LIVE" | "DEMO" | "UNAVAILABLE";
+  price: number;
+}
+
+export interface HotelResult extends HotelOffer {
+  status: "LIVE" | "DEMO" | "UNAVAILABLE";
+  nightly_price: number;
+  breakfast: boolean;
+  cancellation: string;
+}
+
+export interface CabResult extends CabOffer {
+  status: "LIVE" | "DEMO" | "UNAVAILABLE";
+  vehicle: string;
+  category: string;
+  seats: number;
+  base_fare: number;
+  toll_estimate: number;
+  taxes: number;
+  total_price: number;
+}
+
+export interface ActivityResult {
+  id: string;
+  provider: string;
+  status: "LIVE" | "DEMO" | "UNAVAILABLE";
+  title: string;
+  destination: string;
+  duration: string;
+  price: number;
+  currency: string;
+  is_demo: boolean;
+}
+
+export interface DestinationResult {
+  slug: string;
+  name: string;
+  state: string;
+  region: string;
+  score: number;
+  source: string;
+  status: "LIVE" | "DEMO" | "UNAVAILABLE";
+}
+
+export interface SearchMetadata {
+  provider: { name: string; status: string };
+  requestId: string;
+}
+
+export interface ProviderStatus {
+  provider: string;
+  mode: string;
+  state: string;
+  bookable: boolean;
+}
+
+export interface SearchHistoryEntry {
+  type: "flight" | "train" | "hotel" | "cab";
+  label: string;
+  params: Record<string, string>;
+  created_at: string;
+}
+
 export type ProviderState =
   | "SUCCESS"
   | "NO_RESULTS"
@@ -204,6 +283,22 @@ export interface RouteResult {
   distance_km: number;
   duration_minutes: number;
   provider: string;
+  is_demo: boolean;
+}
+
+export interface PackageOffer {
+  id: string;
+  provider: string;
+  status: string;
+  slug: string;
+  title: string;
+  destination: string;
+  duration: string;
+  route: string;
+  base_price: number;
+  currency: string;
+  tags: string[];
+  inclusions: string[];
   is_demo: boolean;
 }
 
