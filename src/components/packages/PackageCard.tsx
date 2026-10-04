@@ -6,6 +6,27 @@ import Image from "next/image";
 import Badge from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, ClockIcon, MapPinIcon, ArrowRightIcon, StarIcon, ShieldIcon, HeartIcon, TagIcon, PlusIcon, ChevronDownIcon, ShieldCheckIcon, SparkleIcon } from "@/components/icons/BookingIcons";
+import { useApp } from "@/lib/store";
+
+function PackageWishlistButton({ slug, title }: { slug: string; title: string }) {
+  const { wishlist, toggleWishlist } = useApp();
+  const saved = wishlist.includes(`pkg:${slug}`);
+  return (
+    <button
+      type="button"
+      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-ink-200 bg-white p-2 text-ink-600 transition-all duration-200 hover:border-saffron-300 hover:bg-saffron-50 hover:text-saffron-600"
+      aria-label={saved ? `Remove ${title} from wishlist` : `Save ${title} to wishlist`}
+      aria-pressed={saved}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWishlist(`pkg:${slug}`);
+      }}
+    >
+      <HeartIcon className="w-5 h-5" filled={saved} />
+    </button>
+  );
+}
 
 export interface Package {
   slug: string;
@@ -368,14 +389,7 @@ export default function PackageCard({
             <div className="text-xs text-ink-500">per person</div>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded-lg border border-ink-200 bg-white p-2 text-ink-600 transition-all duration-200 hover:border-saffron-300 hover:bg-saffron-50 hover:text-saffron-600"
-              aria-label="Add to wishlist"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <HeartIcon className="w-5 h-5" />
-            </button>
+            <PackageWishlistButton slug={pkg.slug} title={pkg.title} />
             <Link
               href={`/packages/${pkg.slug}`}
               className="btn-ghost-sm group"

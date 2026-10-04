@@ -4,6 +4,7 @@ import { MOCK_PACKAGES } from "@/data/mockPackages";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
+import PackageCustomize from "@/components/packages/PackageCustomize";
 
 interface PageProps {
   params: { slug: string };
@@ -68,7 +69,7 @@ export default function PackageDetailPage({ params }: PageProps) {
                 <div className="text-xs text-ink-600">per person</div>
               </div>
               <div className="flex gap-2">
-                <Button href="/checkout">Book Package</Button>
+                <Button href={`/assistance?type=PACKAGE&destination=${encodeURIComponent(pkg.title)}`}>Request Booking</Button>
                 <Button href="/plan" variant="ghost">
                   Customize Trip
                 </Button>
@@ -117,15 +118,7 @@ export default function PackageDetailPage({ params }: PageProps) {
           </div>
 
           <div className="space-y-6">
-            <Card title="Customize This Package">
-              <p className="text-sm text-ink-600 mb-4">
-                Want to tweak hotels, add activities or change days? Customize this
-                package to fit your preferences.
-              </p>
-              <Button href="/plan" variant="ghost" className="w-full justify-center">
-                Customize Trip
-              </Button>
-            </Card>
+            <PackageCustomize pkg={pkg} />
           </div>
         </div>
       </section>

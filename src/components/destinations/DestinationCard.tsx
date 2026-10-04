@@ -6,6 +6,7 @@ import Image from "next/image";
 import type { Destination } from "@/lib/destinations";
 import { cn } from "@/lib/utils";
 import { CalendarIcon, ClockIcon, MapPinIcon, ArrowRightIcon, StarIcon, SparkleIcon } from "@/components/icons/BookingIcons";
+import WishlistButton from "@/components/ui/WishlistButton";
 
 interface DestinationCardProps {
   destination: Destination;
@@ -210,6 +211,9 @@ export default function DestinationCard({
             <StarIcon className="w-3 h-3" />
             {destination.estimatedBudget.split(" ")[0].replace("₹", "₹")}
           </span>
+        </div>
+        <div className="absolute top-3 right-3">
+          <WishlistButton id={`dest:${destination.slug}`} label={destination.name} />
         </div>
         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 transition-all duration-300 animate-fade-up">
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
