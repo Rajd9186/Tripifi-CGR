@@ -122,6 +122,18 @@ const config: Config = {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-4px)" },
         },
+        formMorph: {
+          "0%": { opacity: "0", transform: "translateY(10px) scale(0.98)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        skeletonPulse: {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "0.7" },
+        },
+        countUp: {
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "fade-up": "fadeUp .6s ease both",
@@ -139,6 +151,9 @@ const config: Config = {
         "ping-soft": "ping2 1.8s cubic-bezier(0,0,.2,1) infinite",
         "image-zoom": "imageZoom 24s ease-in-out forwards",
         parallax: "parallax 30s ease-in-out infinite alternate",
+        "form-morph": "formMorph .4s cubic-bezier(.32,.72,.33,1) both",
+        "skeleton-pulse": "skeletonPulse 1.5s ease-in-out infinite",
+        countUp: "countUp .6s cubic-bezier(.32,.72,.33,1) both",
       },
     },
   },

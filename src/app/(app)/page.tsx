@@ -4,6 +4,7 @@ import AIAssistant from "@/components/home/AIAssistant";
 import TrendingDestinations from "@/components/home/TrendingDestinations";
 import CuratedPackages from "@/components/home/CuratedPackages";
 import WhyUs from "@/components/home/WhyUs";
+import Statistics from "@/components/home/Statistics";
 
 export default function HomePage() {
   return (
@@ -11,6 +12,7 @@ export default function HomePage() {
       <Hero />
       <BookingCommandCenter />
       <AIAssistant />
+      <Statistics />
       <TrendingDestinations />
       <CuratedPackages />
       <WhyUs />

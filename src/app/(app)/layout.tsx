@@ -3,6 +3,7 @@ import MobileNav from "@/components/layout/MobileNav";
 import Footer from "@/components/layout/Footer";
 import ToastContainer from "@/components/ui/ToastContainer";
 import AIChatButton from "@/components/ai/AIChatButton";
+import { PageTransition } from "@/components/ui/PageTransition";
 
 export default function AppLayout({
   children,
@@ -13,7 +14,7 @@ export default function AppLayout({
     <>
       <Navbar />
       <main className="flex-1 pt-[var(--header-h)]">
-        {children}
+        <PageTransition>{children}</PageTransition>
       </main>
       <MobileNav />
       <Footer />

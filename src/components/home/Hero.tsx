@@ -1,29 +1,162 @@
+"use client";
+
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
+import { DESTINATIONS } from "@/lib/destinations";
+import { cn } from "@/lib/utils";
+
+const HERO_DESTINATIONS = [
+  "kashmir",
+  "ladakh",
+  "sikkim",
+  "kerala",
+  "rajasthan",
+  "goa",
+  "meghalaya",
+].map((slug) => DESTINATIONS.find((d) => d.slug === slug)).filter((d): d is NonNullable<typeof d> => Boolean(d));
 
 export default function Hero() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [loadedImages, setLoadedImages] = useState<Set<number>>(new Set());
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  const goToNext = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev + 1) % HERO_DESTINATIONS.length);
+    transitionTimeoutRef.current = setTimeout(() => setIsTransitioning(false), 1200);
+  }, [isTransitioning]);
+
+  const goToPrev = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev - 1 + HERO_DESTINATIONS.length) % HERO_DESTINATIONS.length);
+    transitionTimeoutRef.current = setTimeout(() => setIsTransitioning(false), 1200);
+  }, [isTransitioning]);
+
+  const goToIndex = useCallback((index: number) => {
+    if (isTransitioning || index === currentIndex) return;
+    setIsTransitioning(true);
+    setCurrentIndex(index);
+    transitionTimeoutRef.current = setTimeout(() => setIsTransitioning(false), 1200);
+  }, [isTransitioning, currentIndex]);
+
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+    intervalRef.current = setInterval(goToNext, 8000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (transitionTimeoutRef.current) clearTimeout(transitionTimeoutRef.current);
+    };
+  }, [goToNext, prefersReducedMotion]);
+
+  const handleImageLoad = (index: number) => {
+    setLoadedImages((prev) => new Set(prev).add(index));
+  };
+
+  const currentDest = HERO_DESTINATIONS[currentIndex];
+
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <div
-          className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/70 to-navy-900/30"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
-            alt="Himalayan mountains - Tripifi CGR"
-            className="h-full w-full object-cover object-center animate-image-zoom"
-          />
-          <div className="absolute inset-0 mix-blend-screen opacity-30 animate-parallax bg-gradient-to-b from-transparent via-saffron-400/20 to-transparent" style={{ animationDuration: '30s' }} />
+      <div className="absolute inset-0 z-0" role="img" aria-label="Hero destination carousel">
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/70 to-navy-900/30" aria-hidden="true" />
+
+        <div className="absolute inset-0 overflow-hidden">
+          {HERO_DESTINATIONS.map((dest, index) => (
+            <div
+              key={dest.slug}
+              className={cn(
+                "absolute inset-0 transition-all duration-1000 ease-in-out",
+                index === currentIndex
+                  ? "opacity-100 z-10"
+                  : "opacity-0 z-0 pointer-events-none"
+              )}
+              style={{
+                transform: index === currentIndex ? "scale(1)" : "scale(1.02)",
+                filter: index === currentIndex ? "brightness(1) contrast(1)" : "brightness(0.95)",
+              }}
+            >
+              <img
+                src={dest.heroImage}
+                alt={`${dest.name} - Tripifi CGR`}
+                className="h-full w-full object-cover object-center"
+                loading={index === currentIndex ? "eager" : "lazy"}
+                onLoad={() => handleImageLoad(index)}
+              />
+              {!loadedImages.has(index) && (
+                <div className="absolute inset-0 bg-navy-900 animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-950/30 to-navy-950/60" />
+            </div>
+          ))}
+
+          <div className="absolute inset-0 mix-blend-screen opacity-30 animate-parallax bg-gradient-to-b from-transparent via-saffron-400/20 to-transparent" style={{ animationDuration: "30s" }} />
         </div>
+
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950/60 via-indigo-950/40 to-purple-950/30 mix-blend-overlay" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,122,0,0.15),transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(27,154,170,0.15),transparent_70%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 to-transparent" />
       </div>
 
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 opacity-0 animate-fade-up animate-fade-up-delayed-3 pointer-events-none">
+        <button
+          onClick={goToPrev}
+          className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
+          aria-label="Previous destination"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <div className="flex items-center gap-1.5" role="tablist" aria-label="Destination indicators">
+          {HERO_DESTINATIONS.map((dest, index) => (
+            <button
+              key={dest.slug}
+              onClick={() => goToIndex(index)}
+              className={cn(
+                "h-2 w-2 rounded-full transition-all duration-300",
+                index === currentIndex
+                  ? "bg-white w-6"
+                  : "bg-white/40 hover:bg-white/60"
+              )}
+              role="tab"
+              aria-selected={index === currentIndex}
+              aria-label={`View ${dest.name}`}
+            />
+          ))}
+        </div>
+        <button
+          onClick={goToNext}
+          className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
+          aria-label="Next destination"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+
       <div className="relative z-10 max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-4xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-1.5 text-xs font-medium text-white/90 animate-fade-up mb-6">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-saffron-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-saffron-400"></span>
+            </span>
+            Cinematic India
+          </div>
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight text-white leading-tight animate-fade-up">
             Your trip. <span className="bg-gradient-to-r from-saffron-400 via-amber-400 to-orange-400 bg-clip-text text-transparent drop-shadow-lg">Your way.</span>
           </h1>
@@ -36,34 +169,16 @@ export default function Hero() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 animate-fade-up-delayed-2">
-            <Link href="/plan" className="btn-primary shadow-glow bg-gradient-to-r from-saffron-500 to-orange-500 hover:from-saffron-600 hover:to-orange-600">
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+            <Link href="/plan" className="btn-primary shadow-glow bg-gradient-to-r from-saffron-500 to-orange-500 hover:from-saffron-600 hover:to-orange-600 group">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
               Plan a Trip
             </Link>
-            <Link href="/destinations" className="btn-ghost bg-white/90 backdrop-blur hover:bg-white">
+            <Link href="/destinations" className="btn-ghost bg-white/10 backdrop-blur border-white/20 text-white hover:bg-white/20 group">
               Explore India
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
                 <polyline points="12 5 19 12 12 19"></polyline>
               </svg>
@@ -72,48 +187,21 @@ export default function Hero() {
 
           <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4 text-white/80 animate-fade-up-delayed-3">
             <div className="flex items-center gap-2 text-sm animate-float-soft">
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
               Verified partners across India
             </div>
-            <div className="flex items-center gap-2 text-sm animate-float-soft" style={{ animationDelay: '0.5s' }}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+            <div className="flex items-center gap-2 text-sm animate-float-soft" style={{ animationDelay: "0.5s" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
               Real-time itinerary builder
             </div>
-            <div className="flex items-center gap-2 text-sm animate-float-soft" style={{ animationDelay: '1s' }}>
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+            <div className="flex items-center gap-2 text-sm animate-float-soft" style={{ animationDelay: "1s" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
               Secure bookings & payments
@@ -121,6 +209,22 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @media (prefers-reduced-motion: reduce) {
+          .animate-image-zoom,
+          .animate-parallax,
+          .animate-fade-up,
+          .animate-fade-up-delayed,
+          .animate-fade-up-delayed-2,
+          .animate-fade-up-delayed-3,
+          .animate-float-soft {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }
