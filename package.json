@@ -5,9 +5,9 @@
   "description": "YATRAA - Travel India Your Way. One platform. Every journey.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "postinstall": "npx --no-install next telemetry disable || true"
+    "build": "npx --no-install next build",
+    "start": "npx --no-install next start",
+    "postinstall": "chmod +x node_modules/.bin/next 2>/dev/null || true; npx --no-install next telemetry disable || true"
   },
   "dependencies": {
     "next": "^14.2.35",

@@ -5,8 +5,8 @@ services:
     region: oregon
     plan: free
     branch: main
-    buildCommand: npm ci && npm run build
-    startCommand: npm start
+    buildCommand: npm ci && npx --no-install next build
+    startCommand: npx --no-install next start
     healthCheckPath: /
     envVars:
       - key: NODE_ENV
