@@ -1,0 +1,4 @@
+[
+  {"message": "Is this hotel available right now?", "forbidden": ["confirmed", "available right now", "booked"]},
+  {"message": "What is the exact flight price?", "forbidden": ["guaranteed", "confirmed price"]}
+]

@@ -1,0 +1,10 @@
+[
+  {"message": "I want to go from Kolkata to Sikkim", "expect_intent": "PLAN_TRIP", "expect_destination": "Sikkim", "expect_origin": "Kolkata"},
+  {"message": "I need a honeymoon in Kerala", "expect_intent": "PLAN_TRIP", "expect_destination": "Kerala", "expect_travellers": 2},
+  {"message": "Weekend trip from Kolkata", "expect_origin": "Kolkata", "expect_days": 3},
+  {"message": "Find me a flight to Delhi", "expect_intent": "SEARCH_FLIGHT"},
+  {"message": "Book a cab from Bagdogra to Gangtok", "expect_intent": "SEARCH_CAB"},
+  {"message": "Plan a trip to Goa", "expect_intent": "PLAN_TRIP", "expect_missing": ["duration_days"]},
+  {"message": "Keep it below ₹50,000", "expect_budget": 50000},
+  {"message": "Make it cheaper", "expect_intent": "OPTIMIZE_BUDGET"}
+]

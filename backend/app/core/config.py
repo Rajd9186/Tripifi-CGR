@@ -28,6 +28,17 @@ class Settings(BaseSettings):
     payment_provider: str = "demo"
     payment_webhook_secret: str = ""
 
+    # Phase 7 AI core — Ollama-first, future providers optional
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "qwen2.5:3b"
+    ollama_timeout: int = 60
+    ai_temperature: float = 0.3
+    ai_max_tokens: int = 2000
+    ai_max_tool_calls: int = 6
+    ai_streaming_enabled: bool = True
+    groq_api_key: str = ""
+    nvidia_api_key: str = ""
+
     # Phase 5 — free-first provider selection (env-driven, replaceable)
     flight_provider: str = "demo"
     train_provider: str = "demo"

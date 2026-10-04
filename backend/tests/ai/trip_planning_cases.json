@@ -1,0 +1,10 @@
+[
+  {
+    "message": "I want to visit Sikkim from Kolkata for 6 days with my partner under ₹50,000",
+    "expect": {"destination": "Sikkim", "duration_days": 6, "travellers": 2, "budget": 50000, "origin": "Kolkata"}
+  },
+  {
+    "message": "Build me a 5-day Sikkim trip from Kolkata under ₹40,000",
+    "expect": {"destination": "Sikkim", "duration_days": 5, "budget": 40000}
+  }
+]

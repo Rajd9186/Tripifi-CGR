@@ -1,0 +1,4 @@
+[
+  {"first": "Build a Sikkim trip for 6 days", "second": "Make it cheaper", "expect_context_destination": "sikkim"},
+  {"first": "Plan Kerala for 5 days", "second": "Change the hotel", "expect_intent": "MODIFY_TRIP"}
+]

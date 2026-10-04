@@ -1,11 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { useApp } from "@/lib/store";
 import { briefSummary, parseTripBrief, type TripBrief } from "@/lib/ai";
 import { formatINR } from "@/lib/utils";
+import { confirmAction, isAIBackendAvailable, streamMessage } from "@/lib/ai/client";
+import { progressLabel } from "@/lib/ai/events";
+import { executeAction } from "@/lib/ai/actions";
+import type { ResponseCard, UIAction } from "@/lib/ai/types";
 
 interface Message {
   id: string;
@@ -13,6 +17,10 @@ interface Message {
   content: string;
   timestamp: Date;
   brief?: TripBrief;
+  cards?: ResponseCard[];
+  actions?: UIAction[];
+  pendingAction?: UIAction | null;
+  demo?: boolean;
 }
 
 const SUGGESTED_PROMPTS = [
@@ -30,6 +38,9 @@ export default function TripifiAI({
   onClose?: () => void;
   isFullScreen?: boolean;
 }) {
+  const router = useRouter();
+  const store = useApp();
+  const { ensureDraftTrip, currentTrip } = store;
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -41,38 +52,116 @@ export default function TripifiAI({
   ]);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
-  const { ensureDraftTrip } = useApp();
+  const [progress, setProgress] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const pushAssistant = (msg: Omit<Message, "id" | "type" | "timestamp">) =>
+    setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, type: "assistant", timestamp: new Date() }]);
+
+  /** Local deterministic fallback when the AI backend is unreachable. */
+  const handleLocal = (messageText: string) => {
+    const brief = parseTripBrief(messageText);
+    const summary = briefSummary(brief);
+    pushAssistant({
+      content: summary
+        ? `Here's a demo draft for ${summary}. Estimated ${formatINR(42000)}–${formatINR(52000)} for 2 travellers — sample pricing, not a booking. Add it to the Trip Builder to customize day by day.`
+        : "I can help you build a complete itinerary with flights/trains, hotels, cabs, activities and a detailed budget. Tell me your origin, destination, days, travellers and budget — for example, 'Kolkata to Sikkim, 6 days, 2 people, under ₹50,000'.",
+      brief: summary ? brief : undefined,
+      demo: true,
+    });
+    setIsThinking(false);
+    setProgress(null);
+  };
 
   const handleSend = async (messageText: string = input) => {
-    if (!messageText.trim()) return;
+    if (!messageText.trim() || isThinking) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      type: "user",
-      content: messageText,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [
+      ...prev,
+      { id: `${Date.now()}`, type: "user", content: messageText, timestamp: new Date() },
+    ]);
     setInput("");
     setIsThinking(true);
+    setProgress("Tripifi AI thinking…");
 
-    setTimeout(() => {
-      const brief = parseTripBrief(messageText);
-      const summary = briefSummary(brief);
-      const content = summary
-        ? `Here's a demo draft for ${summary}. Estimated ${formatINR(42000)}–${formatINR(52000)} for 2 travellers — sample pricing, not a booking. Add it to the Trip Builder to customize day by day.`
-        : "I can help you build a complete itinerary with flights/trains, hotels, cabs, activities and a detailed budget. Tell me your origin, destination, days, travellers and budget — for example, 'Kolkata to Sikkim, 6 days, 2 people, under ₹50,000'.";
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: "assistant",
-        content,
-        timestamp: new Date(),
-        brief: summary ? brief : undefined,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
+    if (!isAIBackendAvailable()) {
+      setTimeout(() => handleLocal(messageText), 600);
+      return;
+    }
+
+    const controller = new AbortController();
+    abortRef.current = controller;
+    try {
+      const result = await streamMessage(
+        messageText,
+        (ev) => {
+          const label = progressLabel(ev.event);
+          if (label) setProgress(label);
+        },
+        controller.signal
+      );
+      pushAssistant({
+        content: result.message,
+        cards: result.cards,
+        actions: result.actions,
+        pendingAction: result.pending_action,
+        demo: result.is_demo,
+      });
+    } catch {
+      // Graceful unavailable mode: local planning still works.
+      handleLocal(messageText);
+      return;
+    } finally {
       setIsThinking(false);
-    }, 1500);
+      setProgress(null);
+      abortRef.current = null;
+    }
+  };
+
+  const runAction = async (msgId: string, action: UIAction) => {
+    if (action.requires_confirmation) {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId ? { ...m, pendingAction: action } : m))
+      );
+      return;
+    }
+    const outcome = executeAction(action, store as never, (currentTrip?.items as never[]) ?? []);
+    if (outcome.href) {
+      pushAssistant({ content: outcome.message });
+      router.push(outcome.href);
+      return;
+    }
+    pushAssistant({ content: outcome.message });
+    if (!outcome.ok) store.toast(outcome.message, "error");
+  };
+
+  const confirmPending = async (msgId: string, action: UIAction, confirmed: boolean) => {
+    setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, pendingAction: null } : m)));
+    if (!confirmed) {
+      await import("@/lib/ai/client").then((m) => m.rejectAction(action).catch(() => ({ ok: true })));
+      pushAssistant({ content: "Understood — nothing was changed." });
+      return;
+    }
+    try {
+      await confirmAction(action);
+    } catch {
+      // Confirmation is best-effort; local execution is authoritative.
+    }
+    if (action.type === "REMOVE_ITEM") {
+      const id = String(action.payload.id ?? action.payload.item_id ?? "");
+      const trip = currentTrip;
+      const target = trip?.items.find((i) => i.id === id);
+      if (trip && target) {
+        store.removeItemFromTrip(trip.id, id);
+        pushAssistant({ content: `Removed ${target.title}.`, });
+        return;
+      }
+      pushAssistant({ content: "I couldn't find that item in your trip. Nothing was changed." });
+      return;
+    }
+    const outcome = executeAction(action, store as never, (currentTrip?.items as never[]) ?? []);
+    pushAssistant({ content: outcome.message });
+    if (outcome.href) router.push(outcome.href);
   };
 
   const addBriefToTrip = (brief: TripBrief) => {
@@ -83,6 +172,7 @@ export default function TripifiAI({
       travellers: brief.travellers ?? 2,
       ...(brief.budget ? { budget: brief.budget } : {}),
     });
+    store.toast("Draft added to the Trip Builder", "success");
   };
 
   return (
@@ -112,27 +202,37 @@ export default function TripifiAI({
             <p className="text-xs text-ink-500">Your travel concierge</p>
           </div>
         </div>
-        {onClose && (
-          <button
-            onClick={onClose}
-            aria-label="Close assistant"
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-ink-500 hover:bg-ink-50 hover:text-ink-900 transition-colors"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+        <div className="flex items-center gap-1">
+          {isThinking && (
+            <button
+              onClick={() => abortRef.current?.abort()}
+              className="inline-flex min-h-[44px] items-center rounded-xl px-3 text-xs font-medium text-ink-500 hover:bg-ink-50"
             >
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-        )}
+              Stop
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              aria-label="Close assistant"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-ink-500 hover:bg-ink-50 hover:text-ink-900 transition-colors"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -154,6 +254,9 @@ export default function TripifiAI({
               <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {msg.content}
               </p>
+              {msg.demo && (
+                <p className="mt-1 text-[10px] text-ink-400">Demo planning — connect the AI backend for live intelligence.</p>
+              )}
               {msg.type === "assistant" && msg.brief && (
                 <div className="mt-2 flex gap-2">
                   <button
@@ -162,9 +265,41 @@ export default function TripifiAI({
                   >
                     Add to Trip Builder
                   </button>
-                  <Link href="/plan" className="btn-ghost-sm min-h-[44px]">
-                    Open Builder
-                  </Link>
+                </div>
+              )}
+              {msg.type === "assistant" && msg.cards && msg.cards.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {msg.cards.map((card, i) => (
+                    <ResponseCardView key={i} card={card} onAction={(a) => runAction(msg.id, a)} />
+                  ))}
+                </div>
+              )}
+              {msg.type === "assistant" && msg.actions && msg.actions.length > 0 && !msg.cards?.length && (
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {msg.actions.map((a, i) => (
+                    <button
+                      key={i}
+                      onClick={() => runAction(msg.id, a)}
+                      className="btn-ghost-sm min-h-[44px] text-xs"
+                    >
+                      {actionLabel(a.type)}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {msg.type === "assistant" && msg.pendingAction && (
+                <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3" role="dialog" aria-label="Confirm action">
+                  <p className="text-xs font-medium text-amber-900">
+                    {actionLabel(msg.pendingAction.type)} — are you sure? This will change your trip.
+                  </p>
+                  <div className="mt-2 flex gap-2">
+                    <button onClick={() => confirmPending(msg.id, msg.pendingAction as UIAction, true)} className="btn-primary-sm min-h-[44px] text-xs">
+                      Yes, apply
+                    </button>
+                    <button onClick={() => confirmPending(msg.id, msg.pendingAction as UIAction, false)} className="btn-ghost-sm min-h-[44px] text-xs">
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -173,11 +308,14 @@ export default function TripifiAI({
         {isThinking && (
           <div className="flex justify-start">
             <div className="bg-ink-50 rounded-2xl px-4 py-3">
-              <div className="flex gap-1">
-                <span className="h-2 w-2 rounded-full bg-ink-400 animate-pulse"></span>
-                <span className="h-2 w-2 rounded-full bg-ink-400 animate-pulse delay-75"></span>
-                <span className="h-2 w-2 rounded-full bg-ink-400 animate-pulse delay-150"></span>
-              </div>
+              <p className="text-xs text-ink-600" role="status">
+                <span className="mr-2 inline-flex gap-1 align-middle" aria-hidden="true">
+                  <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse"></span>
+                  <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse delay-75"></span>
+                  <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse delay-150"></span>
+                </span>
+                {progress ?? "Tripifi AI thinking…"}
+              </p>
             </div>
           </div>
         )}
@@ -188,7 +326,7 @@ export default function TripifiAI({
               <button
                 key={prompt}
                 onClick={() => handleSend(prompt)}
-                className="w-full text-left rounded-lg border border-ink-100 p-2.5 hover:bg-ink-50 transition-colors"
+                className="w-full min-h-[44px] text-left rounded-lg border border-ink-100 p-2.5 hover:bg-ink-50 transition-colors"
               >
                 <p className="text-xs text-ink-700 leading-relaxed line-clamp-2">
                   {prompt}
@@ -228,6 +366,39 @@ export default function TripifiAI({
         </p>
       </div>
       </div>
+    </div>
+  );
+}
+
+function actionLabel(type: string): string {
+  return type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function ResponseCardView({ card, onAction }: { card: ResponseCard; onAction: (a: UIAction) => void }) {
+  return (
+    <div className="rounded-xl border border-ink-100 bg-white p-3">
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-teal-700">{card.kind}</p>
+      <p className="mt-0.5 text-sm font-semibold text-ink-900">{card.title}</p>
+      {card.subtitle && <p className="text-xs text-ink-600">{card.subtitle}</p>}
+      {Object.keys(card.details ?? {}).length > 0 && (
+        <dl className="mt-2 space-y-0.5 text-xs">
+          {Object.entries(card.details).slice(0, 5).map(([k, v]) => (
+            <div key={k} className="flex justify-between gap-2">
+              <dt className="text-ink-500">{k.replace(/_/g, " ")}</dt>
+              <dd className="text-right font-medium text-ink-800">{String(v)}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+      {card.actions.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {card.actions.map((a, i) => (
+            <button key={i} onClick={() => onAction(a)} className="btn-ghost-sm min-h-[44px] text-xs">
+              {actionLabel(a.type)}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

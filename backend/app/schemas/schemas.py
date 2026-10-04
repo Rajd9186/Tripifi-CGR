@@ -306,6 +306,8 @@ class AIChatIn(BaseModel):
     message: str
     trip_id: str | None = None
     history: list[dict] = Field(default_factory=list)
+    conversation_id: str | None = None
+    trip_context: dict | None = None
 
 
 class AIChatOut(BaseModel):

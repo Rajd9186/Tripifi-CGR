@@ -1,0 +1,4 @@
+[
+  {"trip": {"transport": [{"amount": 16000}], "hotels": [{"amount": 18000}], "activities": [{"amount": 3800}], "travellers": 2}, "expect_total": 39690, "expect_per_person": 19845},
+  {"trip": {"transport": [], "hotels": [], "activities": [], "travellers": 2}, "expect_total": 0}
+]
