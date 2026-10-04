@@ -368,15 +368,7 @@ body {
   scroll-snap-align: start;
 }
 
-/* Gradient text animations */
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-.animate-gradient-shift {
-  background-size: 200% 200%;
-  animation: gradient-shift 3s ease infinite;
-}
+/* Gradient text animations — reserved for future use with matching keyframes. */
 
 /* Premium shadows */
 .shadow-inner-glow {

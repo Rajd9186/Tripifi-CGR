@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { heroSrcSet, sizeUnsplash } from "@/lib/media/media-utils";
+import { motionProfileFor } from "@/lib/media/motion-profiles";
 import type { DestinationMedia, MediaAsset } from "@/lib/media/types";
 import { cn } from "@/lib/utils";
 import MediaAttribution from "./MediaAttribution";
@@ -11,54 +12,72 @@ import EnvironmentalEffectLayer from "./EnvironmentalEffectLayer";
 function useMotionPreference() {
   const [reduced, setReduced] = useState(false);
   const [saveData, setSaveData] = useState(false);
+  const [coarsePointer, setCoarsePointer] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setReduced(e.matches);
     mq.addEventListener("change", onChange);
+    const coarse = window.matchMedia("(pointer: coarse)");
+    setCoarsePointer(coarse.matches);
+    const onCoarse = (e: MediaQueryListEvent) => setCoarsePointer(e.matches);
+    coarse.addEventListener("change", onCoarse);
     const conn = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
     setSaveData(Boolean(conn?.saveData) || conn?.effectiveType === "2g" || conn?.effectiveType === "slow-2g");
-    return () => mq.removeEventListener("change", onChange);
+    return () => {
+      mq.removeEventListener("change", onChange);
+      coarse.removeEventListener("change", onCoarse);
+    };
   }, []);
-  return { reduced, saveData };
+  return { reduced, saveData, coarsePointer };
 }
 
 /**
- * Cinematic destination hero: responsive art direction (desktop/mobile),
- * optional ambient video, Ken Burns + parallax + environmental layers,
- * graceful poster/image fallback chain, accessible controls.
+ * Cinematic destination hero.
+ *
+ * - Camera motion starts only after the image has loaded (never animates a placeholder).
+ * - Per-destination motion profile: mountains get a slow push, coasts a slow drift.
+ * - Scroll parallax is capped at ±10px and disabled on touch devices.
+ * - Environmental layers are static except mist/water breathing on long cycles.
  */
 export default function CinematicHeroMedia({
   media,
   destinationName,
+  destinationSlug,
   priority = false,
   className,
   kenBurns = true,
 }: {
   media: DestinationMedia | null;
   destinationName: string;
+  destinationSlug?: string;
   priority?: boolean;
   className?: string;
   kenBurns?: boolean;
 }) {
-  const { reduced, saveData } = useMotionPreference();
+  const { reduced, saveData, coarsePointer } = useMotionPreference();
   const [failed, setFailed] = useState<Set<string>>(new Set());
+  const [loaded, setLoaded] = useState<Set<string>>(new Set());
   const [videoFailed, setVideoFailed] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const [parallax, setParallax] = useState(0);
+
+  const profile = motionProfileFor(destinationSlug ?? media?.destination ?? "");
+  const allowMotion = kenBurns && !reduced;
+  const allowParallax = allowMotion && !coarsePointer;
 
   const hero = media?.hero;
   const mobileHero = media?.mobileHero;
   const showVideo = Boolean(media?.heroVideo && !reduced && !saveData && !videoFailed);
 
   useEffect(() => {
-    if (reduced) return;
+    if (!allowParallax) return;
     let raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const y = wrapRef.current?.getBoundingClientRect().top ?? 0;
-        setParallax(Math.max(-24, Math.min(24, y * -0.04)));
+        setParallax(Math.max(-10, Math.min(10, y * -0.02)));
       });
     };
     onScroll();
@@ -67,13 +86,19 @@ export default function CinematicHeroMedia({
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [reduced]);
+  }, [allowParallax]);
 
   const markFailed = (id: string) => setFailed((prev) => new Set(prev).add(id));
+  const markLoaded = (id: string) => setLoaded((prev) => new Set(prev).add(id));
   const alive = (a?: MediaAsset) => Boolean(a && !failed.has(a.id));
+  const settled = (a?: MediaAsset) => Boolean(a && loaded.has(a.id) && !failed.has(a.id));
+
+  const cameraClass =
+    profile.camera === "slow-drift" ? "animate-camera-drift" : profile.camera === "slow-push" ? "animate-image-zoom" : "";
 
   const renderImage = (asset: MediaAsset, sizes: string, mobile = false) => {
     const isUnsplashApi = asset.source === "unsplash";
+    const motionClass = allowMotion && settled(asset) ? cameraClass : "";
     if (isUnsplashApi) {
       // Required hotlinking: API-returned photo.urls with responsive sizing.
       return (
@@ -83,11 +108,10 @@ export default function CinematicHeroMedia({
           sizes={sizes}
           alt={asset.alt}
           loading={priority ? "eager" : "lazy"}
+          onLoad={() => markLoaded(asset.id)}
           onError={() => markFailed(asset.id)}
-          className={cn(
-            "h-full w-full object-cover object-center",
-            kenBurns && !reduced && "animate-image-zoom"
-          )}
+          style={cameraClass ? { animationDuration: `${profile.cameraDuration}s` } : undefined}
+          className={cn("h-full w-full object-cover object-center", motionClass)}
         />
       );
     }
@@ -98,8 +122,10 @@ export default function CinematicHeroMedia({
         fill
         priority={priority}
         sizes={sizes}
+        onLoad={() => markLoaded(asset.id)}
         onError={() => markFailed(asset.id)}
-        className={cn("object-cover object-center", kenBurns && !reduced && "animate-image-zoom")}
+        style={cameraClass ? { animationDuration: `${profile.cameraDuration}s` } : undefined}
+        className={cn("object-cover object-center", motionClass)}
       />
     );
   };
@@ -108,7 +134,7 @@ export default function CinematicHeroMedia({
     <div ref={wrapRef} className={cn("absolute inset-0 overflow-hidden", className)} aria-hidden={false}>
       <div
         className="absolute inset-0 will-change-transform"
-        style={reduced ? undefined : { transform: `translateY(${parallax}px) scale(1.04)` }}
+        style={allowParallax ? { transform: `translateY(${parallax}px) scale(1.02)` } : { transform: "scale(1.02)" }}
       >
         {showVideo && media?.heroVideo ? (
           <video
@@ -143,7 +169,7 @@ export default function CinematicHeroMedia({
         )}
       </div>
 
-      <EnvironmentalEffectLayer effects={media?.effects} />
+      <EnvironmentalEffectLayer effects={media?.effects} cycles={profile.cycles} />
     </div>
   );
 }

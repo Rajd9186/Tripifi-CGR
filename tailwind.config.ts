@@ -123,10 +123,6 @@ const config: Config = {
           "0%": { backgroundPosition: "-400px 0" },
           "100%": { backgroundPosition: "400px 0" },
         },
-        floaty: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-8px)" },
-        },
         dash: {
           to: { strokeDashoffset: "-24" },
         },
@@ -140,17 +136,20 @@ const config: Config = {
           "100%": { transform: "scale(2.2)", opacity: "0" },
         },
         imageZoom: {
-          "0%": { transform: "scale(1)", filter: "brightness(1) contrast(1)" },
-          "50%": { transform: "scale(1.04)", filter: "brightness(1.05) contrast(1.02)" },
-          "100%": { transform: "scale(1.08)", filter: "brightness(1.02) contrast(1.01)" },
+          "0%": { transform: "scale(1.005)" },
+          "100%": { transform: "scale(1.04)" },
         },
-        parallax: {
-          "0%": { transform: "translateY(0) scale(1)" },
-          "100%": { transform: "translateY(-20px) scale(1.02)" },
+        cameraDrift: {
+          "0%": { transform: "translate3d(-8px, 0, 0) scale(1.02)" },
+          "100%": { transform: "translate3d(8px, -6px, 0) scale(1.03)" },
         },
-        floatSoft: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-4px)" },
+        breathe: {
+          "0%, 100%": { opacity: "0.75" },
+          "50%": { opacity: "1" },
+        },
+        mistShift: {
+          "0%, 100%": { transform: "translate3d(-10px, 0, 0)", opacity: "0.8" },
+          "50%": { transform: "translate3d(10px, 0, 0)", opacity: "1" },
         },
         formMorph: {
           "0%": { opacity: "0", transform: "translateY(10px) scale(0.98)" },
@@ -164,21 +163,9 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(20px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
-        gradientShift: {
-          "0%, 100%": { backgroundPosition: "0% 50%" },
-          "50%": { backgroundPosition: "100% 50%" },
-        },
         routeDraw: {
           "0%": { strokeDashoffset: "1000" },
           "100%": { strokeDashoffset: "0" },
-        },
-        pulseGlow: {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(242,140,40,0.3)" },
-          "50%": { boxShadow: "0 0 40px rgba(242,140,40,0.5)" },
-        },
-        pulseGlowTeal: {
-          "0%, 100%": { boxShadow: "0 0 20px rgba(20,184,166,0.3)" },
-          "50%": { boxShadow: "0 0 40px rgba(20,184,166,0.5)" },
         },
         slideInFromLeft: {
           "0%": { transform: "translateX(-20px)", opacity: "0" },
@@ -213,20 +200,17 @@ const config: Config = {
         "slide-in-from-right": "slideInFromRight .4s ease both",
         "scale-in": "scaleIn .3s cubic-bezier(.32,.72,.33,1) both",
         shimmer: "shimmer 1.4s linear infinite",
-        floaty: "floaty 4s ease-in-out infinite",
-        "float-soft": "floatSoft 3s ease-in-out infinite",
         dash: "dash 1s linear infinite",
         pop: "pop .5s cubic-bezier(.32,.72,.33,1.2) both",
         "ping-soft": "ping2 1.8s cubic-bezier(0,0,.2,1) infinite",
-        "image-zoom": "imageZoom 24s ease-in-out forwards",
-        parallax: "parallax 30s ease-in-out infinite alternate",
+        "image-zoom": "imageZoom 28s ease-in-out infinite alternate",
+        "camera-drift": "cameraDrift 30s ease-in-out infinite alternate",
+        breathe: "breathe 48s ease-in-out infinite",
+        "mist-shift": "mistShift 37s ease-in-out infinite",
         "form-morph": "formMorph .4s cubic-bezier(.32,.72,.33,1) both",
         "skeleton-pulse": "skeletonPulse 1.5s ease-in-out infinite",
         countUp: "countUp .6s cubic-bezier(.32,.72,.33,1) both",
-        "gradient-shift": "gradientShift 3s ease infinite",
         "route-draw": "routeDraw 1.5s ease-out forwards",
-        "pulse-glow": "pulseGlow 2s ease-in-out infinite",
-        "pulse-glow-teal": "pulseGlowTeal 2s ease-in-out infinite",
         "accordion-down": "accordionDown .3s ease-out",
         "accordion-up": "accordionUp .3s ease-out",
       },

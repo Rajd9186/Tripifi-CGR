@@ -93,7 +93,7 @@ export default function Hero() {
                 aria-hidden={!active}
               >
                 {active && currentMedia ? (
-                  <CinematicHeroMedia media={currentMedia} destinationName={dest.name} priority={index === 0} />
+                  <CinematicHeroMedia media={currentMedia} destinationName={dest.name} destinationSlug={dest.slug} priority={index === 0} />
                 ) : (
                   <>
                     <img
@@ -113,7 +113,7 @@ export default function Hero() {
             );
           })}
 
-          <div className="absolute inset-0 mix-blend-screen opacity-30 animate-parallax bg-gradient-to-b from-transparent via-saffron-400/20 to-transparent" style={{ animationDuration: "30s" }} />
+          {/* Static legibility gradients only — no animated glow sweeps. */}
         </div>
 
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950/60 via-indigo-950/40 to-purple-950/30 mix-blend-overlay" />
@@ -208,21 +208,21 @@ export default function Hero() {
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-white/80 animate-fade-up-delayed-3">
-            <div className="flex items-center gap-2 text-sm animate-float-soft">
+            <div className="flex items-center gap-2 text-sm">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
               Verified partners across India
             </div>
-            <div className="flex items-center gap-2 text-sm animate-float-soft" style={{ animationDelay: "0.5s" }}>
+            <div className="flex items-center gap-2 text-sm">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
               Real-time itinerary builder
             </div>
-            <div className="flex items-center gap-2 text-sm animate-float-soft" style={{ animationDelay: "1s" }}>
+            <div className="flex items-center gap-2 text-sm">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
@@ -235,12 +235,13 @@ export default function Hero() {
       <style jsx>{`
         @media (prefers-reduced-motion: reduce) {
           .animate-image-zoom,
-          .animate-parallax,
+          .animate-camera-drift,
+          .animate-breathe,
+          .animate-mist-shift,
           .animate-fade-up,
           .animate-fade-up-delayed,
           .animate-fade-up-delayed-2,
-          .animate-fade-up-delayed-3,
-          .animate-float-soft {
+          .animate-fade-up-delayed-3 {
             animation: none !important;
             opacity: 1 !important;
             transform: none !important;
