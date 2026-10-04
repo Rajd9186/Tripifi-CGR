@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import fs from "fs";
+import path from "path";
 import { mediaCacheGet, mediaCacheSet, mediaCacheKey } from "@/lib/media/media-cache";
 import { mediaConfigFor } from "@/data/media";
 import { findDestination } from "@/lib/destinations";
@@ -27,10 +29,15 @@ export async function GET(req: NextRequest) {
   const altFallback = dest ? `${dest.name} — Tripifi CGR` : `${destination} — Tripifi CGR`;
 
   // 1. Local / licensed media (preferred long-term source).
+  // Only short-circuit when the licensed file actually exists on disk —
+  // config paths alone are not proof (licensed files ship separately).
   try {
     const local = await new LocalMediaProvider().getDestinationMedia(destination);
-    // Only short-circuit on a real local file hero (not the curated fallback).
-    if (local?.resolvedFrom === "local") {
+    const heroSrc = local?.hero?.src ?? "";
+    const isFile = heroSrc.startsWith("/media/")
+      ? fs.existsSync(path.join(process.cwd(), "public", heroSrc.replace(/^\//, "")))
+      : false;
+    if (local?.resolvedFrom === "local" && isFile) {
       mediaCacheSet(cacheKey, local, CACHE_TTL);
       return NextResponse.json(local);
     }
