@@ -55,7 +55,7 @@ export default function BookingEnquiryForm({
     if (!PHONE_RE.test(form.phone.trim()) && !/^[6-9]\d{9}$/.test(form.phone.replace(/\D/g, "").slice(-10))) {
       e.phone = "Enter a valid 10-digit Indian mobile number.";
     }
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) e.email = "Enter a valid email address.";
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim()) && form.email.trim()) e.email = "Enter a valid email address.";
     if (form.travel_start_date && form.travel_end_date && form.travel_end_date < form.travel_start_date) {
       e.travel_end_date = "Return date must be on or after the travel date.";
     }
