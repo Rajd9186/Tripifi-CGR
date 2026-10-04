@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
-import Button from "@/components/ui/Button";
-import Link from "next/link";
+import CabSearchForm from "@/components/cabs/CabSearchForm";
 
 export const metadata: Metadata = {
   title: "Private Cabs",
   description: "Book private cabs for local, outstation and airport transfers across India with Tripifi CGR.",
 };
 
-export default function CabsPage() {
+export default function CabsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
   return (
     <div className="pb-16">
       <section className="bg-navy-950 py-12">
@@ -28,41 +25,7 @@ export default function CabsPage() {
 
       <section className="px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="max-w-8xl mx-auto">
-          <Card padding="lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-2">
-                <Input label="Pickup Location" placeholder="Kolkata Airport" />
-              </div>
-              <div className="lg:col-span-2">
-                <Input label="Drop Location" placeholder="Park Street" />
-              </div>
-              <div>
-                <Input label="Pickup Date & Time" type="datetime-local" />
-              </div>
-              <div>
-                <Select label="Trip Type">
-                  <option>One Way</option>
-                  <option>Round Trip</option>
-                  <option>Local</option>
-                  <option>Multi-Day</option>
-                </Select>
-              </div>
-              <div>
-                <Select label="Vehicle Type">
-                  <option>All Vehicles</option>
-                  <option>Sedan</option>
-                  <option>SUV</option>
-                  <option>Premium SUV</option>
-                  <option>Luxury</option>
-                </Select>
-              </div>
-              <div className="md:col-span-3 flex items-end">
-                <Button href="/cabs/results" className="w-full md:w-auto">
-                  Search Cabs
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <CabSearchForm initial={searchParams} />
         </div>
       </section>
 

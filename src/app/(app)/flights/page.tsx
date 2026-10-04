@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
-import Button from "@/components/ui/Button";
+import FlightSearchForm from "@/components/flights/FlightSearchForm";
+import { todayISO } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Flights",
   description: "Search and book domestic flights across India with Tripifi CGR. Find the best deals on flights.",
 };
 
-export default function FlightsPage() {
+export default function FlightsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
   return (
     <div className="pb-16">
       <section className="bg-navy-950 py-12">
@@ -28,38 +27,7 @@ export default function FlightsPage() {
 
       <section className="px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="max-w-8xl mx-auto">
-          <Card padding="lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="lg:col-span-2">
-                <Input label="From" placeholder="Delhi (DEL)" />
-              </div>
-              <div className="lg:col-span-2">
-                <Input label="To" placeholder="Mumbai (BOM)" />
-              </div>
-              <div>
-                <Input label="Departure" type="date" />
-              </div>
-              <div className="lg:col-span-2">
-                <Select label="Travellers & Class">
-                  <option>1 Traveller, Economy</option>
-                  <option>2 Travellers, Economy</option>
-                  <option>3 Travellers, Economy</option>
-                  <option>1 Traveller, Business</option>
-                </Select>
-              </div>
-              <div>
-                <Select label="Trip Type">
-                  <option>One Way</option>
-                  <option>Round Trip</option>
-                </Select>
-              </div>
-              <div className="flex items-end">
-                <Button href="/flights/results" className="w-full justify-center">
-                  Search Flights
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <FlightSearchForm initial={searchParams} />
         </div>
       </section>
 
@@ -78,10 +46,12 @@ export default function FlightsPage() {
               { from: "Kolkata", to: "Mumbai", price: 9499 },
               { from: "Chennai", to: "Delhi", price: 11999 },
               { from: "Hyderabad", to: "Delhi", price: 8999 },
-            ].map((route) => (
+            ].map((route) => {
+              const params = new URLSearchParams({ from: route.from, to: route.to, date: todayISO(), travellers: "1", class: "Economy", trip: "oneway" });
+              return (
               <Link
                 key={`${route.from}-${route.to}`}
-                href="/flights/results"
+                href={`/flights/results?${params.toString()}`}
                 className="card p-4 hover:shadow-soft transition"
               >
                 <div className="flex items-center justify-between mb-2">
@@ -96,7 +66,8 @@ export default function FlightsPage() {
                   </span>
                 </div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

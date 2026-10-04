@@ -1,16 +1,14 @@
 import type { Metadata } from "next";
-import Card from "@/components/ui/Card";
-import Input from "@/components/ui/Input";
-import Select from "@/components/ui/Select";
-import Button from "@/components/ui/Button";
 import Link from "next/link";
+import TrainSearchForm from "@/components/trains/TrainSearchForm";
+import { todayISO } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Trains",
   description: "Search and book Indian Railways trains with Tripifi CGR. Find availability and fares across all classes.",
 };
 
-export default function TrainsPage() {
+export default function TrainsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
   return (
     <div className="pb-16">
       <section className="bg-navy-950 py-12">
@@ -28,43 +26,7 @@ export default function TrainsPage() {
 
       <section className="px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         <div className="max-w-8xl mx-auto">
-          <Card padding="lg">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div>
-                <Input label="From Station" placeholder="Howrah (HWH)" />
-              </div>
-              <div>
-                <Input label="To Station" placeholder="New Delhi (NDLS)" />
-              </div>
-              <div>
-                <Input label="Departure Date" type="date" />
-              </div>
-              <div>
-                <Select label="Class">
-                  <option>All Classes</option>
-                  <option>1A</option>
-                  <option>2A</option>
-                  <option>3A</option>
-                  <option>SL</option>
-                  <option>CC</option>
-                  <option>EC</option>
-                </Select>
-              </div>
-              <div>
-                <Select label="Quota">
-                  <option>General</option>
-                  <option>Tatkal</option>
-                  <option>Ladies</option>
-                  <option>Premium Tatkal</option>
-                </Select>
-              </div>
-              <div className="md:col-span-5 flex justify-end">
-                <Button href="/trains/results" className="w-full md:w-auto">
-                  Search Trains
-                </Button>
-              </div>
-            </div>
-          </Card>
+          <TrainSearchForm initial={searchParams} />
         </div>
       </section>
 
@@ -83,10 +45,12 @@ export default function TrainsPage() {
               { from: "Chennai", to: "Hyderabad", name: "Express" },
               { from: "Mumbai", to: "Goa", name: "Express" },
               { from: "Delhi", to: "Lucknow", name: "Shatabdi" },
-            ].map((route) => (
+            ].map((route) => {
+              const params = new URLSearchParams({ from: route.from, to: route.to, date: todayISO(), class: "All Classes", quota: "General" });
+              return (
               <Link
                 key={`${route.from}-${route.to}`}
-                href="/trains/results"
+                href={`/trains/results?${params.toString()}`}
                 className="card p-4 hover:shadow-soft transition"
               >
                 <div className="font-medium text-ink-900">
@@ -94,7 +58,8 @@ export default function TrainsPage() {
                 </div>
                 <div className="text-sm text-ink-600 mt-1">{route.name}</div>
               </Link>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
