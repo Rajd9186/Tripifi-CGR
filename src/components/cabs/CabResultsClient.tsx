@@ -11,6 +11,7 @@ import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
 import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
 import { useApp } from "@/lib/store";
 import type { CabTripType } from "@/lib/providers/cabPricing";
+import { addSearchToHistory } from "@/lib/searchHistory";
 
 const VEHICLES = ["All Vehicles", "Sedan", "SUV", "Premium SUV", "Luxury"];
 
@@ -35,6 +36,11 @@ export default function CabResultsClient() {
         if (cancelled) return;
         setOffers(r.results);
         setLoading(false);
+        addSearchToHistory({
+          type: "cab",
+          label: `${pickup} → ${drop} · ${trip}`,
+          params: { pickup, drop, trip },
+        });
       })
       .catch((e: Error & { code?: string }) => {
         if (cancelled) return;

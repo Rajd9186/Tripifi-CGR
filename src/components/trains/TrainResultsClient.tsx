@@ -11,6 +11,7 @@ import Badge from "@/components/ui/Badge";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
 import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
 import { useApp } from "@/lib/store";
+import { addSearchToHistory } from "@/lib/searchHistory";
 
 const CLASSES = ["All Classes", "1A", "2A", "3A", "SL", "CC", "EC"];
 
@@ -36,6 +37,11 @@ export default function TrainResultsClient() {
         if (cancelled) return;
         setOffers(r.results);
         setLoading(false);
+        addSearchToHistory({
+          type: "train",
+          label: `${from} → ${to}${date ? ` · ${date}` : ""}`,
+          params: { origin: from, destination: to, departure_date: date },
+        });
       })
       .catch((e: Error & { code?: string }) => {
         if (cancelled) return;

@@ -12,6 +12,7 @@ import BottomSheet from "@/components/ui/BottomSheet";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
 import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
 import { useApp } from "@/lib/store";
+import { addSearchToHistory } from "@/lib/searchHistory";
 
 const FILTERS = ["Non-stop", "Morning", "Refundable", "Under ₹12,000"];
 const SORTS = ["Recommended", "Cheapest", "Fastest", "Earliest"] as const;
@@ -48,6 +49,12 @@ export default function FlightResultsClient() {
         if (cancelled) return;
         setOffers(r.results);
         setLoading(false);
+        // Add to search history on successful search
+        addSearchToHistory({
+          type: "flight",
+          label: `${from} → ${to}${date ? ` · ${date}` : ""} · ${travellers} traveller${travellers > 1 ? "s" : ""}`,
+          params: { origin: from, destination: to, departure_date: date, travellers: String(travellers) },
+        });
       })
       .catch((e: Error & { code?: string }) => {
         if (cancelled) return;

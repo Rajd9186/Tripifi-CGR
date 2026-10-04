@@ -10,6 +10,7 @@ import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
 import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
 import { useApp } from "@/lib/store";
 import { nightsBetween } from "@/lib/utils";
+import { addSearchToHistory } from "@/lib/searchHistory";
 
 export default function HotelResultsClient() {
   const params = useSearchParams();
@@ -34,6 +35,11 @@ export default function HotelResultsClient() {
         if (cancelled) return;
         setOffers(r.results);
         setLoading(false);
+        addSearchToHistory({
+          type: "hotel",
+          label: `${destination}${checkin ? ` · ${checkin}` : ""}${checkout ? ` → ${checkout}` : ""} · ${nights} night${nights > 1 ? "s" : ""}`,
+          params: { destination, checkin, checkout, guests: "2" },
+        });
       })
       .catch((e: Error & { code?: string }) => {
         if (cancelled) return;
