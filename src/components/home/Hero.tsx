@@ -8,18 +8,24 @@ export default function Hero() {
           className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/70 to-navy-900/30"
           aria-hidden="true"
         />
-        <img
-          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
-          alt="Himalayan mountains - Tripifi CGR"
-          className="h-full w-full object-cover object-center animate-image-zoom"
-        />
+        <div className="absolute inset-0">
+          <img
+            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
+            alt="Himalayan mountains - Tripifi CGR"
+            className="h-full w-full object-cover object-center animate-image-zoom"
+          />
+          <div className="absolute inset-0 mix-blend-screen opacity-30 animate-parallax bg-gradient-to-b from-transparent via-saffron-400/20 to-transparent" style={{ animationDuration: '30s' }} />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-950/60 via-indigo-950/40 to-purple-950/30 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,122,0,0.15),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(27,154,170,0.15),transparent_70%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 to-transparent" />
       </div>
 
       <div className="relative z-10 max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="max-w-4xl">
           <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight text-white leading-tight animate-fade-up">
-            Your trip. <span className="text-saffron-400">Your way.</span>
+            Your trip. <span className="bg-gradient-to-r from-saffron-400 via-amber-400 to-orange-400 bg-clip-text text-transparent drop-shadow-lg">Your way.</span>
           </h1>
           <p className="mt-6 text-lg sm:text-xl text-white/90 leading-relaxed max-w-2xl animate-fade-up-delayed">
             Plan, personalize and book your entire Indian journey in one place.
@@ -30,7 +36,7 @@ export default function Hero() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4 animate-fade-up-delayed-2">
-            <Link href="/plan" className="btn-primary shadow-glow">
+            <Link href="/plan" className="btn-primary shadow-glow bg-gradient-to-r from-saffron-500 to-orange-500 hover:from-saffron-600 hover:to-orange-600">
               <svg
                 width="18"
                 height="18"

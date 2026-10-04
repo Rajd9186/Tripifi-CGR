@@ -110,8 +110,13 @@ const config: Config = {
           "100%": { transform: "scale(2.2)", opacity: "0" },
         },
         imageZoom: {
-          "0%": { transform: "scale(1)" },
-          "100%": { transform: "scale(1.08)" },
+          "0%": { transform: "scale(1)", filter: "brightness(1) contrast(1)" },
+          "50%": { transform: "scale(1.04)", filter: "brightness(1.05) contrast(1.02)" },
+          "100%": { transform: "scale(1.08)", filter: "brightness(1.02) contrast(1.01)" },
+        },
+        parallax: {
+          "0%": { transform: "translateY(0) scale(1)" },
+          "100%": { transform: "translateY(-20px) scale(1.02)" },
         },
         floatSoft: {
           "0%, 100%": { transform: "translateY(0)" },
@@ -132,7 +137,8 @@ const config: Config = {
         dash: "dash 1s linear infinite",
         pop: "pop .5s cubic-bezier(.32,.72,.33,1.2) both",
         "ping-soft": "ping2 1.8s cubic-bezier(0,0,.2,1) infinite",
-        "image-zoom": "imageZoom 20s ease-out forwards",
+        "image-zoom": "imageZoom 24s ease-in-out forwards",
+        parallax: "parallax 30s ease-in-out infinite alternate",
       },
     },
   },
