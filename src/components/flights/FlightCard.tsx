@@ -1,6 +1,10 @@
-import Badge from "@/components/ui/Badge";
-import Button from "@/components/ui/Button";
+"use client";
 
+import Badge from "@/components/ui/Badge";
+import type { FlightOffer } from "@/lib/api/types";
+import { formatINR } from "@/lib/utils";
+
+/** Legacy mock shape (see src/data/mockFlights.ts). Prefer FlightOffer for new code. */
 export interface Flight {
   id: string;
   airline: string;
@@ -21,12 +25,21 @@ export interface Flight {
 }
 
 interface FlightCardProps {
-  flight: Flight;
+  flight: FlightOffer;
+  selected?: boolean;
+  onSelect?: (flight: FlightOffer) => void;
+  onAddToTrip?: (flight: FlightOffer) => void;
 }
 
-export default function FlightCard({ flight }: FlightCardProps) {
+function fmtDuration(mins: number): string {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return m ? `${h}h ${m}m` : `${h}h`;
+}
+
+export default function FlightCard({ flight, selected, onSelect, onAddToTrip }: FlightCardProps) {
   return (
-    <div className="card p-4 sm:p-6">
+    <div className={`card p-4 sm:p-6 transition-all ${selected ? "ring-2 ring-saffron-500" : ""}`}>
       <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-4">
@@ -35,8 +48,11 @@ export default function FlightCard({ flight }: FlightCardProps) {
             </div>
             <div>
               <div className="font-medium text-ink-900">{flight.airline}</div>
-              <div className="text-xs text-ink-500">{flight.flightNumber}</div>
+              <div className="text-xs text-ink-500">{flight.flight_number}</div>
             </div>
+            {flight.is_demo && (
+              <span className="demo-badge">Demo availability</span>
+            )}
           </div>
 
           <div className="flex items-center justify-between">
@@ -44,29 +60,23 @@ export default function FlightCard({ flight }: FlightCardProps) {
               <div className="text-2xl font-semibold text-ink-900">
                 {flight.departure}
               </div>
-              <div className="text-sm text-ink-600">{flight.fromCode}</div>
-              <div className="text-xs text-ink-500 mt-1 truncate max-w-[80px] sm:max-w-none">
-                {flight.from}
-              </div>
+              <div className="text-sm text-ink-600">{flight.origin}</div>
             </div>
 
             <div className="flex flex-col items-center flex-1 px-4">
-              <div className="text-sm text-ink-600">{flight.duration}</div>
+              <div className="text-sm text-ink-600">{fmtDuration(flight.duration_minutes)}</div>
               <div className="relative w-full my-2">
                 <div className="h-0.5 bg-ink-200"></div>
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-2 w-2 rounded-full bg-ink-400"></div>
               </div>
-              <div className="text-sm text-ink-600">{flight.stops}</div>
+              <div className="text-sm text-ink-600">{flight.stops === 0 ? "Non-stop" : `${flight.stops} stop${flight.stops > 1 ? "s" : ""}`}</div>
             </div>
 
             <div className="text-center">
               <div className="text-2xl font-semibold text-ink-900">
                 {flight.arrival}
               </div>
-              <div className="text-sm text-ink-600">{flight.toCode}</div>
-              <div className="text-xs text-ink-500 mt-1 truncate max-w-[80px] sm:max-w-none">
-                {flight.to}
-              </div>
+              <div className="text-sm text-ink-600">{flight.destination}</div>
             </div>
           </div>
         </div>
@@ -74,25 +84,34 @@ export default function FlightCard({ flight }: FlightCardProps) {
         <div className="border-t lg:border-t-0 lg:border-l border-ink-100 pt-4 lg:pt-0 lg:pl-6 flex flex-col lg:items-end gap-3">
           <div className="flex items-center justify-between lg:flex-col lg:items-end w-full lg:w-auto">
             <div>
-              <div className="text-xs text-ink-500">Starting from</div>
+              <div className="text-xs text-ink-500">Sample fare</div>
               <div className="text-3xl font-semibold text-ink-900">
-                ₹{flight.price.toLocaleString("en-IN")}
+                {formatINR(flight.fare)}
               </div>
-              <div className="text-xs text-ink-500">{flight.classType}</div>
-            </div>
-            <div className="flex lg:hidden">
-              <Button href="/checkout" size="sm">Book</Button>
+              <div className="text-xs text-ink-500">per traveller</div>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-2">
             {flight.refundable && <Badge variant="success">Refundable</Badge>}
-            <Badge variant="default">{flight.baggage}</Badge>
-            <Badge variant="default">{flight.meals}</Badge>
+            <Badge variant="default">{flight.baggage_kg} kg check-in</Badge>
+            <Badge variant="default">{flight.seat_available ? "Seats available" : "Check seats"}</Badge>
           </div>
 
-          <div className="hidden lg:flex">
-            <Button href="/checkout">Book Flight</Button>
+          <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full lg:w-auto">
+            <button
+              onClick={() => onSelect?.(flight)}
+              className="btn-primary min-h-[44px] flex-1 justify-center lg:min-w-[180px]"
+              aria-pressed={selected}
+            >
+              {selected ? "Selected ✓" : "Select"}
+            </button>
+            <button
+              onClick={() => onAddToTrip?.(flight)}
+              className="btn-ghost min-h-[44px] flex-1 justify-center text-sm lg:min-w-[180px]"
+            >
+              Add to Trip
+            </button>
           </div>
         </div>
       </div>
