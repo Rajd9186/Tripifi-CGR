@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { DESTINATIONS, findDestination } from "@/lib/destinations";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
+import DestinationHero from "@/components/destinations/DestinationHero";
 
 interface PageProps {
   params: { slug: string };
@@ -29,43 +30,7 @@ export default function DestinationDetailPage({ params }: PageProps) {
 
   return (
     <div className="pb-16">
-      <section className="relative h-[70vh] flex items-center overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-950/85 via-navy-900/65 to-navy-900/25" />
-          <img
-            src={destination.heroImage}
-            alt={`${destination.name} - Tripifi CGR`}
-            className="h-full w-full object-cover object-center"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-950/50 to-transparent" />
-        </div>
-
-        <div className="relative z-10 max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="max-w-3xl">
-            <div className="text-sm text-white/80 uppercase tracking-wider mb-3">
-              {destination.region}
-            </div>
-            <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-white leading-tight">
-              {destination.name}
-            </h1>
-            <p className="mt-4 text-lg sm:text-xl text-white/90 leading-relaxed">
-              {destination.tagline}
-            </p>
-
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/plan" className="btn-primary shadow-glow">
-                Plan My {destination.name} Trip
-              </Link>
-              <Link
-                href="/packages"
-                className="btn-ghost bg-white/90 backdrop-blur hover:bg-white"
-              >
-                View Packages
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <DestinationHero destination={destination} />
 
       <section className="px-4 sm:px-6 lg:px-8 -mt-14 relative z-20">
         <div className="max-w-8xl mx-auto">

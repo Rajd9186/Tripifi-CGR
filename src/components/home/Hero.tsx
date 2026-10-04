@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { DESTINATIONS } from "@/lib/destinations";
 import { cn } from "@/lib/utils";
+import { useDestinationMedia } from "@/lib/media/media-provider";
+import CinematicHeroMedia, { HeroAttribution } from "@/components/media/CinematicHeroMedia";
 import { RouteVisualization, DataChip } from "@/components/graphics/RouteVisualization";
 
 const HERO_DESTINATIONS = [
@@ -67,6 +69,7 @@ export default function Hero() {
   };
 
   const currentDest = HERO_DESTINATIONS[currentIndex];
+  const { media: currentMedia } = useDestinationMedia(currentDest?.slug ?? "kashmir", { placement: "hero" });
 
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden">
@@ -74,33 +77,41 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-r from-navy-950/90 via-navy-900/70 to-navy-900/30" aria-hidden="true" />
 
         <div className="absolute inset-0 overflow-hidden">
-          {HERO_DESTINATIONS.map((dest, index) => (
-            <div
-              key={dest.slug}
-              className={cn(
-                "absolute inset-0 transition-all duration-1000 ease-in-out",
-                index === currentIndex
-                  ? "opacity-100 z-10"
-                  : "opacity-0 z-0 pointer-events-none"
-              )}
-              style={{
-                transform: index === currentIndex ? "scale(1)" : "scale(1.02)",
-                filter: index === currentIndex ? "brightness(1) contrast(1)" : "brightness(0.95)",
-              }}
-            >
-              <img
-                src={dest.heroImage}
-                alt={`${dest.name} - Tripifi CGR`}
-                className="h-full w-full object-cover object-center"
-                loading={index === currentIndex ? "eager" : "lazy"}
-                onLoad={() => handleImageLoad(index)}
-              />
-              {!loadedImages.has(index) && (
-                <div className="absolute inset-0 bg-navy-900 animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-950/30 to-navy-950/60" />
-            </div>
-          ))}
+          {HERO_DESTINATIONS.map((dest, index) => {
+            const active = index === currentIndex;
+            return (
+              <div
+                key={dest.slug}
+                className={cn(
+                  "absolute inset-0 transition-all duration-1000 ease-in-out",
+                  active ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                )}
+                style={{
+                  transform: active ? "scale(1)" : "scale(1.02)",
+                  filter: active ? "brightness(1) contrast(1)" : "brightness(0.95)",
+                }}
+                aria-hidden={!active}
+              >
+                {active && currentMedia ? (
+                  <CinematicHeroMedia media={currentMedia} destinationName={dest.name} priority={index === 0} />
+                ) : (
+                  <>
+                    <img
+                      src={dest.heroImage}
+                      alt={`${dest.name} - Tripifi CGR`}
+                      className="h-full w-full object-cover object-center"
+                      loading={index === currentIndex ? "eager" : "lazy"}
+                      onLoad={() => handleImageLoad(index)}
+                    />
+                    {!loadedImages.has(index) && (
+                      <div className="absolute inset-0 bg-navy-900 animate-shimmer" style={{ backgroundSize: "200% 100%" }} />
+                    )}
+                  </>
+                )}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-navy-950/30 to-navy-950/60" />
+              </div>
+            );
+          })}
 
           <div className="absolute inset-0 mix-blend-screen opacity-30 animate-parallax bg-gradient-to-b from-transparent via-saffron-400/20 to-transparent" style={{ animationDuration: "30s" }} />
         </div>
@@ -109,6 +120,7 @@ export default function Hero() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,122,0,0.15),transparent_70%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(27,154,170,0.15),transparent_70%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 to-transparent" />
+        {currentMedia && <HeroAttribution media={currentMedia} />}
       </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 animate-fade-up-delayed-3">
