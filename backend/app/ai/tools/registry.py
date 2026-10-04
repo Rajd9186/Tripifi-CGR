@@ -6,69 +6,99 @@ only these functions, each with a safety classification.
 
 from typing import Any
 
-from app.providers.demo import DemoCabProvider, DemoFlightProvider, DemoHotelProvider, DemoTrainProvider
+from app.data.destinations import DESTINATIONS as CATALOG
+from app.services.search import activity_service, cab_service, destination_service, flight_service, hotel_service, train_service
 
 DESTINATIONS = {
-    "sikkim": {"name": "Sikkim", "days": "5–7", "budget": "₹32,000–₹60,000", "best_for": "Mountains · Romance · Nature"},
-    "kashmir": {"name": "Kashmir", "days": "5–7", "budget": "₹35,000–₹60,000", "best_for": "Mountains · Romance · Lakes"},
-    "kerala": {"name": "Kerala", "days": "5–8", "budget": "₹30,000–₹55,000", "best_for": "Backwaters · Wellness · Nature"},
-    "goa": {"name": "Goa", "days": "3–5", "budget": "₹20,000–₹40,000", "best_for": "Beaches · Nightlife"},
-    "rajasthan": {"name": "Rajasthan", "days": "6–8", "budget": "₹35,000–₹60,000", "best_for": "Heritage · Culture"},
-    "ladakh": {"name": "Ladakh", "days": "6–8", "budget": "₹40,000–₹65,000", "best_for": "Adventure · Mountains"},
+    slug: {"name": d["name"], "days": f"{d['days_min']}–{d['days_max']}",
+           "budget": f"₹{d['budget_min']:,}–₹{d['budget_max']:,}",
+           "best_for": " · ".join(d["themes"][:3]).title()}
+    for slug, d in ((d["slug"], d) for d in CATALOG)
 }
 
 ACTIVITIES = {
     "sikkim": [
-        {"id": "tsomgo-lake", "title": "Tsomgo Lake excursion", "duration": "Full day", "price": 1800},
-        {"id": "mg-marg", "title": "MG Marg evening walk", "duration": "2–3 hours", "price": 0},
-        {"id": "pelling-skywalk", "title": "Pelling Skywalk", "duration": "Half day", "price": 1200},
+        {"id": "ACT-SKG-001", "title": "Tsomgo Lake excursion", "duration": "Full day", "price": 1800},
+        {"id": "ACT-SKG-002", "title": "MG Marg evening walk", "duration": "2–3 hours", "price": 0},
+        {"id": "ACT-SKG-003", "title": "Pelling Skywalk", "duration": "Half day", "price": 1200},
     ],
     "kashmir": [
-        {"id": "gulmarg-gondola", "title": "Gulmarg Gondola", "duration": "4–5 hours", "price": 1800},
-        {"id": "dal-shikara", "title": "Dal Lake shikara ride", "duration": "2 hours", "price": 900},
+        {"id": "ACT-KSH-001", "title": "Gulmarg Gondola", "duration": "4–5 hours", "price": 1800},
+        {"id": "ACT-KSH-002", "title": "Dal Lake shikara ride", "duration": "2 hours", "price": 900},
     ],
     "kerala": [
-        {"id": "houseboat", "title": "Alleppey houseboat day cruise", "duration": "Full day", "price": 8500},
-        {"id": "kathakali", "title": "Kathakali performance", "duration": "2 hours", "price": 500},
+        {"id": "ACT-KER-001", "title": "Alleppey houseboat day cruise", "duration": "Full day", "price": 8500},
+        {"id": "ACT-KER-002", "title": "Kathakali performance", "duration": "2 hours", "price": 500},
     ],
 }
 
 
 async def search_destinations(query: str) -> dict:
-    q = query.lower()
-    hits = [
-        {"slug": slug, **info}
-        for slug, info in DESTINATIONS.items()
-        if q in slug or q in info["name"].lower() or q in info["best_for"].lower()
-    ]
-    return {"destinations": hits or [{"slug": s, **i} for s, i in list(DESTINATIONS.items())[:3]], "source": "DEMO"}
+    results = destination_service.search_destinations({"query": query, "limit": 6})
+    return {"destinations": results, "source": "tripifi-catalog"}
 
 
 async def get_destination_details(slug: str) -> dict:
-    info = DESTINATIONS.get(slug.lower())
-    if info is None:
-        return {"found": False, "source": "DEMO"}
-    return {"found": True, "slug": slug.lower(), **info, "source": "DEMO"}
+    results = destination_service.search_destinations({"query": slug.replace("-", " "), "limit": 6})
+    match = next((r for r in results if r["slug"] == slug.lower()), None)
+    if match is None:
+        return {"found": False, "source": "tripifi-catalog"}
+    return {"found": True, **match, "source": "tripifi-catalog"}
+
+
+async def _service_or_unavailable(coro, domain: str) -> dict:
+    from app.services.search.base import SearchError
+
+    try:
+        payload = await coro
+        return {"offers": payload["data"]["results"], "provider": payload["data"]["provider"], "source": "DEMO"}
+    except SearchError as e:
+        return {"offers": [], "source": "DEMO", "status": "UNAVAILABLE", "reason": e.code}
 
 
 async def search_flights(origin: str, destination: str, date: str | None = None) -> dict:
-    offers = await DemoFlightProvider().search(origin, destination, date)
-    return {"offers": [o.model_dump() for o in offers], "source": "DEMO"}
+    return await _service_or_unavailable(
+        flight_service.search_flights({"origin": origin, "destination": destination, "departure_date": date}, "ai-tool"),
+        "flights",
+    )
 
 
 async def search_trains(origin: str, destination: str, date: str | None = None) -> dict:
-    offers = await DemoTrainProvider().search(origin, destination, date)
-    return {"offers": [o.model_dump() for o in offers], "source": "DEMO"}
+    return await _service_or_unavailable(
+        train_service.search_trains({"origin": origin, "destination": destination, "departure_date": date}, "ai-tool"),
+        "trains",
+    )
 
 
 async def search_hotels(destination: str) -> dict:
-    offers = await DemoHotelProvider().search(destination)
-    return {"offers": [o.model_dump() for o in offers], "source": "DEMO"}
+    return await _service_or_unavailable(
+        hotel_service.search_hotels({"destination": destination}, "ai-tool"), "hotels",
+    )
 
 
 async def search_cabs(pickup: str, drop: str) -> dict:
-    offers = await DemoCabProvider().search(pickup, drop)
-    return {"offers": [o.model_dump() for o in offers], "source": "DEMO"}
+    return await _service_or_unavailable(
+        cab_service.search_cabs({"pickup": pickup, "drop": drop}, "ai-tool"), "cabs",
+    )
+
+
+async def search_activities(destination: str) -> dict:
+    return await _service_or_unavailable(
+        activity_service.search_activities({"destination": destination}, "ai-tool"), "activities",
+    )
+
+
+async def get_route(origin: str, destination: str) -> dict:
+    from app.providers import registry
+
+    provider = registry.get_routing_provider()
+    if getattr(provider, "name", "") == "disabled":
+        return {"route": None, "status": "UNAVAILABLE", "reason": "PROVIDER_UNAVAILABLE"}
+    try:
+        route = await provider.calculate_route(origin, destination)
+        return {"route": route, "status": "DEMO", "estimated": True}
+    except Exception as e:
+        return {"route": None, "status": "UNAVAILABLE", "reason": str(e)}
 
 
 async def get_activity_options(destination: str) -> dict:
@@ -199,6 +229,8 @@ TOOL_REGISTRY: dict[str, dict] = {
     "search_trains": {"fn": search_trains, "safety": "READ_ONLY", "description": "Demo train schedules (not bookable)"},
     "search_hotels": {"fn": search_hotels, "safety": "READ_ONLY", "description": "Demo hotel inventory (not bookable)"},
     "search_cabs": {"fn": search_cabs, "safety": "READ_ONLY", "description": "Demo cab inventory with estimated fares"},
+    "search_activities": {"fn": search_activities, "safety": "READ_ONLY", "description": "Activity options for a destination"},
+    "get_route": {"fn": get_route, "safety": "READ_ONLY", "description": "Estimated route distance/duration"},
     "get_activity_options": {"fn": get_activity_options, "safety": "READ_ONLY", "description": "Activity options for a destination"},
     "create_trip": {"fn": create_trip, "safety": "SAFE_WRITE", "description": "Initialize the working trip state"},
     "get_trip": {"fn": get_trip, "safety": "READ_ONLY", "description": "Read the working trip state"},

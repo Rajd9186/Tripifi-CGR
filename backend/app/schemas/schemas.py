@@ -100,10 +100,13 @@ class ActivityAdd(BaseModel):
 
 
 # ---- Normalized offers (provider-agnostic) ----
+# Every offer carries provenance: provider + status + is_demo.
+# Frontend labels: DEMO → "Sample"/"Demo availability", LIVE → "Live availability".
 
 class FlightOffer(BaseModel):
     id: str
     provider: str
+    status: str = "DEMO"
     airline: str
     flight_number: str
     origin: str
@@ -112,17 +115,24 @@ class FlightOffer(BaseModel):
     arrival: str
     duration_minutes: int
     stops: int
+    cabin: str = "Economy"
     baggage_kg: int = 15
     fare: int
+    price: int | None = None
     currency: str = "INR"
     refundable: bool = True
     seat_available: bool = True
     is_demo: bool = True
 
+    def model_post_init(self, _ctx) -> None:
+        if self.price is None:
+            object.__setattr__(self, "price", self.fare)
+
 
 class TrainOffer(BaseModel):
     id: str
     provider: str
+    status: str = "DEMO"
     train_number: str
     train_name: str
     origin: str
@@ -132,42 +142,101 @@ class TrainOffer(BaseModel):
     duration_minutes: int
     travel_class: str
     fare: int
+    price: int | None = None
     currency: str = "INR"
     availability: str = "Available"
     running_days: list[str] = Field(default_factory=list)
     is_demo: bool = True
 
+    def model_post_init(self, _ctx) -> None:
+        if self.price is None:
+            object.__setattr__(self, "price", self.fare)
+
 
 class HotelOffer(BaseModel):
     id: str
     provider: str
+    status: str = "DEMO"
     name: str
     destination: str
     location: str
     rating: float = 4.0
     room_type: str = "Deluxe Room"
     amenities: list[str] = Field(default_factory=list)
-    price_per_night: int
-    total_price: int
+    breakfast: bool = True
+    cancellation: str = "Free cancellation"
+    nightly_price: int | None = None
+    price_per_night: int = 0
+    total_price: int = 0
     currency: str = "INR"
     cancellation_policy: str = "Free cancellation"
     meal_plan: str = "Breakfast included"
     is_demo: bool = True
 
+    def model_post_init(self, _ctx) -> None:
+        if self.nightly_price is None:
+            object.__setattr__(self, "nightly_price", self.price_per_night)
+
 
 class CabOffer(BaseModel):
     id: str
     provider: str
+    status: str = "DEMO"
     vehicle_type: str
     vehicle_model: str
+    vehicle: str | None = None
+    category: str | None = None
     capacity: int
+    seats: int | None = None
     luggage: int = 2
     included_km: int
     extra_km_price: int
     driver_rating: float = 4.8
-    price: int
+    base_fare: int | None = None
+    toll_estimate: int = 0
+    taxes: int = 0
+    total_price: int | None = None
+    price: int = 0
     currency: str = "INR"
     cancellation_policy: str = "Free cancellation up to 2 hours"
+    is_demo: bool = True
+
+    def model_post_init(self, _ctx) -> None:
+        if self.vehicle is None:
+            object.__setattr__(self, "vehicle", self.vehicle_model)
+        if self.category is None:
+            object.__setattr__(self, "category", self.vehicle_type)
+        if self.seats is None:
+            object.__setattr__(self, "seats", self.capacity)
+        if self.total_price is None:
+            object.__setattr__(self, "total_price", self.price)
+
+
+class ActivityOffer(BaseModel):
+    id: str
+    provider: str = "demo"
+    status: str = "DEMO"
+    title: str
+    destination: str
+    duration: str = "Half day"
+    price: int = 0
+    currency: str = "INR"
+    is_demo: bool = True
+
+
+class PackageOffer(BaseModel):
+    id: str
+    provider: str = "demo"
+    status: str = "DEMO"
+    slug: str
+    title: str
+    destination: str
+    duration: str
+    route: str
+    base_price: int
+    currency: str = "INR"
+    tags: list[str] = Field(default_factory=list)
+    inclusions: list[str] = Field(default_factory=list)
     is_demo: bool = True
 
 

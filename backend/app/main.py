@@ -3,7 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
-from app.routers import admin_enquiries, ai, auth, bookings, enquiries, geo, packages, payments, search, trips, webhooks, wishlist
+from app.routers import admin_enquiries, ai, auth, bookings, enquiries, geo, payments, search, trips, webhooks, wishlist
+from app.routers.providers import packages_router, router as providers_router
 from app.utils.request_id import RequestIDMiddleware
 
 settings = get_settings()
@@ -45,7 +46,8 @@ api = APIRouter(prefix="/api/v1")
 api.include_router(auth.router)
 api.include_router(trips.router)
 api.include_router(search.router)
-api.include_router(packages.router)
+api.include_router(packages_router)
+api.include_router(providers_router)
 api.include_router(bookings.router)
 api.include_router(payments.router)
 api.include_router(wishlist.router)
