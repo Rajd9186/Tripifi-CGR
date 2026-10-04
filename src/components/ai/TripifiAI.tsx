@@ -1,13 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import Button from "@/components/ui/Button";
+import { useApp } from "@/lib/store";
+import { briefSummary, parseTripBrief, type TripBrief } from "@/lib/ai";
+import { formatINR } from "@/lib/utils";
 
 interface Message {
   id: string;
   type: "user" | "assistant";
   content: string;
   timestamp: Date;
+  brief?: TripBrief;
 }
 
 const SUGGESTED_PROMPTS = [
@@ -36,6 +41,7 @@ export default function TripifiAI({
   ]);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+  const { ensureDraftTrip } = useApp();
 
   const handleSend = async (messageText: string = input) => {
     if (!messageText.trim()) return;
@@ -52,16 +58,31 @@ export default function TripifiAI({
     setIsThinking(true);
 
     setTimeout(() => {
+      const brief = parseTripBrief(messageText);
+      const summary = briefSummary(brief);
+      const content = summary
+        ? `Here's a demo draft for ${summary}. Estimated ${formatINR(42000)}–${formatINR(52000)} for 2 travellers — sample pricing, not a booking. Add it to the Trip Builder to customize day by day.`
+        : "I can help you build a complete itinerary with flights/trains, hotels, cabs, activities and a detailed budget. Tell me your origin, destination, days, travellers and budget — for example, 'Kolkata to Sikkim, 6 days, 2 people, under ₹50,000'.";
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        content:
-          "I can help you build a complete itinerary with flights/trains, hotels, cabs, activities and a detailed budget. This is ready to connect to our AI engine when integrated. Would you like me to create an itinerary based on this?",
+        content,
         timestamp: new Date(),
+        brief: summary ? brief : undefined,
       };
       setMessages((prev) => [...prev, assistantMessage]);
       setIsThinking(false);
     }, 1500);
+  };
+
+  const addBriefToTrip = (brief: TripBrief) => {
+    ensureDraftTrip({
+      name: brief.destination ? `${brief.destination} Escape` : "My Journey",
+      origin: brief.origin,
+      destination: brief.destination,
+      travellers: brief.travellers ?? 2,
+      ...(brief.budget ? { budget: brief.budget } : {}),
+    });
   };
 
   return (
@@ -133,6 +154,19 @@ export default function TripifiAI({
               <p className="text-sm leading-relaxed whitespace-pre-wrap">
                 {msg.content}
               </p>
+              {msg.type === "assistant" && msg.brief && (
+                <div className="mt-2 flex gap-2">
+                  <button
+                    onClick={() => addBriefToTrip(msg.brief as TripBrief)}
+                    className="btn-primary-sm min-h-[44px]"
+                  >
+                    Add to Trip Builder
+                  </button>
+                  <Link href="/plan" className="btn-ghost-sm min-h-[44px]">
+                    Open Builder
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         ))}
