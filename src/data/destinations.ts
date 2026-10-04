@@ -1,0 +1,580 @@
+export interface Attraction {
+  name: string;
+  desc: string;
+}
+
+export interface Destination {
+  slug: string;
+  name: string;
+  state: string;
+  region: string;
+  tagline: string;
+  heroImage: string;
+  gallery: string[];
+  overview: string;
+  bestTime: string;
+  idealDuration: string;
+  howToReach: { air: string; train: string; road: string };
+  attractions: Attraction[];
+  thingsToDo: string[];
+  estimatedBudget: string;
+  weather: { season: string; temp: string; note: string }[];
+  tips: string[];
+  nearby: string[];
+  lat: number;
+  lng: number;
+  airport?: string;
+  station?: string;
+  cabFocus: string;
+}
+
+export const DESTINATIONS: Destination[] = [
+  {
+    slug: "kashmir",
+    name: "Kashmir",
+    state: "Jammu & Kashmir",
+    region: "North India",
+    tagline: "Paradise on Earth, all four seasons of it",
+    heroImage: "https://images.unsplash.com/photo-1584285405429-136bf988919c?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1584285405429-136bf988919c?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+      "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=80",
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80",
+    ],
+    overview:
+      "Snow-draped peaks, cedar forests, mirror-calm lakes and Mughal gardens — Kashmir is India's most storied Himalayan valley. Shikara rides on Dal Lake, gondola rides in Gulmarg and meadow walks in Pahalgam make it a year-round wonder.",
+    bestTime: "March–October (Dec–Feb for snow)",
+    idealDuration: "5–7 days",
+    howToReach: {
+      air: "Direct flights to Srinagar (SXR) from Delhi, Mumbai, Bengaluru and Kolkata.",
+      train: "Nearest railhead: Jammu Tawi / Katra (SVDK), then a 7–8 hr scenic road drive.",
+      road: "Srinagar is 270 km from Jammu via the Jammu–Srinagar highway (NH-44).",
+    },
+    attractions: [
+      { name: "Dal Lake, Srinagar", desc: "Iconic lake with floating gardens, shikaras and houseboats." },
+      { name: "Gulmarg Gondola", desc: "One of the world's highest cable cars up Apharwat Peak." },
+      { name: "Pahalgam Valley", desc: "Betaab & Aru valleys, pine forests and the Lidder river." },
+      { name: "Sonamarg", desc: "Meadow of gold — gateway to the Thajiwas glacier." },
+      { name: "Mughal Gardens", desc: "Nishat, Shalimar and Chashme Shahi terraced gardens." },
+      { name: "Old City, Srinagar", desc: "Jama Masjid, wooden architecture and saffron bazaars." },
+    ],
+    thingsToDo: ["Shikara ride at sunrise", "Gondola & snow sports in Gulmarg", "Trout fishing in Pahalgam", "Saffron & pashmina shopping", "Wazwan feast", "Photography walk in Old Srinagar"],
+    estimatedBudget: "₹18,000 – ₹45,000 per person for 5–6 days",
+    weather: [
+      { season: "Spring (Mar–May)", temp: "8–22°C", note: "Almond blossoms and green meadows" },
+      { season: "Summer (Jun–Aug)", temp: "15–30°C", note: "Pleasant, best for families" },
+      { season: "Autumn (Sep–Nov)", temp: "5–20°C", note: "Golden chinar foliage" },
+      { season: "Winter (Dec–Feb)", temp: "-4–10°C", note: "Heavy snow, skiing season" },
+    ],
+    tips: ["Carry photo ID; keep permits for Sonamarg/Gulmarg arranged by your hotel", "Book houseboats 2–3 weeks ahead in season", "Pack layers — evenings are cold even in summer", "Use Yatraa-verified cabs for mountain drives"],
+    nearby: ["ladakh", "himachal-pradesh"],
+    lat: 34.08,
+    lng: 74.8,
+    airport: "SXR",
+    station: "SVDK",
+    cabFocus: "Srinagar Airport → Dal Lake hotel transfers, Gulmarg & Pahalgam day trips",
+  },
+  {
+    slug: "ladakh",
+    name: "Ladakh",
+    state: "Ladakh (UT)",
+    region: "North India",
+    tagline: "Land of high passes and turquoise lakes",
+    heroImage: "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80",
+    ],
+    overview:
+      "A high-altitude desert of Buddhist monasteries, dramatic moonscapes and the impossibly blue Pangong Tso. Leh, Nubra Valley and Turtuk offer India's most otherworldly road trips.",
+    bestTime: "May–September",
+    idealDuration: "6–8 days",
+    howToReach: {
+      air: "Daily flights to Leh (IXL) from Delhi, Mumbai and Srinagar. Acclimatise for 24 hrs.",
+      train: "Nearest railhead: Jammu / Chandigarh — not practical; fly instead.",
+      road: "Manali–Leh Highway (474 km) or Srinagar–Leh (420 km), open May–Oct.",
+    },
+    attractions: [
+      { name: "Pangong Tso", desc: "134-km high-altitude lake that changes colour through the day." },
+      { name: "Nubra Valley", desc: "Sand dunes between mountains; ride the double-humped camels." },
+      { name: "Thiksey Monastery", desc: "12-storey gompa with a 15m Maitreya Buddha statue." },
+      { name: "Khardung La", desc: "One of the world's highest motorable passes (5,359 m)." },
+      { name: "Magnetic Hill", desc: "Optical illusion where vehicles seem to roll uphill." },
+      { name: "Shanti Stupa", desc: "White-domed stupa with panoramic Leh valley sunset views." },
+    ],
+    thingsToDo: ["Camel safari on Hunder dunes", "Motorbike trip to Turtuk", "Monastery circuit (Hemis, Diskit, Alchi)", "Stargazing at Pangong", "River rafting on the Zanskar", "Ladakhi cuisine & butter tea"],
+    estimatedBudget: "₹25,000 – ₹55,000 per person for 6–7 days",
+    weather: [
+      { season: "Summer (May–Sep)", temp: "5–25°C", note: "Open roads, best season" },
+      { season: "Winter (Oct–Apr)", temp: "-15–5°C", note: "Roads closed, Chadar trek season" },
+    ],
+    tips: ["Allow 1–2 days acclimatisation in Leh before ascending", "Carry inner-line permits for Nubra/Pangong (arranged via operator)", "AMS tablets and hydration are essential", "Fuel up wherever available — pumps are sparse"],
+    nearby: ["kashmir", "himachal-pradesh"],
+    lat: 34.15,
+    lng: 77.58,
+    airport: "IXL",
+    station: "JAT",
+    cabFocus: "Leh airport transfers, Nubra & Pangong multi-day cab tours",
+  },
+  {
+    slug: "himachal-pradesh",
+    name: "Himachal Pradesh",
+    state: "Himachal Pradesh",
+    region: "North India",
+    tagline: "Apple orchards, colonial malls and alpine adventures",
+    heroImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80",
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&q=80",
+    ],
+    overview:
+      "From Shimla's colonial charm to Manali's adventure slopes, Bir's paragliding skies and Spiti's stark monasteries — Himachal is the Himalayas made easy, a weekend away from Delhi.",
+    bestTime: "March–June, September–November",
+    idealDuration: "4–7 days",
+    howToReach: {
+      air: "Flights to Chandigarh (IXC) or Dharamshala (DHM); Delhi is a 6–8 hr drive.",
+      train: "Toy train from Kalka to Shimla; broad gauge to Una/Pathankot.",
+      road: "Excellent NH-5 and NH-3 connectivity; Volvo buses from Delhi.",
+    },
+    attractions: [
+      { name: "The Ridge, Shimla", desc: "Heritage promenade with colonial buildings and mountain views." },
+      { name: "Solang Valley, Manali", desc: "Paragliding, zorbing and winter skiing." },
+      { name: "Hadimba Temple", desc: "Cedar-shaded pagoda temple from 1553." },
+      { name: "Bir Billing", desc: "Asia's best paragliding site, 10-min flights over valleys." },
+      { name: "Key Monastery, Spiti", desc: "1,000-year-old gompa above the Spiti river." },
+      { name: "Kasol & Parvati Valley", desc: "Backpacker trails, hot springs at Manikaran." },
+    ],
+    thingsToDo: ["Paragliding at Bir Billing", "Skiing in Solang", "Treks to Triund & Kheerganga", "Toy-train ride Kalka–Shimla", "Cafe-hopping in Old Manali", "Spiti road trip"],
+    estimatedBudget: "₹10,000 – ₹35,000 per person for 4–6 days",
+    weather: [
+      { season: "Spring (Mar–Apr)", temp: "10–20°C", note: "Blooming valleys, clear skies" },
+      { season: "Summer (May–Jun)", temp: "15–32°C", note: "Peak season, book early" },
+      { season: "Monsoon (Jul–Aug)", temp: "15–25°C", note: "Lush but landslide-prone" },
+      { season: "Winter (Dec–Feb)", temp: "-5–15°C", note: "Snow in Manali/Shimla" },
+    ],
+    tips: ["Book Volvo/paragliding slots in advance for May–June", "Mountain roads wind — carry motion-sickness tablets", "Cash works better in Spiti and small villages", "Avoid night driving on hill roads"],
+    nearby: ["ladakh", "kashmir", "uttarakhand"],
+    lat: 31.9,
+    lng: 77.1,
+    airport: "IXC",
+    station: "CDG",
+    cabFocus: "Delhi/Chandigarh → Shimla/Manali outstation cabs, Spiti multi-day tours",
+  },
+  {
+    slug: "rajasthan",
+    name: "Rajasthan",
+    state: "Rajasthan",
+    region: "West India",
+    tagline: "Forts, palaces and the great Thar desert",
+    heroImage: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&q=80",
+      "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1200&q=80",
+      "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1200&q=80",
+      "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=1200&q=80",
+    ],
+    overview:
+      "India's royal heartland — Jaipur's pink bazaars, Udaipur's lake palaces, Jodhpur's blue city and Jaisalmer's golden dunes. Heritage hotels, thali feasts and desert safaris under a vast sky.",
+    bestTime: "October–March",
+    idealDuration: "6–9 days",
+    howToReach: {
+      air: "Jaipur (JAI), Udaipur (UDR) and Jodhpur (JDH) airports connect metro cities.",
+      train: "Excellent rail: Shatabdi/Rajdhani from Delhi; Palace on Wheels for luxury.",
+      road: "Smooth highways — the Delhi–Jaipur–Udaipur circuit is a classic road trip.",
+    },
+    attractions: [
+      { name: "Amber Fort, Jaipur", desc: "Hilltop sandstone fort with mirrored halls." },
+      { name: "Hawa Mahal", desc: "The 953-window pink palace facade of Jaipur." },
+      { name: "City Palace, Udaipur", desc: "Lake Pichola's grandest waterfront palace." },
+      { name: "Mehrangarh Fort, Jodhpur", desc: "One of India's largest forts above the Blue City." },
+      { name: "Sam Sand Dunes, Jaisalmer", desc: "Camel safaris and desert camps at sunset." },
+      { name: "Ranthambore National Park", desc: "Tiger safaris in a 10th-century forest fort." },
+    ],
+    thingsToDo: ["Hot-air balloon over Jaipur", "Sunset at Pichola lake ghats", "Desert camping in Jaisalmer", "Tiger safari at Ranthambore", "Block-print workshop in Bagru", "Rajasthani thali & ghewar"],
+    estimatedBudget: "₹15,000 – ₹50,000 per person for 6–7 days",
+    weather: [
+      { season: "Winter (Oct–Mar)", temp: "8–28°C", note: "Perfect — peak season" },
+      { season: "Summer (Apr–Jun)", temp: "30–45°C", note: "Very hot, hotel discounts" },
+      { season: "Monsoon (Jul–Sep)", temp: "25–38°C", note: "Mild rains, Udaipur is lovely" },
+    ],
+    tips: ["Book heritage hotels 3–4 weeks ahead for Dec–Jan", "Desert camps: carry a light jacket — nights get cold", "Hire Yatraa-verified cabs for the Jaipur–Jodhpur–Udaipur circuit", "Bargain politely in bazaars; fixed-price emporiums are safer"],
+    nearby: ["goa", "gujarat-hills"],
+    lat: 26.9,
+    lng: 75.8,
+    airport: "JAI",
+    station: "JP",
+    cabFocus: "Jaipur ↔ Jodhpur ↔ Udaipur circuit, Agra day trips, desert transfers",
+  },
+  {
+    slug: "goa",
+    name: "Goa",
+    state: "Goa",
+    region: "West India",
+    tagline: "Beach days, susegad nights",
+    heroImage: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1200&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
+      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80",
+      "https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=1200&q=80",
+    ],
+    overview:
+      "Palm-fringed beaches from lively Baga to serene Palolem, Portuguese churches, spice farms and a café culture unlike anywhere in India. North Goa for energy, South Goa for stillness.",
+    bestTime: "November–February",
+    idealDuration: "3–5 days",
+    howToReach: {
+      air: "Flights to Goa (GOI) or Mopa (GOX) from all metro cities.",
+      train: "Madgaon (MAO) and Thivim (THVM) stations — Konkan railway is scenic.",
+      road: "Mumbai–Goa via NH-66 (590 km); overnight buses from Mumbai/Bengaluru.",
+    },
+    attractions: [
+      { name: "Baga & Calangute", desc: "The classic north Goa beach strip with shacks and water sports." },
+      { name: "Palolem Beach", desc: "Crescent bay in south Goa, kayak-friendly and calm." },
+      { name: "Basilica of Bom Jesus", desc: "UNESCO-listed 16th-century baroque church in Old Goa." },
+      { name: "Dudhsagar Falls", desc: "Four-tiered waterfall on the Karnataka border." },
+      { name: "Fontainhas, Panjim", desc: "Latin quarter with yellow-and-blue heritage homes." },
+      { name: "Anjuna Flea Market", desc: "Wednesday flea market and cliff-side sunset points." },
+    ],
+    thingsToDo: ["Sunset cruise on the Mandovi", "Water sports at Baga", "Spice plantation tour", "Dudhsagar jeep safari", "Goan fish-thali & beach shacks", "Casino night (onshore)"],
+    estimatedBudget: "₹8,000 – ₹30,000 per person for 3–4 days",
+    weather: [
+      { season: "Winter (Nov–Feb)", temp: "18–32°C", note: "Perfect beach weather" },
+      { season: "Monsoon (Jun–Sep)", temp: "24–30°C", note: "Lush, dramatic seas, low prices" },
+    ],
+    tips: ["Rent scooters from verified vendors; helmets are mandatory", "Book beach shacks for New Year weeks well in advance", "South Goa = quieter; North Goa = nightlife", "Carry sunscreen — the equatorial sun is strong"],
+    nearby: ["rajasthan", "kerala"],
+    lat: 15.3,
+    lng: 74.12,
+    airport: "GOI",
+    station: "MAO",
+    cabFocus: "Airport transfers, North ↔ South Goa day trips, Dudhsagar jeep tours",
+  },
+  {
+    slug: "kerala",
+    name: "Kerala",
+    state: "Kerala",
+    region: "South India",
+    tagline: "God's own country — backwaters, tea and Ayurveda",
+    heroImage: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=80",
+      "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=1200&q=80",
+      "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80",
+    ],
+    overview:
+      "Houseboats gliding through Alleppey's backwaters, Munnar's emerald tea slopes, Fort Kochi's Chinese fishing nets and Kovalam's crescent sands — Kerala is slow, green and restorative.",
+    bestTime: "September–March",
+    idealDuration: "5–8 days",
+    howToReach: {
+      air: "Kochi (COK), Trivandrum (TRV) and Kozhikode (CCJ) airports.",
+      train: "Ernakulam (ERS) and Trivandrum Central (TVC) connect all metros.",
+      road: "Well-maintained state highways; the Kochi–Munnar drive is a classic.",
+    },
+    attractions: [
+      { name: "Alleppey Backwaters", desc: "Overnight houseboats through canals and lagoons." },
+      { name: "Munnar Tea Gardens", desc: "Rolling tea estates, Eravikulam park and Top Station views." },
+      { name: "Fort Kochi", desc: "Chinese fishing nets, colonial streets and art cafés." },
+      { name: "Periyar Wildlife Sanctuary", desc: "Boat safaris among elephants in Thekkady." },
+      { name: "Kovalam & Varkala", desc: "Cliff-side beaches with sunset yoga." },
+      { name: "Athirappilly Falls", desc: "The 'Niagara of India', an hour from Kochi." },
+    ],
+    thingsToDo: ["Overnight houseboat stay", "Ayurvedic spa & massage", "Tea estate walk in Munnar", "Kathakali performance", "Sunset at Varkala cliff", "Sadya feast on banana leaf"],
+    estimatedBudget: "₹14,000 – ₹40,000 per person for 5–6 days",
+    weather: [
+      { season: "Winter (Sep–Mar)", temp: "20–32°C", note: "Ideal, peak season" },
+      { season: "Monsoon (Jun–Aug)", temp: "22–30°C", note: "Torrential but magical — Ayurveda season" },
+    ],
+    tips: ["Houseboats: verify AC timing (9pm–6am) and menu in advance", "Munnar roads are winding — travel by day", "Ayurveda treatments need advance booking", "Carry cash for small toddy shops and local markets"],
+    nearby: ["tamil-nadu", "goa"],
+    lat: 10.0,
+    lng: 76.5,
+    airport: "COK",
+    station: "ERS",
+    cabFocus: "Kochi airport transfers, Munnar–Thekkady–Alleppey circuit cabs",
+  },
+  {
+    slug: "northeast-india",
+    name: "Northeast India",
+    state: "Meghalaya · Assam · Arunachal",
+    region: "East India",
+    tagline: "Living root bridges, cloud valleys and river islands",
+    heroImage: "https://images.unsplash.com/photo-1626624340240-aadc087844fa?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1626624340240-aadc087844fa?w=1200&q=80",
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80",
+      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=80",
+    ],
+    overview:
+      "Meghalaya's rain-washed canyons and living root bridges, Kaziranga's rhinos, Majuli's river island and Arunachal's Tawang monastery — India's greenest frontier, still blissfully uncrowded.",
+    bestTime: "October–April",
+    idealDuration: "6–9 days",
+    howToReach: {
+      air: "Guwahati (GAU) is the gateway; Shillong (SHL) has limited flights.",
+      train: "Guwahati Junction connects Delhi, Kolkata and Bengaluru.",
+      road: "Guwahati → Shillong (100 km) → Cherrapunji (55 km) is the classic route.",
+    },
+    attractions: [
+      { name: "Living Root Bridges, Cherrapunji", desc: "Ficus bridges grown over centuries across streams." },
+      { name: "Dawki & Umngot River", desc: "Glass-clear river at the Bangladesh border." },
+      { name: "Kaziranga National Park", desc: "Two-thirds of the world's one-horned rhinos." },
+      { name: "Shillong Peak & Laitlum", desc: "Panoramic canyon viewpoints over Meghalaya." },
+      { name: "Majuli Island", desc: "World's largest river island on the Brahmaputra." },
+      { name: "Tawang Monastery", desc: "India's largest monastery at 3,000 m." },
+    ],
+    thingsToDo: ["Trek to double-decker root bridge", "Boating at Dawki", "Rhino safari in Kaziranga", "Cave exploring (Mawsmai, Arwah)", "Mawsynram waterfall trails", "Khasi cuisine tasting"],
+    estimatedBudget: "₹16,000 – ₹42,000 per person for 6–7 days",
+    weather: [
+      { season: "Winter (Oct–Feb)", temp: "8–22°C", note: "Clear views, best season" },
+      { season: "Monsoon (Jun–Sep)", temp: "18–28°C", note: "Extreme rain — waterfalls at full roar" },
+    ],
+    tips: ["Indian tourists need ILP for Arunachal/Mizoram/Nagaland", "Root bridge trek is steep — start early, wear grippy shoes", "Network coverage is patchy in canyons — download offline maps", "Book Kaziranga safaris online in advance"],
+    nearby: ["sikkim", "west-bengal"],
+    lat: 25.57,
+    lng: 91.88,
+    airport: "GAU",
+    station: "GHY",
+    cabFocus: "Guwahati → Shillong → Cherrapunji circuit, Kaziranga transfers",
+  },
+  {
+    slug: "west-bengal",
+    name: "Darjeeling & West Bengal",
+    state: "West Bengal",
+    region: "East India",
+    tagline: "Tea gardens, toy trains and Kanchenjunga sunrises",
+    heroImage: "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+      "https://images.unsplash.com/photo-1561361513-2d000a50f0dc?w=1200&q=80",
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&q=80",
+    ],
+    overview:
+      "Colonial Kolkata's trams and Howrah Bridge, the Darjeeling Himalayan Railway's steam loops, Tiger Hill's Kanchenjunga dawn and Sundarbans' mangrove tigers — Bengal is India's most soulful east.",
+    bestTime: "March–May, October–December",
+    idealDuration: "4–7 days",
+    howToReach: {
+      air: "Kolkata (CCU) and Bagdogra (IXB) airports.",
+      train: "Howrah/Sealdah to New Jalpaiguri (NJP); Darjeeling Mail is a classic overnight.",
+      road: "NJP → Darjeeling (70 km) via hill roads; Kolkata → Digha (185 km) for beaches.",
+    },
+    attractions: [
+      { name: "Tiger Hill, Darjeeling", desc: "Sunrise over Kanchenjunga — arrive by 4:15 am." },
+      { name: "Darjeeling Himalayan Railway", desc: "UNESCO toy train with Batasia loop." },
+      { name: "Victoria Memorial, Kolkata", desc: "Marble icon of British-era Kolkata." },
+      { name: "Howrah Bridge & Ghats", desc: "The river Hooghly's working bridges and dawn ghats." },
+      { name: "Sundarbans", desc: "Mangrove delta and swimming Royal Bengal tigers." },
+      { name: "Mirik & Peace Pagoda", desc: "Lake town and Japanese stupa near Darjeeling." },
+    ],
+    thingsToDo: ["Sunrise at Tiger Hill", "Toy train joy ride", "Tea tasting at Happy Valley estate", "Sundarban boat safari", "Kolkata food walk (roshogolla, kathi rolls)", "Ropeway over tea valleys"],
+    estimatedBudget: "₹9,000 – ₹30,000 per person for 4–6 days",
+    weather: [
+      { season: "Spring (Mar–May)", temp: "12–24°C", note: "Clear Kanchenjunga views" },
+      { season: "Monsoon (Jun–Sep)", temp: "18–26°C", note: "Heavy rain, landslide risk" },
+      { season: "Winter (Oct–Feb)", temp: "2–18°C", note: "Crisp, best for both Kolkata & hills" },
+    ],
+    tips: ["Book NJP overnight trains 30+ days ahead (Tatkal rare)", "Toy-train seats sell out — reserve at station day before", "Carry woolens even in May for Tiger Hill", "Use verified hill cabs; roads are narrow"],
+    nearby: ["sikkim", "northeast-india"],
+    lat: 27.04,
+    lng: 88.26,
+    airport: "IXB",
+    station: "NJP",
+    cabFocus: "NJP → Darjeeling transfers, Gangtok & Kalimpong day trips, Kolkata local tours",
+  },
+  {
+    slug: "sikkim",
+    name: "Sikkim",
+    state: "Sikkim",
+    region: "East India",
+    tagline: "Kanchenjunga's kingdom of monasteries and orchids",
+    heroImage: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1200&q=80",
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80",
+    ],
+    overview:
+      "India's cleanest state — Gangtok's MG Marg, the frozen lakes of Nathula, Pelling's skywalk under Kanchenjunga and Rumtek's golden monastery. Compact, safe and staggeringly beautiful.",
+    bestTime: "March–June, October–December",
+    idealDuration: "4–6 days",
+    howToReach: {
+      air: "Pakyong (PYG, limited) or Bagdogra (IXB) + 4–5 hr drive.",
+      train: "New Jalpaiguri (NJP) is the nearest broad-gauge station.",
+      road: "NJP → Gangtok (120 km) via NH-10 along the Teesta river.",
+    },
+    attractions: [
+      { name: "MG Marg, Gangtok", desc: "Pedestrian-only boulevard with cafés and lamp-lit evenings." },
+      { name: "Tsomgo (Changu) Lake", desc: "Glacial lake at 12,400 ft, frozen in winter." },
+      { name: "Nathula Pass", desc: "Indo-China border pass at 14,140 ft (permits needed)." },
+      { name: "Pelling Skywalk", desc: "Glass skywalk facing Kanchenjunga, India's tallest statue nearby." },
+      { name: "Rumtek Monastery", desc: "Seat of the Karmapa, richly gilded interiors." },
+      { name: "Yumthang Valley", desc: "Valley of flowers with zero-point snowfields." },
+    ],
+    thingsToDo: ["Cable car ride in Gangtok", "Nathula + Baba Mandir day trip", "Rafting on the Teesta", "Monastery visits (Rumtek, Enchey)", "Sikkimese momos & thukpa", "Paragliding at Yangyang"],
+    estimatedBudget: "₹12,000 – ₹32,000 per person for 4–5 days",
+    weather: [
+      { season: "Spring (Mar–May)", temp: "10–22°C", note: "Rhododendrons in bloom" },
+      { season: "Winter (Oct–Feb)", temp: "-5–15°C", note: "Frozen lakes, snow at Nathula" },
+    ],
+    tips: ["Permits for Nathula/Tsomgo arranged 1–2 days ahead via registered operator", "Carry passport photos + ID copies for permit forms", "Roads close after heavy rain — keep buffer days", "Plastic bags are banned — respect Sikkim's green rules"],
+    nearby: ["west-bengal", "northeast-india"],
+    lat: 27.53,
+    lng: 88.51,
+    airport: "IXB",
+    station: "NJP",
+    cabFocus: "NJP/Bagdogra → Gangtok → Pelling circuit cabs, Nathula permit tours",
+  },
+  {
+    slug: "uttarakhand",
+    name: "Uttarakhand",
+    state: "Uttarakhand",
+    region: "North India",
+    tagline: "Ganga's valleys, Char Dham and yoga's birthplace",
+    heroImage: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
+      "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&q=80",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+    ],
+    overview:
+      "Rishikesh's rafting ghats and Beatles ashram, Nainital's lake district, Mussoorie's mall road and the Char Dham trail — Devbhoomi is where spirituality meets adventure.",
+    bestTime: "March–June, September–November",
+    idealDuration: "4–7 days",
+    howToReach: {
+      air: "Dehradun (DED) airport; Kathgodam (KGM) railhead for Nainital side.",
+      train: "Haridwar/Dehradun trains from Delhi; Kathgodam Shatabdi for Nainital.",
+      road: "Delhi → Rishikesh (240 km) / Nainital (320 km) — smooth NH-9/NH-34.",
+    },
+    attractions: [
+      { name: "Triveni Ghat, Rishikesh", desc: "Evening Ganga aarti with floating diyas." },
+      { name: "Laxman Jhula", desc: "Iconic suspension bridge over the Ganga." },
+      { name: "Naini Lake, Nainital", desc: "Emerald lake ringed by hills and a mall road." },
+      { name: "Kempty Falls, Mussoorie", desc: "Cascade and pool, a Mussoorie classic." },
+      { name: "Valley of Flowers", desc: "UNESCO alpine meadow trek (Jul–Sep)." },
+      { name: "Jim Corbett National Park", desc: "India's oldest tiger reserve." },
+    ],
+    thingsToDo: ["White-water rafting (16 km stretch)", "Ganga aarti at Triveni Ghat", "Camping at Kanatal & Rishikesh", "Corbett jeep safari", "Trek to Kedarkantha (winter)", "Yoga & meditation retreats"],
+    estimatedBudget: "₹8,000 – ₹28,000 per person for 4–5 days",
+    weather: [
+      { season: "Summer (Mar–Jun)", temp: "15–35°C", note: "Best for rafting & hills" },
+      { season: "Monsoon (Jul–Sep)", temp: "18–30°C", note: "Valley of Flowers season" },
+      { season: "Winter (Nov–Feb)", temp: "0–22°C", note: "Snow treks, Nainital is cold" },
+    ],
+    tips: ["Char Dham yatra requires registration (2026: register online)", "Rafting closes during monsoon (Jul–Aug)", "Alcohol and non-veg are restricted in Rishikesh", "Book Corbett safaris 30–45 days ahead"],
+    nearby: ["himachal-pradesh", "kashmir"],
+    lat: 30.07,
+    lng: 79.2,
+    airport: "DED",
+    station: "DDN",
+    cabFocus: "Delhi → Rishikesh/Nainital outstation cabs, Char Dham transfers",
+  },
+  {
+    slug: "tamil-nadu",
+    name: "Tamil Nadu",
+    state: "Tamil Nadu",
+    region: "South India",
+    tagline: "Dravidian temples, French quarters and hill tea",
+    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&q=80",
+      "https://images.unsplash.com/photo-1580136579312-94651dfd596d?w=1200&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
+      "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=1200&q=80",
+    ],
+    overview:
+      "Madurai's Meenakshi temple, the Shore Temple at Mahabalipuram, Pondicherry's French lanes and Ooty's Nilgiri toy train — Tamil Nadu is 2,000 years of living architecture and flavour.",
+    bestTime: "November–February",
+    idealDuration: "5–8 days",
+    howToReach: {
+      air: "Chennai (MAA), Madurai (IXM) and Coimbatore (CJB) airports.",
+      train: "Chennai Central (MAS) and Madurai (MDU) connect the whole country.",
+      road: "Chennai → Pondicherry via ECR coastal road is a beautiful drive.",
+    },
+    attractions: [
+      { name: "Meenakshi Temple, Madurai", desc: "Towering gopurams and 1,000-pillar hall." },
+      { name: "Shore Temple, Mahabalipuram", desc: "7th-century Pallava temple by the Bay of Bengal." },
+      { name: "French Quarter, Pondicherry", desc: "Bougainvillea streets, café culture and promenade." },
+      { name: "Nilgiri Mountain Railway", desc: "UNESCO steam toy train from Mettupalayam to Ooty." },
+      { name: "Brihadeeswarar Temple, Thanjavur", desc: "Chola granite masterpiece, UNESCO-listed." },
+      { name: "Kanyakumari", desc: "India's southern tip where three seas meet." },
+    ],
+    thingsToDo: ["Temple trail in Madurai & Thanjavur", "Cycling in Pondicherry", "Toy train to Ooty", "Chettinad cuisine tour", "Beach time at Kanyakumari", "Classical dance (Bharatanatyam) show"],
+    estimatedBudget: "₹12,000 – ₹35,000 per person for 5–7 days",
+    weather: [
+      { season: "Winter (Nov–Feb)", temp: "20–30°C", note: "Best season, festivals on" },
+      { season: "Summer (Apr–Jun)", temp: "30–40°C", note: "Hot — head to Ooty/Kodaikanal" },
+      { season: "Monsoon (Oct–Dec)", temp: "24–32°C", note: "NE monsoon rains" },
+    ],
+    tips: ["Temples: modest dress, leave footwear outside", "Puducherry cafés need reservations on weekends", "Toy-train tickets sell out — book on IRCTC early", "ECR road: start early to avoid Chennai traffic"],
+    nearby: ["kerala"],
+    lat: 11.0,
+    lng: 78.5,
+    airport: "MAA",
+    station: "MAS",
+    cabFocus: "Chennai → Mahabalipuram → Pondicherry coastal cabs, Madurai temple circuits",
+  },
+  {
+    slug: "andaman-nicobar",
+    name: "Andaman & Nicobar",
+    state: "Andaman & Nicobar Islands",
+    region: "Islands",
+    tagline: "India's Maldives — coral seas and rainforest islands",
+    heroImage: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80",
+    gallery: [
+      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
+      "https://images.unsplash.com/photo-1505228395891-9a51e7e86bf6?w=1200&q=80",
+      "https://images.unsplash.com/photo-1544967082-d9d25d867e66?w=1200&q=80",
+    ],
+    overview:
+      "Radhanagar's white-sand sunsets, Neil Island's coral shallows, Cellular Jail's poignant history and scuba diving among the healthiest reefs in Asia — India's island paradise in the Bay of Bengal.",
+    bestTime: "October–May",
+    idealDuration: "5–6 days",
+    howToReach: {
+      air: "Flights to Port Blair (IXZ) from Chennai, Kolkata, Delhi and Bengaluru.",
+      train: "Not applicable — island UT. Fly via Chennai/Kolkata.",
+      road: "Inter-island ferries: Port Blair ↔ Havelock ↔ Neil (book online).",
+    },
+    attractions: [
+      { name: "Radhanagar Beach, Havelock", desc: "Rated Asia's best beach — powder sand and sunsets." },
+      { name: "Elephant Beach", desc: "Snorkelling and sea-walk hub with shallow reefs." },
+      { name: "Cellular Jail", desc: "Freedom-struggle memorial with evening light show." },
+      { name: "Neil Island", desc: "Laid-back island with Bharatpur coral beach." },
+      { name: "Ross Island", desc: "Ruined colonial capital reclaimed by deer and roots." },
+      { name: "Baratang Limestone Caves", desc: "Mangrove creek journey to ancient caves." },
+    ],
+    thingsToDo: ["Scuba diving (beginner-friendly)", "Sea walk at Elephant Beach", "Sunset at Radhanagar", "Glass-bottom boat rides", "Kayaking through mangroves", "Island-hopping ferry trips"],
+    estimatedBudget: "₹22,000 – ₹55,000 per person for 5–6 days",
+    weather: [
+      { season: "Winter (Oct–May)", temp: "24–32°C", note: "Calm seas, diving season" },
+      { season: "Monsoon (Jun–Sep)", temp: "24–30°C", note: "Ferry disruptions, low prices" },
+    ],
+    tips: ["Book Havelock ferries 2–3 weeks ahead online", "Foreigners need Restricted Area Permit (issued on arrival)", "Carry reef-safe sunscreen", "Nonguest dives need a PADI-certified operator — Yatraa partners only"],
+    nearby: ["kerala", "tamil-nadu"],
+    lat: 11.62,
+    lng: 92.73,
+    airport: "IXZ",
+    station: undefined,
+    cabFocus: "Port Blair airport transfers, Baratang day trips, hotel ↔ jetty transfers",
+  },
+];
+
+export function findDestination(slug: string): Destination | undefined {
+  return DESTINATIONS.find((d) => d.slug === slug);
+}
+
+export function searchDestinations(q: string): Destination[] {
+  const s = q.trim().toLowerCase();
+  if (!s) return DESTINATIONS;
+  return DESTINATIONS.filter(
+    (d) => d.name.toLowerCase().includes(s) || d.state.toLowerCase().includes(s) || d.region.toLowerCase().includes(s) || d.tagline.toLowerCase().includes(s)
+  );
+}

@@ -1,0 +1,21 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(app)/ai/page": "app/(app)/ai/page.js",
+  "/(app)/cabs/results/page": "app/(app)/cabs/results/page.js",
+  "/(app)/booking/[id]/page": "app/(app)/booking/[id]/page.js",
+  "/(app)/packages/page": "app/(app)/packages/page.js",
+  "/(app)/page": "app/(app)/page.js",
+  "/(app)/cabs/page": "app/(app)/cabs/page.js",
+  "/(app)/flights/results/page": "app/(app)/flights/results/page.js",
+  "/(app)/destinations/page": "app/(app)/destinations/page.js",
+  "/(app)/flights/page": "app/(app)/flights/page.js",
+  "/(app)/checkout/page": "app/(app)/checkout/page.js",
+  "/(app)/plan/page": "app/(app)/plan/page.js",
+  "/(app)/destinations/[slug]/page": "app/(app)/destinations/[slug]/page.js",
+  "/(app)/packages/[slug]/page": "app/(app)/packages/[slug]/page.js",
+  "/(app)/profile/page": "app/(app)/profile/page.js",
+  "/(app)/trains/results/page": "app/(app)/trains/results/page.js",
+  "/(app)/wishlist/page": "app/(app)/wishlist/page.js",
+  "/(app)/trips/page": "app/(app)/trips/page.js",
+  "/(app)/trains/page": "app/(app)/trains/page.js"
+}

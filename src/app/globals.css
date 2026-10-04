@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --header-h: 72px;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-cream-50 text-ink-900 font-sans antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  @apply bg-saffron-200 text-navy-900;
+}
+
+/* ---------- Scrollbars ---------- */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-ink-200 rounded-full;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ---------- Glass / surfaces ---------- */
+.glass {
+  @apply bg-white/85 backdrop-blur-xl border border-white/70;
+}
+.glass-dark {
+  @apply bg-navy-900/70 backdrop-blur-xl border border-white/10;
+}
+
+/* ---------- Safe areas (mobile) ---------- */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pb-nav {
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 768px) {
+  .pb-nav {
+    padding-bottom: 0;
+  }
+}
+
+/* ---------- Inputs ---------- */
+.field {
+  @apply w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-[15px] text-ink-900 placeholder:text-ink-400 outline-none transition focus:border-saffron-500 focus:ring-2 focus:ring-saffron-500/20;
+}
+.input-label {
+  @apply mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-ink-500;
+}
+
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-saffron-500 px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:bg-saffron-600 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+}
+.btn-navy {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl bg-navy-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-navy-800 active:scale-[0.98] disabled:opacity-50;
+}
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-200 bg-white px-5 py-3 text-sm font-semibold text-ink-800 transition hover:border-navy-300 hover:bg-navy-50 active:scale-[0.98];
+}
+
+.chip {
+  @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border border-ink-200 bg-white px-3.5 py-2 text-[13px] font-medium text-ink-700 transition hover:border-saffron-400 hover:text-saffron-600;
+}
+.chip-active {
+  @apply border-saffron-500 bg-saffron-500 text-white hover:text-white;
+}
+
+.card {
+  @apply rounded-2xl bg-white shadow-soft ring-1 ring-ink-100;
+}
+
+/* ---------- Skeletons ---------- */
+.skeleton {
+  @apply relative overflow-hidden rounded-xl bg-ink-100;
+  background-image: linear-gradient(90deg, transparent 0px, rgba(255, 255, 255, 0.75) 60px, transparent 120px);
+  background-size: 400px 100%;
+  background-repeat: no-repeat;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* ---------- Route line animation ---------- */
+.route-dash {
+  stroke-dasharray: 6 6;
+  animation: dash 1s linear infinite;
+}
+
+/* ---------- Timeline ---------- */
+.timeline-dot {
+  @apply absolute left-0 top-1 flex h-8 w-8 items-center justify-center rounded-full bg-navy-50 text-sm ring-1 ring-navy-100;
+}
