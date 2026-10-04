@@ -41,3 +41,11 @@ Thumbs.db
 
 # Large binaries
 *.node
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+backend/.env
+tripifi.db

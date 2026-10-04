@@ -59,7 +59,15 @@ npm start
 This project can also be deployed using the included render.yaml if needed.
 
 ## Environment Variables
-No required env vars for current mock data. Ready for future API integrations.
+Frontend works with no backend (demo data, clearly marked `is_demo`).
+To connect the FastAPI backend:
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1 npm run dev
+```
+
+See `backend/README.md` and `backend/.env.example` for backend setup
+(PostgreSQL, migrations, seed, auth, providers). Never commit `.env`.
 
 ## License
 MIT
