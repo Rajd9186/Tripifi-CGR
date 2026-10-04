@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Home", href: "/", icon: HomeIcon },
@@ -22,6 +23,7 @@ function HomeIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
       {...props}
     >
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -41,6 +43,7 @@ function CompassIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
       {...props}
     >
       <circle cx="12" cy="12" r="10"></circle>
@@ -60,6 +63,7 @@ function TripIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
       {...props}
     >
       <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -80,6 +84,7 @@ function HeartIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
       {...props}
     >
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -98,6 +103,7 @@ function UserIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      aria-hidden="true"
       {...props}
     >
       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -111,50 +117,36 @@ export default function MobileNav() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden safe-bottom">
-        <nav className="mx-2 mb-2 rounded-2xl bg-white/95 backdrop-blur-xl border border-ink-100 shadow-soft">
-          <div className="flex items-center justify-around px-2 py-2">
+      <div className="fixed inset-x-0 bottom-0 z-navigation md:hidden safe-bottom">
+        <nav
+          aria-label="Mobile primary"
+          className="mx-3 mb-3 rounded-2xl border border-ink-100 bg-white/95 shadow-lift backdrop-blur-xl"
+        >
+          <div className="grid grid-cols-5 gap-1 px-2 py-2">
             {navItems.map(({ label, href, icon: Icon }) => {
-              const isActive = pathname === href || pathname.startsWith(href + "/");
+              const isActive = pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-colors ${
-                    isActive
-                      ? "text-navy-900"
-                      : "text-ink-500 hover:text-ink-900"
-                  }`}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "relative flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200",
+                    isActive ? "text-navy-900" : "text-ink-500 hover:text-ink-900 hover:bg-ink-50"
+                  )}
                 >
-                  <Icon className={isActive ? "stroke-navy-900" : "stroke-current"} />
-                  <span className="text-[10px] font-medium">{label}</span>
+                  {isActive && (
+                    <span className="absolute top-1 h-1 w-6 rounded-full bg-saffron-500" aria-hidden="true" />
+                  )}
+                  <Icon />
+                  <span className="text-[11px] font-medium leading-none">{label}</span>
                 </Link>
               );
             })}
           </div>
         </nav>
       </div>
-      <div className="fixed bottom-20 right-4 z-40 md:hidden">
-        <Link
-          href="/plan"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-navy-900 text-white shadow-glow"
-          aria-label="Tripifi AI"
-        >
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 2L9.5 9.5H2L8 14L6 21L12 16L18 21L16 14L22 9.5H14.5L12 2Z" />
-          </svg>
-        </Link>
-      </div>
-      <div className="md:hidden pb-nav" />
+      <div className="md:hidden pb-nav" aria-hidden="true" />
     </>
   );
 }

@@ -66,9 +66,9 @@ export default function TripifiAI({
 
   return (
     <div
-      className={`flex flex-col ${
-        isFullScreen ? "h-[100vh]" : "h-[600px]"
-      } bg-white`}
+      className={`flex min-h-0 flex-col bg-white ${
+        isFullScreen ? "h-[100dvh]" : "h-full max-h-[86dvh] min-h-[480px]"
+      }`}
     >
       <div className="border-b border-ink-100 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -94,7 +94,8 @@ export default function TripifiAI({
         {onClose && (
           <button
             onClick={onClose}
-            className="h-8 w-8 rounded-lg hover:bg-ink-50 flex items-center justify-center"
+            aria-label="Close assistant"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-ink-500 hover:bg-ink-50 hover:text-ink-900 transition-colors"
           >
             <svg
               width="18"
@@ -113,7 +114,8 @@ export default function TripifiAI({
         )}
       </div>
 
-      <div className="flex-1 overflow-auto p-4 space-y-4 thin-scrollbar">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 thin-scrollbar">
         {messages.map((msg) => (
           <div
             key={msg.id}
@@ -163,13 +165,14 @@ export default function TripifiAI({
         )}
       </div>
 
-      <div className="border-t border-ink-100 p-3">
+      <div className="border-t border-ink-100 p-3 safe-bottom">
         <div className="flex items-end gap-2">
           <textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask Tripifi AI anything about your trip..."
-            className="field resize-none min-h-[44px] max-h-32 py-2 text-sm"
+            aria-label="Ask Tripifi AI"
+            className="field resize-none min-h-[52px] max-h-32 py-3 text-[16px] md:text-sm"
             rows={1}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -189,6 +192,7 @@ export default function TripifiAI({
         <p className="text-[10px] text-ink-500 mt-2 text-center">
           Tripifi AI can suggest destinations, build itineraries & estimate budgets
         </p>
+      </div>
       </div>
     </div>
   );

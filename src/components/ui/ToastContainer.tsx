@@ -9,32 +9,37 @@ export default function ToastContainer() {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 z-50 -translate-x-1/2 space-y-2 px-4 sm:bottom-auto sm:left-auto sm:right-4 sm:translate-x-0 sm:top-20">
+    <div
+      className="fixed inset-x-0 top-[76px] z-toast flex flex-col items-center gap-2 px-4 sm:inset-x-auto sm:right-4 sm:top-20 sm:items-end"
+      role="status"
+      aria-live="polite"
+    >
       {toasts.map((toast) => (
         <div
           key={toast.id}
           className={cn(
-            "flex min-w-[280px] max-w-[90vw] items-center justify-between gap-3 rounded-xl px-4 py-3 shadow-soft sm:max-w-md",
+            "flex w-full max-w-[92vw] items-center justify-between gap-3 rounded-xl px-4 py-3 shadow-lift sm:max-w-md",
             toast.type === "success" && "bg-leaf-600 text-white",
             toast.type === "error" && "bg-red-600 text-white",
             toast.type === "info" && "bg-navy-900 text-white"
           )}
         >
-          <p className="text-sm font-medium">{toast.message}</p>
+          <p className="min-w-0 flex-1 text-sm font-medium">{toast.message}</p>
           <button
             onClick={() => dismissToast(toast.id)}
-            className="inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-white/10 transition-colors"
-            aria-label="Dismiss"
+            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg hover:bg-white/10 transition-colors"
+            aria-label="Dismiss notification"
           >
             <svg
-              width="14"
-              height="14"
+              width="16"
+              height="16"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
               <line x1="18" y1="6" x2="6" y2="18"></line>
               <line x1="6" y1="6" x2="18" y2="18"></line>

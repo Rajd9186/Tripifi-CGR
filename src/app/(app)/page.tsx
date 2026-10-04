@@ -5,17 +5,28 @@ import TrendingDestinations from "@/components/home/TrendingDestinations";
 import CuratedPackages from "@/components/home/CuratedPackages";
 import WhyUs from "@/components/home/WhyUs";
 import Statistics from "@/components/home/Statistics";
+import { SectionReveal } from "@/components/ui/Motion";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
       <BookingCommandCenter />
-      <AIAssistant />
-      <Statistics />
-      <TrendingDestinations />
-      <CuratedPackages />
-      <WhyUs />
+      <SectionReveal>
+        <AIAssistant />
+      </SectionReveal>
+      <SectionReveal>
+        <Statistics />
+      </SectionReveal>
+      <SectionReveal>
+        <TrendingDestinations />
+      </SectionReveal>
+      <SectionReveal>
+        <CuratedPackages />
+      </SectionReveal>
+      <SectionReveal>
+        <WhyUs />
+      </SectionReveal>
     </>
   );
 }

@@ -63,12 +63,13 @@ function SearchInput({
       <label className="input-label">{label}</label>
       <div className="relative">
         {icon && (
-          <div
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-500 transition-colors duration-200"
+          <span
+            className="input-icon-zone transition-colors duration-200"
             style={{ color: focused ? "rgb(242, 140, 40)" : "" }}
+            aria-hidden="true"
           >
             {icon}
-          </div>
+          </span>
         )}
         <input
           type={type}
@@ -82,7 +83,7 @@ function SearchInput({
           className={cn(
             "field transition-all duration-200",
             focused && "border-saffron-500 ring-2 ring-saffron-500/20",
-            icon ? "pl-10" : ""
+            icon ? "field-with-icon" : ""
           )}
         />
         <div
@@ -149,13 +150,13 @@ function SwapButton({ onClick, disabled }: { onClick: () => void; disabled?: boo
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={cn(
-        "flex h-10 w-10 items-center justify-center rounded-xl bg-ink-50 text-ink-600 transition-all duration-300",
-        "hover:bg-saffron-50 hover:text-saffron-600 hover:scale-110 active:scale-[0.95]",
-        "disabled:opacity-50 disabled:hover:scale-100 disabled:hover:bg-ink-50"
+        "flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl bg-ink-50 text-ink-600 transition-all duration-200",
+        "hover:bg-saffron-50 hover:text-saffron-600 active:scale-[0.95]",
+        "disabled:opacity-50 disabled:hover:bg-ink-50"
       )}
       aria-label="Swap origin and destination"
     >
-      <SwapIcon className="transition-transform duration-300" style={{ transform: hovered ? "rotate(180deg)" : "rotate(0deg)" }} />
+      <SwapIcon className="transition-transform duration-200" style={{ transform: hovered ? "rotate(180deg)" : "rotate(0deg)" }} />
     </button>
   );
 }

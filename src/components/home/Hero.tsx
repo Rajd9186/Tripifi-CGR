@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { DESTINATIONS } from "@/lib/destinations";
 import { cn } from "@/lib/utils";
+import { RouteVisualization, DataChip } from "@/components/graphics/RouteVisualization";
 
 const HERO_DESTINATIONS = [
   "kashmir",
@@ -110,7 +111,7 @@ export default function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-navy-950/40 to-transparent" />
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 opacity-0 animate-fade-up animate-fade-up-delayed-3 pointer-events-none">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3 animate-fade-up-delayed-3">
         <button
           onClick={goToPrev}
           className="h-10 w-10 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 transition-colors flex items-center justify-center"
@@ -157,10 +158,10 @@ export default function Hero() {
             </span>
             Cinematic India
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-semibold tracking-tight text-white leading-tight animate-fade-up">
+          <h1 className="font-display fluid-hero font-semibold text-white animate-fade-up">
             Your trip. <span className="bg-gradient-to-r from-saffron-400 via-amber-400 to-orange-400 bg-clip-text text-transparent drop-shadow-lg">Your way.</span>
           </h1>
-          <p className="mt-6 text-lg sm:text-xl text-white/90 leading-relaxed max-w-2xl animate-fade-up-delayed">
+          <p className="mt-6 text-base sm:text-lg text-white/90 leading-relaxed max-w-2xl animate-fade-up-delayed">
             Plan, personalize and book your entire Indian journey in one place.
             <span className="hidden sm:inline">
               {" "}
@@ -168,15 +169,15 @@ export default function Hero() {
             </span>
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4 animate-fade-up-delayed-2">
-            <Link href="/plan" className="btn-primary shadow-glow bg-gradient-to-r from-saffron-500 to-orange-500 hover:from-saffron-600 hover:to-orange-600 group">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4 animate-fade-up-delayed-2">
+            <Link href="/plan" className="btn-primary inline-flex min-h-[52px] w-full justify-center shadow-glow bg-gradient-to-r from-saffron-500 to-orange-500 hover:from-saffron-600 hover:to-orange-600 group sm:w-auto">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
               Plan a Trip
             </Link>
-            <Link href="/destinations" className="btn-ghost bg-white/10 backdrop-blur border-white/20 text-white hover:bg-white/20 group">
+            <Link href="/destinations" className="btn-ghost inline-flex min-h-[52px] w-full justify-center bg-white/10 backdrop-blur border-white/20 text-white hover:bg-white/20 group sm:w-auto">
               Explore India
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1">
                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -185,7 +186,16 @@ export default function Hero() {
             </Link>
           </div>
 
-          <div className="mt-10 flex flex-wrap items-center gap-x-6 gap-y-4 text-white/80 animate-fade-up-delayed-3">
+          <div className="mt-8 max-w-xl rounded-2xl border border-white/15 bg-white/5 p-4 backdrop-blur-md animate-fade-up-delayed-3">
+            <div className="mb-3 flex flex-wrap items-center gap-2">
+              <DataChip variant="dark">KOLKATA · CCU</DataChip>
+              <DataChip variant="dark">27.5°N 88.6°E</DataChip>
+              <DataChip variant="dark">6 DAYS</DataChip>
+            </div>
+            <RouteVisualization from="Kolkata" to={currentDest?.name ?? "Gangtok"} meta="1,480 KM · 4H 20M" variant="dark" />
+          </div>
+
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-white/80 animate-fade-up-delayed-3">
             <div className="flex items-center gap-2 text-sm animate-float-soft">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
