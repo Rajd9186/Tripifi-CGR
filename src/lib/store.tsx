@@ -30,6 +30,48 @@ export interface SavedTraveller {
   email: string;
 }
 
+/** Trip types for unified journey state */
+export type TripStatus = "draft" | "confirmed" | "completed" | "cancelled";
+
+export interface TripItem {
+  id: string;
+  type: BookingType;
+  title: string;
+  route?: string;
+  date: string;
+  amount: number;
+  status: BookingStatus;
+  details: Record<string, string>;
+  bookingId?: string; // Link to actual booking when confirmed
+}
+
+export interface Trip {
+  id: string;
+  name: string;
+  status: TripStatus;
+  origin?: string;
+  destinations: string[];
+  startDate: string;
+  endDate: string;
+  travellers: number;
+  items: TripItem[];
+  totalAmount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SavedTraveller {
+  id: string;
+  name: string;
+  dob: string;
+  gender: string;
+  idType: string;
+  idNumber: string;
+  passport: string;
+  phone: string;
+  email: string;
+}
+
 export interface AppNotification {
   id: string;
   type: "booking" | "payment" | "reminder" | "change" | "refund";
@@ -43,6 +85,16 @@ export interface ToastMsg {
   id: string;
   message: string;
   type: "success" | "error" | "info";
+}
+
+/** Search state for persisting search params across navigation */
+export interface SearchState {
+  flights?: { from: string; to: string; departure: string; return?: string; travellers: string; class: string; tripType: string };
+  trains?: { from: string; to: string; date: string; class: string; quota: string };
+  cabs?: { pickup: string; drop: string; datetime: string; tripType: string; vehicle: string };
+  hotels?: { destination: string; checkin: string; checkout: string; guests: string; rooms: string };
+  packages?: { destination: string; budget: string; duration: string };
+  build?: { plan: string };
 }
 
 interface AppState {
@@ -64,6 +116,21 @@ interface AppState {
   removeTraveller: (id: string) => void;
   pendingPlan: string | null;
   setPendingPlan: (p: string | null) => void;
+  /** Trip state */
+  trips: Trip[];
+  currentTrip: Trip | null;
+  createTrip: (trip: Omit<Trip, "id" | "createdAt" | "updatedAt">) => string;
+  updateTrip: (id: string, updates: Partial<Trip>) => void;
+  deleteTrip: (id: string) => void;
+  setCurrentTrip: (trip: Trip | null) => void;
+  addItemToTrip: (tripId: string, item: Omit<TripItem, "id">) => void;
+  removeItemFromTrip: (tripId: string, itemId: string) => void;
+  updateTripItem: (tripId: string, itemId: string, updates: Partial<TripItem>) => void;
+  /** Search state */
+  searchState: SearchState;
+  setSearchState: (state: Partial<SearchState>) => void;
+  clearSearchState: (type?: keyof SearchState) => void;
+  hydrated: boolean;
 }
 
 const Ctx = createContext<AppState | null>(null);
@@ -181,6 +248,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [pendingPlan, setPendingPlan] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
+  /** Trip state */
+  const [trips, setTrips] = useState<Trip[]>([]);
+  const [currentTrip, setCurrentTrip] = useState<Trip | null>(null);
+  const [searchState, setSearchState] = useState<SearchState>({});
+
+  /** Persist trips to localStorage */
+  useEffect(() => {
+    save("yatraa_trips", trips);
+  }, [trips]);
+
+  /** Persist search state to localStorage */
+  useEffect(() => {
+    save("yatraa_search_state", searchState);
+  }, [searchState]);
+
   useEffect(() => {
     const savedUser = load<AppState["user"] | null>("yatraa_user", null);
     if (savedUser) setUser(savedUser);
@@ -190,6 +272,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (w) setWishlist(w);
     const t = load<SavedTraveller[] | null>("yatraa_travellers", null);
     if (t) setTravellers(t);
+    
+    // Load trips from localStorage
+    const savedTrips = load<Trip[] | null>("yatraa_trips", null);
+    if (savedTrips) setTrips(savedTrips);
+    
+    // Load search state
+    const savedSearchState = load<SearchState | null>("yatraa_search_state", null);
+    if (savedSearchState) setSearchState(savedSearchState);
+    
     setHydrated(true);
   }, []);
 
@@ -296,6 +387,166 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  /** Trip management functions */
+  const createTrip = useCallback(
+    (trip: Omit<Trip, "id" | "createdAt" | "updatedAt">) => {
+      const id = `TRP-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const now = new Date().toISOString();
+      const newTrip: Trip = { ...trip, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      setTrips((prev) => {
+        const next = [newTrip, ...prev];
+        save("yatraa_trips", next);
+        return next;
+      });
+      return id;
+    },
+    []
+  );
+
+  const updateTrip = useCallback(
+    (id: string, updates: Partial<Trip>) => {
+      setTrips((prev) => {
+        const next = prev.map((t) => (t.id === id ? { ...t, ...updates, updatedAt: new Date().toISOString() } : t));
+        save("yatraa_trips", next);
+        return next;
+      });
+      // Update currentTrip if it's the one being updated
+      setCurrentTrip((prev) => (prev && prev.id === id ? { ...prev, ...updates, updatedAt: new Date().toISOString() } : prev));
+    },
+    []
+  );
+
+  const deleteTrip = useCallback(
+    (id: string) => {
+      setTrips((prev) => {
+        const next = prev.filter((t) => t.id !== id);
+        save("yatraa_trips", next);
+        return next;
+      });
+      setCurrentTrip((prev) => (prev && prev.id === id ? null : prev));
+    },
+    []
+  );
+
+  const addItemToTrip = useCallback(
+    (tripId: string, item: Omit<TripItem, "id">) => {
+      setTrips((prev) => {
+        const next = prev.map((t) =>
+          t.id === tripId
+            ? {
+                ...t,
+                items: [...t.items, { ...item, id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` }],
+                totalAmount: t.items.reduce((sum, i) => sum + i.amount, 0) + item.amount,
+                updatedAt: new Date().toISOString(),
+              }
+            : t
+        );
+        save("yatraa_trips", next);
+        return next;
+      });
+      // Update currentTrip if it's the one being updated
+      setCurrentTrip((prev) =>
+        prev && prev.id === tripId
+          ? {
+              ...prev,
+              items: [...prev.items, { ...item, id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` }],
+              totalAmount: prev.items.reduce((sum, i) => sum + i.amount, 0) + item.amount,
+              updatedAt: new Date().toISOString(),
+            }
+          : prev
+      );
+    },
+    []
+  );
+
+  const removeItemFromTrip = useCallback(
+    (tripId: string, itemId: string) => {
+      setTrips((prev) => {
+        const next = prev.map((t) =>
+          t.id === tripId
+            ? {
+                ...t,
+                items: t.items.filter((i) => i.id !== itemId),
+                totalAmount: t.items.filter((i) => i.id !== itemId).reduce((sum, i) => sum + i.amount, 0),
+                updatedAt: new Date().toISOString(),
+              }
+            : t
+        );
+        save("yatraa_trips", next);
+        return next;
+      });
+      // Update currentTrip if it's the one being updated
+      setCurrentTrip((prev) =>
+        prev && prev.id === tripId
+          ? {
+              ...prev,
+              items: prev.items.filter((i) => i.id !== itemId),
+              totalAmount: prev.items.filter((i) => i.id !== itemId).reduce((sum, i) => sum + i.amount, 0),
+              updatedAt: new Date().toISOString(),
+            }
+          : prev
+      );
+    },
+    []
+  );
+
+  const updateTripItem = useCallback(
+    (tripId: string, itemId: string, updates: Partial<TripItem>) => {
+      setTrips((prev) => {
+        const next = prev.map((t) =>
+          t.id === tripId
+            ? {
+                ...t,
+                items: t.items.map((i) => (i.id === itemId ? { ...i, ...updates } : i)),
+                totalAmount: t.items.map((i) => (i.id === itemId ? { ...i, ...updates } : i)).reduce((sum, i) => sum + i.amount, 0),
+                updatedAt: new Date().toISOString(),
+              }
+            : t
+        );
+        save("yatraa_trips", next);
+        return next;
+      });
+      // Update currentTrip if it's the one being updated
+      setCurrentTrip((prev) =>
+        prev && prev.id === tripId
+          ? {
+              ...prev,
+              items: prev.items.map((i) => (i.id === itemId ? { ...i, ...updates } : i)),
+              totalAmount: prev.items.map((i) => (i.id === itemId ? { ...i, ...updates } : i)).reduce((sum, i) => sum + i.amount, 0),
+              updatedAt: new Date().toISOString(),
+            }
+          : prev
+      );
+    },
+    []
+  );
+
+  /** Search state functions */
+  const updateSearchState = useCallback((state: Partial<SearchState>) => {
+    setSearchState((prev) => {
+      const next = { ...prev, ...state };
+      save("yatraa_search_state", next);
+      return next;
+    });
+  }, []);
+
+  const clearSearchState = useCallback(
+    (type?: keyof SearchState) => {
+      if (type) {
+        setSearchState((prev) => {
+          const next = { ...prev };
+          delete next[type];
+          save("yatraa_search_state", next);
+          return next;
+        });
+      } else {
+        setSearchState({});
+        save("yatraa_search_state", {});
+      }
+    },
+    []
+  );
+
   const value = useMemo<AppState>(
     () => ({
       user,
@@ -316,9 +567,56 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       removeTraveller,
       pendingPlan,
       setPendingPlan,
+      /** Trip state */
+      trips,
+      currentTrip,
+      createTrip,
+      updateTrip,
+      deleteTrip,
+      setCurrentTrip,
+      addItemToTrip,
+      removeItemFromTrip,
+      updateTripItem,
+      /** Search state */
+      searchState,
+      setSearchState,
+      updateSearchState,
+      clearSearchState,
       hydrated,
     }),
-    [user, login, logout, bookings, addBooking, cancelBooking, wishlist, toggleWishlist, notifications, markAllRead, toasts, toast, dismissToast, travellers, saveTraveller, removeTraveller, pendingPlan, hydrated]
+    [
+      user,
+      login,
+      logout,
+      bookings,
+      addBooking,
+      cancelBooking,
+      wishlist,
+      toggleWishlist,
+      notifications,
+      markAllRead,
+      toasts,
+      toast,
+      dismissToast,
+      travellers,
+      saveTraveller,
+      removeTraveller,
+      pendingPlan,
+      hydrated,
+      trips,
+      currentTrip,
+      createTrip,
+      updateTrip,
+      deleteTrip,
+      setCurrentTrip,
+      addItemToTrip,
+      removeItemFromTrip,
+      updateTripItem,
+      searchState,
+      setSearchState,
+      updateSearchState,
+      clearSearchState,
+    ]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
