@@ -285,7 +285,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     // Load trips from localStorage
     const savedTrips = (persisted?.trips as Trip[] | undefined) ?? load<Trip[] | null>("yatraa_trips", null);
-    if (savedTrips) setTrips(savedTrips);
+    if (savedTrips) {
+      setTrips(savedTrips);
+      // Resume where the user left off: adopt the active draft (else newest trip).
+      const resume = savedTrips.find((t) => t.status === "draft") ?? savedTrips[0] ?? null;
+      if (resume) setCurrentTrip(resume);
+    }
 
     // Load search state
     const savedSearchState = (persisted?.searchState as SearchState | undefined) ?? load<SearchState | null>("yatraa_search_state", null);
@@ -480,31 +485,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const addItemToTrip = useCallback(
     (tripId: string, item: Omit<TripItem, "id">) => {
+      // One id shared by both copies — remove/update must hit the same item.
+      const full: TripItem = {
+        ...item,
+        id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      };
+      const withItem = (t: Trip): Trip => {
+        const items = [...t.items, full];
+        return { ...t, items, totalAmount: items.reduce((sum, i) => sum + i.amount, 0), updatedAt: new Date().toISOString() };
+      };
       setTrips((prev) => {
-        const next = prev.map((t) =>
-          t.id === tripId
-            ? {
-                ...t,
-                items: [...t.items, { ...item, id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` }],
-                totalAmount: t.items.reduce((sum, i) => sum + i.amount, 0) + item.amount,
-                updatedAt: new Date().toISOString(),
-              }
-            : t
-        );
+        const next = prev.map((t) => (t.id === tripId ? withItem(t) : t));
         save("yatraa_trips", next);
         return next;
       });
       // Update currentTrip if it's the one being updated
-      setCurrentTrip((prev) =>
-        prev && prev.id === tripId
-          ? {
-              ...prev,
-              items: [...prev.items, { ...item, id: `item-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` }],
-              totalAmount: prev.items.reduce((sum, i) => sum + i.amount, 0) + item.amount,
-              updatedAt: new Date().toISOString(),
-            }
-          : prev
-      );
+      setCurrentTrip((prev) => (prev && prev.id === tripId ? withItem(prev) : prev));
     },
     []
   );

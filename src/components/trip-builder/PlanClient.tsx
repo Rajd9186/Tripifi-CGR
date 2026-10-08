@@ -1,22 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import ItineraryPanel from "@/components/trip-builder/ItineraryPanel";
 import TripCanvas from "@/components/trip-builder/TripCanvas";
 import MapBudgetPanel from "@/components/trip-builder/MapBudgetPanel";
+import { useApp } from "@/lib/store";
+import { calculateBudget } from "@/lib/budget";
+import { formatINR } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
-type MobileTab = "itinerary" | "canvas" | "map";
+type MobileTab = "itinerary" | "canvas" | "budget";
 
 const mobileTabs: Array<{ id: MobileTab; label: string }> = [
   { id: "itinerary", label: "Itinerary" },
-  { id: "canvas", label: "Map" },
-  { id: "map", label: "Budget" },
+  { id: "canvas", label: "Canvas" },
+  { id: "budget", label: "Budget" },
 ];
 
 export default function PlanClient() {
   const [activeTab, setActiveTab] = useState<MobileTab>("itinerary");
+  const { currentTrip } = useApp();
+  const travellers = currentTrip?.travellers ?? 2;
+  const breakdown = useMemo(
+    () => calculateBudget(currentTrip?.items ?? [], travellers),
+    [currentTrip?.items, travellers]
+  );
 
   return (
     <div className="px-2 pb-4 pt-2 sm:px-4 lg:px-6">
@@ -74,7 +83,7 @@ export default function PlanClient() {
                 <TripCanvas />
               </div>
             )}
-            {activeTab === "map" && (
+            {activeTab === "budget" && (
               <div className="min-h-[68dvh]">
                 <MapBudgetPanel />
               </div>
@@ -84,8 +93,8 @@ export default function PlanClient() {
           <div className="card sticky bottom-[96px] space-y-3 p-4 safe-bottom">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <span className="text-xs text-ink-500">TOTAL · 2 TRAVELLERS · ESTIMATED</span>
-                <div className="text-xl font-semibold tabular-nums text-ink-900">₹48,500</div>
+                <span className="text-xs text-ink-500">TOTAL · {travellers} TRAVELLER{travellers === 1 ? "" : "S"} · ESTIMATED</span>
+                <div className="text-xl font-semibold tabular-nums text-ink-900">{formatINR(breakdown.total)}</div>
               </div>
               <Link href="/checkout" className="btn-primary inline-flex min-h-[52px] flex-1 justify-center sm:flex-none sm:px-8">
                 Continue
