@@ -392,6 +392,7 @@ class AIChatOut(BaseModel):
     trip_plan: dict | None = None
     actions: list[AIAction] = Field(default_factory=list)
     is_demo: bool = True
+    narrated_live: bool = False
 
 
 class ErrorBody(BaseModel):

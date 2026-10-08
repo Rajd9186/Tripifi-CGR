@@ -6,6 +6,7 @@ import json
 
 import pytest
 
+from app.ai.gateway import TripifiAIGateway
 from app.ai.providers.base import AIProviderError
 from app.ai.providers.groq import GroqProvider
 from app.ai.providers.nvidia import NvidiaProvider
@@ -230,3 +231,23 @@ def test_factory_selection(monkeypatch):
     monkeypatch.setenv("NVIDIA_API_KEY", "")
     get_settings.cache_clear()
     assert get_ai_provider().name == "ollama"
+
+
+def test_gateway_narration_flag():
+    class LiveProvider:
+        name = "groq"
+
+        async def chat(self, messages, **kwargs):
+            return {"content": "Sure, here is your trip.", "provider": "groq"}
+
+    class DeadProvider:
+        name = "nvidia"
+
+        async def chat(self, messages, **kwargs):
+            raise AIProviderError("UNAVAILABLE", "down")
+
+    text, live = asyncio.run(TripifiAIGateway(provider=LiveProvider())._narrate("hi", "fallback"))
+    assert (text, live) == ("Sure, here is your trip.", True)
+
+    text, live = asyncio.run(TripifiAIGateway(provider=DeadProvider())._narrate("hi", "fallback"))
+    assert (text, live) == ("fallback", False)

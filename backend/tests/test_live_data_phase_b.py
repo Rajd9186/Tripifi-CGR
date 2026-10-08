@@ -11,9 +11,19 @@ from app.services import reliability as rel
 
 @pytest.fixture(autouse=True)
 def _clean():
+    import os
+
     rel.reset_reliability_state()
+    try:
+        os.remove(rel._QUOTA_FILE)
+    except OSError:
+        pass
     yield
     rel.reset_reliability_state()
+    try:
+        os.remove(rel._QUOTA_FILE)
+    except OSError:
+        pass
 
 
 def run(coro):

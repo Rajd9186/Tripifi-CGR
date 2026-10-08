@@ -58,6 +58,7 @@ export interface AIResult {
   requires_confirmation: boolean;
   pending_action?: UIAction | null;
   is_demo: boolean;
+  narrated_live?: boolean;
   request_id: string;
   prompt_version: string;
 }

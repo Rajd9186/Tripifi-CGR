@@ -37,8 +37,8 @@ class TripifiAIGateway:
     def __init__(self, provider: AIProvider | None = None):
         self.provider = provider or get_ai_provider()
 
-    async def _narrate(self, prompt: str, fallback: str) -> str:
-        """LLM prose layer. Any failure returns the deterministic fallback."""
+    async def _narrate(self, prompt: str, fallback: str) -> tuple[str, bool]:
+        """LLM prose layer. Any failure returns (fallback, False)."""
         try:
             result = await self.provider.chat(
                 [
@@ -48,9 +48,9 @@ class TripifiAIGateway:
                 max_tokens=300,
             )
             text = result.get("content", "").strip()
-            return text if text else fallback
+            return (text, True) if text else (fallback, False)
         except AIProviderError:
-            return fallback
+            return fallback, False
 
     async def chat(
         self,
@@ -99,7 +99,7 @@ class TripifiAIGateway:
         await emit("INTENT_DETECTED", {"request_id": request_id, "intent": intent_name})
 
         deterministic_message: str = final.get("response", "")
-        narration = await self._narrate(
+        narration, narrated_live = await self._narrate(
             f"Rephrase concisely for a traveller (2-4 sentences, no new facts, no prices, no availability claims): {deterministic_message}",
             deterministic_message,
         )
@@ -115,6 +115,7 @@ class TripifiAIGateway:
             sources=["tripifi-demo-data"],
             requires_confirmation=any(a.requires_confirmation for a in actions),
             is_demo=True,
+            narrated_live=narrated_live,
             request_id=request_id,
             prompt_version=PROMPT_VERSION,
         )

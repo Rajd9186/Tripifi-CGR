@@ -21,6 +21,8 @@ interface Message {
   actions?: UIAction[];
   pendingAction?: UIAction | null;
   demo?: boolean;
+  /** True when the prose was narrated live by the connected backend. */
+  live?: boolean;
 }
 
 const SUGGESTED_PROMPTS = [
@@ -106,6 +108,7 @@ export default function TripifiAI({
         actions: result.actions,
         pendingAction: result.pending_action,
         demo: result.is_demo,
+        live: result.narrated_live ?? false,
       });
     } catch {
       // Graceful unavailable mode: local planning still works.
@@ -255,7 +258,11 @@ export default function TripifiAI({
                 {msg.content}
               </p>
               {msg.demo && (
-                <p className="mt-1 text-[10px] text-ink-400">Demo planning — connect the AI backend for live intelligence.</p>
+                <p className="mt-1 text-[10px] text-ink-400">
+                  {msg.live
+                    ? "Live narration · sample pricing data, not a booking."
+                    : "Demo planning — connect the AI backend for live intelligence."}
+                </p>
               )}
               {msg.type === "assistant" && msg.brief && (
                 <div className="mt-2 flex gap-2">

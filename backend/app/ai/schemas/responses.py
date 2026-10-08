@@ -26,6 +26,7 @@ class AIResponse(BaseModel):
     requires_confirmation: bool = False
     pending_action: UIAction | None = None
     is_demo: bool = False
+    narrated_live: bool = False
     request_id: str = ""
     prompt_version: str = "tripifi-ai-v1"
 

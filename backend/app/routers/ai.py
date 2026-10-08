@@ -51,6 +51,7 @@ async def chat(body: AIChatIn):
             trip_plan=(response.trip_update or {}) or None,
             actions=legacy_actions,
             is_demo=True,
+            narrated_live=response.narrated_live,
         )
     except RuntimeError:
         result = await DemoAIProvider().chat(body.message, {"trip_id": body.trip_id})
