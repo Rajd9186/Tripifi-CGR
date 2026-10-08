@@ -300,7 +300,10 @@ class EnquiryCreate(BaseModel):
     type: str  # FLIGHT|TRAIN|HOTEL|CAB|PACKAGE|CUSTOM_TRIP|MULTI_SERVICE
     customer_name: str = Field(min_length=2, max_length=200)
     phone: str = Field(min_length=10, max_length=20)
-    email: str = Field(min_length=5, max_length=320)
+    email: str | None = Field(default=None, max_length=320)
+    preferred_contact_time: str | None = Field(default=None, max_length=120)
+    # Honeypot: real users never fill this (hidden field). Bots do.
+    website: str | None = Field(default=None, max_length=200)
     origin: str | None = Field(default=None, max_length=200)
     destination: str | None = Field(default=None, max_length=200)
     travel_start_date: str | None = None
@@ -331,7 +334,7 @@ class EnquiryOut(BaseModel):
 
 
 class EnquiryDetailOut(EnquiryOut):
-    email: str
+    email: str | None = None
     phone: str
     budget: int | None = None
     service_details: dict = Field(default_factory=dict)

@@ -39,14 +39,18 @@ def _out(e: Enquiry) -> EnquiryOut:
     )
 
 
-@router.post("", response_model=EnquiryOut, status_code=201)
-async def create_enquiry(body: EnquiryCreate, db: AsyncSession = Depends(get_db)):
-    # Rate limit: same phone, short window → probable duplicate.
-    if not check_rate_limit(f"enquiry:{body.phone}:{body.type}", max_hits=3, window_seconds=600):
-        raise HTTPException(status_code=429, detail="Too many requests. Please wait before submitting again.")
-    if not check_rate_limit("enquiry:global", max_hits=60, window_seconds=60):
-        raise HTTPException(status_code=429, detail="Too many requests. Please wait.")
+def honeypot_tripped(body: EnquiryCreate) -> bool:
+    """Hidden field real users never fill. Bots do."""
+    return bool((body.website or "").strip())
 
+
+def validate_enquiry_input(body: EnquiryCreate) -> dict:
+    """Validate name/phone/email/consent/dates. Returns normalized fields.
+
+    Raises HTTPException(400) with a user-friendly message. Never logs PII.
+    """
+    if honeypot_tripped(body):
+        raise HTTPException(status_code=400, detail="Unable to submit your request right now. Please try again.")
     try:
         etype = EnquiryType(body.type)
     except ValueError:
@@ -55,14 +59,34 @@ async def create_enquiry(body: EnquiryCreate, db: AsyncSession = Depends(get_db)
         phone = normalize_phone(body.phone)
     except ValueError:
         raise HTTPException(status_code=400, detail="Enter a valid 10-digit Indian mobile number.")
-    if not EMAIL_RE.match(body.email.strip()):
+    email = (body.email or "").strip().lower() or None
+    if email is not None and not EMAIL_RE.match(email):
         raise HTTPException(status_code=400, detail="Enter a valid email address.")
+    if not body.customer_name.strip() or len(body.customer_name.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Full name is required.")
     if not body.consent:
         raise HTTPException(status_code=400, detail="Please agree to be contacted about this enquiry.")
     if body.travel_start_date and body.travel_end_date and body.travel_end_date < body.travel_start_date:
         raise HTTPException(status_code=400, detail="Return date must be on or after the travel date.")
     if body.traveller_count < 1:
         raise HTTPException(status_code=400, detail="Traveller count must be at least 1.")
+    return {
+        "etype": etype,
+        "phone": phone,
+        "email": email,
+        "preferred_contact_time": (body.preferred_contact_time or None),
+    }
+
+
+@router.post("", response_model=EnquiryOut, status_code=201)
+async def create_enquiry(body: EnquiryCreate, db: AsyncSession = Depends(get_db)):
+    # Rate limit: same phone, short window → probable duplicate.
+    if not check_rate_limit(f"enquiry:{body.phone}:{body.type}", max_hits=3, window_seconds=600):
+        raise HTTPException(status_code=429, detail="Too many requests. Please wait before submitting again.")
+    if not check_rate_limit("enquiry:global", max_hits=60, window_seconds=60):
+        raise HTTPException(status_code=429, detail="Too many requests. Please wait.")
+    checked = validate_enquiry_input(body)
+    etype, phone, email = checked["etype"], checked["phone"], checked["email"]
 
     # Idempotency: accidental double-click must not create two enquiries.
     if body.idempotency_key:
@@ -95,7 +119,8 @@ async def create_enquiry(body: EnquiryCreate, db: AsyncSession = Depends(get_db)
 
     enquiry = Enquiry(
         reference_number=reference, type=etype, status=EnquiryStatus.NEW,
-        customer_name=body.customer_name.strip(), phone=phone, email=body.email.strip().lower(),
+        customer_name=body.customer_name.strip(), phone=phone, email=email,
+        preferred_contact_time=(body.preferred_contact_time or None),
         origin=(body.origin or None), destination=(body.destination or None),
         travel_start_date=body.travel_start_date, travel_end_date=body.travel_end_date,
         traveller_count=body.traveller_count, budget=body.budget,
@@ -112,7 +137,8 @@ async def create_enquiry(body: EnquiryCreate, db: AsyncSession = Depends(get_db)
     await db.refresh(enquiry)
 
     await notify_admin_new_enquiry(reference, etype.value, body.destination or "—")
-    await send_customer_confirmation(enquiry.email, reference, etype.value)
+    if email:
+        await send_customer_confirmation(email, reference, etype.value)
     return _out(enquiry)
 
 
