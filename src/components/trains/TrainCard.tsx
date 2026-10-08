@@ -2,6 +2,7 @@
 
 import Badge from "@/components/ui/Badge";
 import type { TrainOffer } from "@/lib/api/types";
+import { PriceText } from "@/components/ui/PriceText";
 import { formatINR } from "@/lib/utils";
 
 /** Legacy mock shape (see src/data/mockTrains.ts). Prefer TrainOffer for new code. */
@@ -91,7 +92,7 @@ export default function TrainCard({ train, selected, selectedClass, onSelect, on
               <div className="text-xs font-medium text-ink-900">{train.travel_class}</div>
               <div className="text-xs text-ink-600 mt-1">{train.availability}</div>
               <div className="text-sm font-semibold text-ink-900 mt-1">
-                {formatINR(train.fare)}
+                <PriceText value={train.fare} />
               </div>
             </div>
           </div>

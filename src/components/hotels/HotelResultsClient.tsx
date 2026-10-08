@@ -59,7 +59,7 @@ export default function HotelResultsClient() {
   const handleSelect = (hotel: HotelOffer) => {
     setSelected(hotel.id);
     const trip = ensureDraftTrip({ destination, startDate: checkin, endDate: checkout });
-    const total = hotel.total_price || hotel.price_per_night * nights;
+    const total = hotel.total_price ?? (hotel.price_per_night != null ? hotel.price_per_night * nights : 0);
     addItemToTrip(trip.id, {
       type: "hotel",
       title: `${hotel.name} · ${destination} (${nights} night${nights > 1 ? "s" : ""})`,
@@ -67,7 +67,12 @@ export default function HotelResultsClient() {
       date: checkin,
       amount: total,
       status: "upcoming",
-      details: { Room: hotel.room_type, Guests: guests, Cancellation: `${hotel.cancellation_policy} (simulated)`, Meals: hotel.meal_plan },
+      details: {
+        Room: hotel.room_type ?? "Details on request",
+        Guests: guests,
+        Cancellation: `${hotel.cancellation_policy ?? "Details on request"}${hotel.is_demo ? " (simulated)" : ""}`,
+        Meals: hotel.meal_plan ?? "Details on request",
+      },
     });
     toast(`Hotel added to ${trip.name}`, "success");
   };

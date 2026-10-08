@@ -2,6 +2,7 @@
 
 import Badge from "@/components/ui/Badge";
 import type { FlightOffer } from "@/lib/api/types";
+import { PriceText } from "@/components/ui/PriceText";
 import { formatINR } from "@/lib/utils";
 
 /** Legacy mock shape (see src/data/mockFlights.ts). Prefer FlightOffer for new code. */
@@ -84,9 +85,9 @@ export default function FlightCard({ flight, selected, onSelect, onAddToTrip }: 
         <div className="border-t lg:border-t-0 lg:border-l border-ink-100 pt-4 lg:pt-0 lg:pl-6 flex flex-col lg:items-end gap-3">
           <div className="flex items-center justify-between lg:flex-col lg:items-end w-full lg:w-auto">
             <div>
-              <div className="text-xs text-ink-500">Sample fare</div>
+              <div className="text-xs text-ink-500">{flight.is_demo ? "Sample fare" : "Fare"}</div>
               <div className="text-3xl font-semibold text-ink-900">
-                {formatINR(flight.fare)}
+                <PriceText value={flight.fare} />
               </div>
               <div className="text-xs text-ink-500">per traveller</div>
             </div>

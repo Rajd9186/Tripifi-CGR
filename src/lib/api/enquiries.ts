@@ -20,7 +20,8 @@ function localReference(): string {
 
 interface StoredEnquiry extends EnquiryReceipt {
   phone: string;
-  email: string;
+  email?: string;
+  preferred_contact_time?: string | null;
   trip_snapshot?: Record<string, unknown> | null;
   special_requirements?: string | null;
   idempotency_key?: string;

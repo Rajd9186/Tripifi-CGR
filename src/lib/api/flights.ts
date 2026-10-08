@@ -1,5 +1,5 @@
 import { MOCK_FLIGHTS } from "@/data/mockFlights";
-import { backendReady, postSearch } from "./shared";
+import { backendReady, postSearch, type SearchResponse } from "./shared";
 import type { FlightResult } from "./types";
 
 export interface FlightSearchParams {
@@ -34,8 +34,19 @@ function toResult(f: (typeof MOCK_FLIGHTS)[number]): FlightResult {
   };
 }
 
-export async function searchFlights(params: FlightSearchParams): Promise<{ results: FlightResult[] }> {
-  if (!backendReady()) return { results: MOCK_FLIGHTS.slice(0, 4).map(toResult) };
+export async function searchFlights(params: FlightSearchParams): Promise<SearchResponse<FlightResult>> {
+  if (!backendReady()) {
+    const results = MOCK_FLIGHTS.slice(0, 4).map(toResult);
+    return {
+      results,
+      meta: {
+        mode: "ASSISTED",
+        source: "demo",
+        provider: { name: "demo", status: "DEMO" },
+        requestId: "local",
+      },
+    };
+  }
   const env = await postSearch<FlightResult>("/search/flights", { ...params });
-  return { results: env.results };
+  return { results: env.results, meta: env.meta };
 }

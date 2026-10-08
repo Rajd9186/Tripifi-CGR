@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatCurrency } from "@/lib/utils";
+import { PriceText } from "@/components/ui/PriceText";
+export { PriceText } from "@/components/ui/PriceText";
 
 // Flight Result Card
 interface FlightResultCardProps {
@@ -24,10 +26,10 @@ interface FlightResultCardProps {
     stops: number;
     cabin: string;
     baggageKg: number;
-    fare: number;
-    price: number;
+    fare: number | null;
+    price: number | null;
     currency: string;
-    refundable: boolean;
+    refundable?: boolean | null;
     isDemo: boolean;
     status: "LIVE" | "DEMO" | "UNAVAILABLE";
   };
@@ -117,7 +119,9 @@ export function FlightResultCard({ flight, selected, onSelect, onAddToTrip, inde
               <div className="flex items-center justify-between lg:flex-col lg:items-end w-full lg:w-auto">
                 <div className="text-right">
                   <div className="text-xs text-text-muted">Total fare</div>
-                  <div className="text-3xl font-semibold text-text">{formatCurrency(flight.price)}</div>
+                  <div className="text-3xl font-semibold text-text">
+                    <PriceText value={flight.price} />
+                  </div>
                   <div className="text-xs text-text-muted">per traveller</div>
                 </div>
               </div>
@@ -215,13 +219,13 @@ interface HotelResultCardProps {
     name: string;
     destination: string;
     location: string;
-    rating: number;
-    roomType: string;
+    rating: number | null;
+    roomType?: string | null;
     amenities: string[];
-    breakfast: boolean;
-    cancellation: string;
-    nightlyPrice: number;
-    totalPrice: number;
+    breakfast?: boolean | null;
+    cancellation?: string | null;
+    nightlyPrice: number | null;
+    totalPrice: number | null;
     currency: string;
     isDemo: boolean;
     status: "LIVE" | "DEMO" | "UNAVAILABLE";
@@ -239,7 +243,7 @@ export function HotelResultCard({ hotel, nights = 3, selected, onSelect, onAddTo
   const [imageIndex, setImageIndex] = useState(0);
   const images = hotel.images && hotel.images.length > 0 ? hotel.images : ["https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80"];
 
-  const total = hotel.totalPrice || hotel.nightlyPrice * nights;
+  const total = hotel.totalPrice ?? (hotel.nightlyPrice != null ? hotel.nightlyPrice * nights : null);
 
   return (
     <motion.div
@@ -276,13 +280,15 @@ export function HotelResultCard({ hotel, nights = 3, selected, onSelect, onAddTo
             )}
           </div>
 
-          {/* Rating badge */}
-          <div className="absolute top-3 right-3">
-            <span className="inline-flex items-center gap-1 rounded-full bg-bg-elevated/95 px-2.5 py-1 text-xs font-semibold text-text shadow-sm backdrop-blur">
-              <Star className="w-3 h-3 text-saffron" />
-              {hotel.rating.toFixed(1)}
-            </span>
-          </div>
+          {/* Rating badge — hidden when the provider reports no rating */}
+          {hotel.rating != null && (
+            <div className="absolute top-3 right-3">
+              <span className="inline-flex items-center gap-1 rounded-full bg-bg-elevated/95 px-2.5 py-1 text-xs font-semibold text-text shadow-sm backdrop-blur">
+                <Star className="w-3 h-3 text-saffron" />
+                {hotel.rating.toFixed(1)}
+              </span>
+            </div>
+          )}
 
           {/* Image navigation */}
           {images.length > 1 && (
@@ -313,20 +319,32 @@ export function HotelResultCard({ hotel, nights = 3, selected, onSelect, onAddTo
             </div>
           </div>
 
-          <div className="text-sm text-text-muted mb-3">{hotel.roomType} · {hotel.breakfast ? "Breakfast included" : "Room only"}</div>
+          <div className="text-sm text-text-muted mb-3">
+            {[hotel.roomType, hotel.breakfast ? "Breakfast included" : hotel.breakfast === false ? "Room only" : null]
+              .filter(Boolean)
+              .join(" · ") || "Details on request"}
+          </div>
 
           <div className="flex flex-wrap gap-2 mb-4">
             {hotel.amenities.slice(0, 4).map((a) => (
               <Badge key={a} variant="default" className="text-xs">{a}</Badge>
             ))}
-            <Badge variant="success" className="text-xs">{hotel.cancellation}</Badge>
+            {hotel.cancellation && <Badge variant="success" className="text-xs">{hotel.cancellation}</Badge>}
           </div>
 
           <div className="mt-4 flex flex-col sm:flex-row sm:items-end gap-3 border-t border-border pt-4">
             <div className="flex-1">
               <div className="text-xs text-text-muted">Price per night</div>
-              <div className="text-2xl font-semibold text-text">{formatCurrency(hotel.nightlyPrice)}</div>
-              <div className="text-sm text-text-muted">{formatCurrency(total)} total for {nights} night{nights > 1 ? "s" : ""}</div>
+              <div className="text-2xl font-semibold text-text">
+                <PriceText value={hotel.nightlyPrice} />
+              </div>
+              <div className="text-sm text-text-muted">
+                {total != null ? (
+                  <>{formatCurrency(total)} total for {nights} night{nights > 1 ? "s" : ""}</>
+                ) : (
+                  <>Total price on request</>
+                )}
+              </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
@@ -367,7 +385,7 @@ interface CabResultCardProps {
     luggage: number;
     includedKm: number;
     extraKmPrice: number;
-    driverRating: number;
+    driverRating?: number | null;
     baseFare: number;
     tollEstimate: number;
     taxes: number;
@@ -412,7 +430,7 @@ export function CabResultCard({ cab, selected, onSelect, onAddToTrip, index = 0 
               <div className="flex flex-wrap gap-2 mb-4">
                 <Badge variant="default">{cab.includedKm} km included</Badge>
                 <Badge variant="default">₹{cab.extraKmPrice}/km extra</Badge>
-                {cab.driverRating > 4.5 && <Badge variant="success">Highly rated</Badge>}
+                {cab.driverRating != null && cab.driverRating > 4.5 && <Badge variant="success">Highly rated</Badge>}
                 {cab.isDemo && <Badge variant="default">Estimated fare</Badge>}
               </div>
 
@@ -437,7 +455,8 @@ export function CabResultCard({ cab, selected, onSelect, onAddToTrip, index = 0 
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-t border-border pt-4">
                 <div className="text-sm text-text-muted flex-1">
-                  {cab.cancellationPolicy} • Driver rating: {cab.driverRating}/5
+                  {cab.cancellationPolicy}
+                  {cab.driverRating != null && <> • Driver rating: {cab.driverRating}/5</>}
                 </div>
                 <Button
                   onClick={() => onSelect?.(cab)}

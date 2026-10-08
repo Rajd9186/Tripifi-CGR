@@ -1,5 +1,5 @@
 import { MOCK_CABS } from "@/data/mockCabs";
-import { backendReady, postSearch } from "./shared";
+import { backendReady, postSearch, type SearchResponse } from "./shared";
 import type { CabResult } from "./types";
 
 function toResult(c: (typeof MOCK_CABS)[number]): CabResult {
@@ -28,8 +28,18 @@ function toResult(c: (typeof MOCK_CABS)[number]): CabResult {
   };
 }
 
-export async function searchCabs(params: { origin: string; destination: string }): Promise<{ results: CabResult[] }> {
-  if (!backendReady()) return { results: MOCK_CABS.map(toResult) };
+export async function searchCabs(params: { origin: string; destination: string }): Promise<SearchResponse<CabResult>> {
+  if (!backendReady()) {
+    return {
+      results: MOCK_CABS.map(toResult),
+      meta: {
+        mode: "ESTIMATE",
+        source: "demo",
+        provider: { name: "demo", status: "DEMO" },
+        requestId: "local",
+      },
+    };
+  }
   const env = await postSearch<CabResult>("/search/cabs", { ...params });
-  return { results: env.results };
+  return { results: env.results, meta: env.meta };
 }

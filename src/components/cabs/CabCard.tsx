@@ -63,7 +63,7 @@ export default function CabCard({ cab, distanceKm = 120, tripType = "oneway", se
           <div className="flex flex-wrap gap-2 mb-4">
             <Badge variant="default">{fare.includedKm} km included</Badge>
             <Badge variant="default">₹{fare.extraKm > 0 ? Math.round(fare.extraKmCharge / Math.max(1, fare.extraKm)) : 12}/km extra</Badge>
-            {cab.driver_rating > 4.5 && <Badge variant="success">Highly rated</Badge>}
+            {cab.driver_rating != null && cab.driver_rating > 4.5 && <Badge variant="success">Highly rated</Badge>}
             {cab.is_demo && <span className="demo-badge">Estimated fare</span>}
           </div>
 
@@ -88,7 +88,7 @@ export default function CabCard({ cab, distanceKm = 120, tripType = "oneway", se
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 border-t border-ink-100 pt-4">
             <div className="text-sm text-ink-600 flex-1">
-              Driver rating: {cab.driver_rating}/5 • {cab.cancellation_policy}
+              Driver rating{cab.driver_rating != null ? `: ${cab.driver_rating}/5` : " on request"} • {cab.cancellation_policy}
             </div>
             <button
               onClick={() => onSelect?.(cab)}

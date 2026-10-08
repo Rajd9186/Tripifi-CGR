@@ -72,7 +72,7 @@ export default function TrainResultsClient() {
       title: `${train.train_name} ${train.train_number} · ${from} → ${to}`,
       route: `${train.origin} → ${train.destination}`,
       date,
-      amount: train.fare,
+      amount: train.fare ?? 0,
       status: "upcoming",
       details: { Class: travelClass, Departure: train.departure, Arrival: train.arrival, Availability: `${train.availability} (simulated)` },
     });

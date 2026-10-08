@@ -8,6 +8,19 @@ export const geoApi = {
     return apiRequest("/geo/geocode", { method: "POST", body: JSON.stringify({ query, limit }), auth: false });
   },
 
+  async weather(lat: number, lon: number, days = 3): Promise<WeatherResponse | null> {
+    if (!isBackendConfigured()) return null;
+    try {
+      return await apiRequest<WeatherResponse>(
+        `/geo/weather?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}&days=${encodeURIComponent(days)}`,
+        { auth: false }
+      );
+    } catch {
+      // Weather is best-effort: callers hide the chips on any failure.
+      return null;
+    }
+  },
+
   async route(origin: string, destination: string, opts: { vehicle?: string; trip_type?: string; tolls?: number; night_halt?: boolean } = {}) {
     if (!isBackendConfigured()) {
       return {
@@ -43,4 +56,26 @@ export function bookingCapability(service: string, providerOk: boolean): { mode:
   return bookable
     ? { mode: "LIVE_RESULTS", bookable: true, enquiry: false }
     : { mode: "ASSISTED_BOOKING", bookable: false, enquiry: true };
+}
+
+export interface WeatherDay {
+  date: string;
+  tmax_c: number | null;
+  tmin_c: number | null;
+  precip_prob_pct: number | null;
+  condition: string;
+}
+
+export interface WeatherResponse {
+  state: string;
+  data: {
+    current_temp_c: number | null;
+    current_condition: string;
+    daily: WeatherDay[];
+  };
+  source: string;
+  is_live: boolean;
+  attribution: string;
+  cache_ttl: number;
+  mode: string;
 }

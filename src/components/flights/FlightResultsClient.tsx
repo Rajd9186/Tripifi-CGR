@@ -80,10 +80,10 @@ export default function FlightResultsClient() {
     if (activeFilters.includes("Non-stop")) list = list.filter((o) => o.stops === 0);
     if (activeFilters.includes("Refundable")) list = list.filter((o) => o.refundable);
     if (activeFilters.includes("Morning")) list = list.filter((o) => hourOf(o.departure) < 12);
-    if (activeFilters.includes("Under ₹12,000")) list = list.filter((o) => o.fare < 12000);
+    if (activeFilters.includes("Under ₹12,000")) list = list.filter((o) => o.fare != null && o.fare < 12000);
     switch (sort) {
       case "Cheapest":
-        list.sort((a, b) => a.fare - b.fare);
+        list.sort((a, b) => (a.fare ?? Number.MAX_SAFE_INTEGER) - (b.fare ?? Number.MAX_SAFE_INTEGER));
         break;
       case "Fastest":
         list.sort((a, b) => a.duration_minutes - b.duration_minutes);
@@ -105,7 +105,7 @@ export default function FlightResultsClient() {
       title: `${flight.airline} ${flight.flight_number} · ${from} → ${to}`,
       route: `${flight.origin} → ${flight.destination}`,
       date,
-      amount: flight.fare * travellers,
+      amount: flight.fare != null ? flight.fare * travellers : 0,
       status: "upcoming",
       details: {
         Airline: flight.airline,

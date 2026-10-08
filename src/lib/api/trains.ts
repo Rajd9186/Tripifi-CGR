@@ -1,5 +1,5 @@
 import { MOCK_TRAINS } from "@/data/mockTrains";
-import { backendReady, postSearch } from "./shared";
+import { backendReady, postSearch, type SearchResponse } from "./shared";
 import type { TrainResult } from "./types";
 
 function toResult(t: (typeof MOCK_TRAINS)[number]): TrainResult {
@@ -25,10 +25,18 @@ function toResult(t: (typeof MOCK_TRAINS)[number]): TrainResult {
   };
 }
 
-export async function searchTrains(params: { origin: string; destination: string; departure_date?: string }): Promise<{ results: TrainResult[] }> {
+export async function searchTrains(params: { origin: string; destination: string; departure_date?: string }): Promise<SearchResponse<TrainResult>> {
   if (!backendReady()) {
-    return { results: MOCK_TRAINS.map(toResult) };
+    return {
+      results: MOCK_TRAINS.map(toResult),
+      meta: {
+        mode: "SCHEDULE_ONLY",
+        source: "demo",
+        provider: { name: "demo", status: "DEMO" },
+        requestId: "local",
+      },
+    };
   }
   const env = await postSearch<TrainResult>("/search/trains", { ...params });
-  return { results: env.results };
+  return { results: env.results, meta: env.meta };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { enquiriesApi, newIdempotencyKey } from "@/lib/api/enquiries";
 import { track } from "@/lib/analytics";
@@ -17,22 +18,35 @@ function normalizePhoneClient(raw: string): string {
   return `+91${ten}`;
 }
 
+export interface EnquirySummaryRow {
+  label: string;
+  value: string;
+}
+
 export default function BookingEnquiryForm({
   type,
   prefill,
   tripSnapshot,
   onSuccess,
+  summary,
+  inlineSuccess = false,
 }: {
   type: EnquiryType;
   prefill?: Partial<BookingEnquiry>;
   tripSnapshot?: Record<string, unknown>;
-  onSuccess?: (reference: string) => void;
+  onSuccess?: (reference: string, customerName: string) => void;
+  /** Selected details shown back to the user (visible + editable below). */
+  summary?: EnquirySummaryRow[];
+  /** Render the success state inline instead of navigating away. */
+  inlineSuccess?: boolean;
 }) {
   const router = useRouter();
   const [form, setForm] = useState({
     customer_name: prefill?.customer_name ?? "",
     phone: prefill?.phone ?? "",
     email: prefill?.email ?? "",
+    preferred_contact_time: prefill?.preferred_contact_time ?? "",
+    website: "",
     origin: prefill?.origin ?? "",
     destination: prefill?.destination ?? "",
     travel_start_date: prefill?.travel_start_date ?? "",
@@ -45,6 +59,8 @@ export default function BookingEnquiryForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [receipt, setReceipt] = useState<{ reference: string; name: string } | null>(null);
+  const [idemKey] = useState(() => newIdempotencyKey());
 
   const set = (k: keyof typeof form, v: string | number | boolean | undefined) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -55,7 +71,9 @@ export default function BookingEnquiryForm({
     if (!PHONE_RE.test(form.phone.trim()) && !/^[6-9]\d{9}$/.test(form.phone.replace(/\D/g, "").slice(-10))) {
       e.phone = "Enter a valid 10-digit Indian mobile number.";
     }
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim()) && form.email.trim()) e.email = "Enter a valid email address.";
+    if (form.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email.trim())) {
+      e.email = "Enter a valid email address, or leave it blank.";
+    }
     if (form.travel_start_date && form.travel_end_date && form.travel_end_date < form.travel_start_date) {
       e.travel_end_date = "Return date must be on or after the travel date.";
     }
@@ -66,18 +84,21 @@ export default function BookingEnquiryForm({
 
   const submit = async (ev: React.FormEvent) => {
     ev.preventDefault();
+    if (receipt) return; // duplicate-click safe: already submitted.
     setErrors(valid);
     setSubmitError(null);
     if (Object.keys(valid).length > 0) return;
     setSubmitting(true);
     track("fallback_started", { type });
     try {
-      const receipt = await enquiriesApi.create(
+      const created = await enquiriesApi.create(
         {
           type,
           customer_name: form.customer_name.trim(),
           phone: normalizePhoneClient(form.phone),
-          email: form.email.trim().toLowerCase(),
+          email: form.email.trim() || undefined,
+          preferred_contact_time: form.preferred_contact_time.trim() || undefined,
+          website: form.website || undefined,
           origin: form.origin.trim() || undefined,
           destination: form.destination.trim() || undefined,
           travel_start_date: form.travel_start_date || undefined,
@@ -90,12 +111,19 @@ export default function BookingEnquiryForm({
           consent: true,
           service_details: { type },
         },
-        newIdempotencyKey()
+        idemKey
       );
-      if (onSuccess) onSuccess(receipt.reference_number);
-      else router.push(`/assistance/success?ref=${encodeURIComponent(receipt.reference_number)}`);
-      track("fallback_completed", { type, reference: receipt.reference_number });
+      const name = form.customer_name.trim();
+      track("fallback_completed", { type, reference: created.reference_number });
+      if (inlineSuccess) {
+        setReceipt({ reference: created.reference_number, name });
+      } else if (onSuccess) {
+        onSuccess(created.reference_number, name);
+      } else {
+        router.push(`/assistance/success?ref=${encodeURIComponent(created.reference_number)}`);
+      }
     } catch (err) {
+      // Failure keeps every field intact so the user can retry.
       if (err instanceof ApiError) setSubmitError(`${err.message} (ref: ${err.requestId})`);
       else setSubmitError("We couldn't submit your request right now. Your details are preserved — please try again.");
     } finally {
@@ -106,8 +134,48 @@ export default function BookingEnquiryForm({
   const field = "field min-h-[52px] text-[16px] md:text-[15px]";
   const err = (k: string) => errors[k] && <p className="mt-1 text-xs text-red-600" role="alert">{errors[k]}</p>;
 
+  if (receipt) {
+    return (
+      <div className="py-4 text-center" role="status" aria-live="polite">
+        <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-leaf-100 text-leaf-700" aria-hidden="true">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h3 className="font-display text-xl font-semibold text-ink-900">
+          Thanks {receipt.name}! A customer representative will contact you shortly.
+        </h3>
+        <div className="mx-auto mt-5 max-w-xs rounded-2xl border border-ink-100 bg-cream-100 px-5 py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-500">Reference Number</p>
+          <p className="mt-1 font-mono text-xl font-bold tracking-wide text-text">{receipt.reference}</p>
+        </div>
+        <Link
+          href={`/assistance/track?ref=${encodeURIComponent(receipt.reference)}`}
+          className="btn-ghost mt-5 inline-flex min-h-[48px]"
+        >
+          Track My Enquiry
+        </Link>
+        <p className="mt-3 text-xs text-ink-400">This is a request for assistance — not a confirmed booking.</p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={submit} noValidate className="space-y-4">
+      {summary && summary.length > 0 && (
+        <div className="rounded-2xl border border-ink-100 bg-cream-50 px-5 py-4" aria-label="Your selected details">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-500">Your selected details</p>
+          <dl className="mt-2 space-y-1.5">
+            {summary.map((row) => (
+              <div key={row.label} className="flex items-baseline justify-between gap-4 text-sm">
+                <dt className="shrink-0 text-ink-500">{row.label}</dt>
+                <dd className="text-right font-medium text-ink-900">{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+          <p className="mt-2 text-xs text-ink-400">You can adjust dates, travellers and notes below.</p>
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label className="input-label" htmlFor="eq-name">Full Name *</label>
@@ -120,10 +188,29 @@ export default function BookingEnquiryForm({
           {err("phone")}
         </div>
       </div>
-      <div>
-        <label className="input-label" htmlFor="eq-email">Email *</label>
-        <input id="eq-email" type="email" className={field} value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" autoComplete="email" />
-        {err("email")}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className="input-label" htmlFor="eq-email">Email (optional)</label>
+          <input id="eq-email" type="email" className={field} value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" autoComplete="email" />
+          {err("email")}
+        </div>
+        <div>
+          <label className="input-label" htmlFor="eq-contact-time">Preferred Contact Time (optional)</label>
+          <input id="eq-contact-time" className={field} value={form.preferred_contact_time} onChange={(e) => set("preferred_contact_time", e.target.value)} placeholder="Evenings after 7pm" autoComplete="off" />
+        </div>
+      </div>
+      {/* Honeypot: hidden from real users; bots fill it. Never logged. */}
+      <div className="absolute h-px w-px overflow-hidden" aria-hidden="true" style={{ clipPath: "inset(50%)" }}>
+        <label htmlFor="eq-website">Website</label>
+        <input
+          id="eq-website"
+          name="website"
+          type="text"
+          value={form.website}
+          onChange={(e) => set("website", e.target.value)}
+          autoComplete="off"
+          tabIndex={-1}
+        />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

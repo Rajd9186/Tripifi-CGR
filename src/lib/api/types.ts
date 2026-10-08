@@ -12,9 +12,10 @@ export interface FlightOffer {
   duration_minutes: number;
   stops: number;
   baggage_kg: number;
-  fare: number;
+  /** Null when the provider does not know the fare — UI shows "Price on request". */
+  fare: number | null;
   currency: string;
-  refundable: boolean;
+  refundable?: boolean | null;
   seat_available: boolean;
   is_demo: boolean;
 }
@@ -30,7 +31,8 @@ export interface TrainOffer {
   arrival: string;
   duration_minutes: number;
   travel_class: string;
-  fare: number;
+  /** Null when unknown — UI shows "Price on request". */
+  fare: number | null;
   currency: string;
   availability: string;
   running_days: string[];
@@ -43,14 +45,16 @@ export interface HotelOffer {
   name: string;
   destination: string;
   location: string;
-  rating: number;
-  room_type: string;
+  /** Null when unknown (e.g. map discovery) — never rendered when null. */
+  rating: number | null;
+  room_type?: string | null;
   amenities: string[];
-  price_per_night: number;
-  total_price: number;
+  /** Null when unknown — UI shows "Price on request". */
+  price_per_night: number | null;
+  total_price: number | null;
   currency: string;
-  cancellation_policy: string;
-  meal_plan: string;
+  cancellation_policy?: string | null;
+  meal_plan?: string | null;
   is_demo: boolean;
 }
 
@@ -63,7 +67,7 @@ export interface CabOffer {
   luggage: number;
   included_km: number;
   extra_km_price: number;
-  driver_rating: number;
+  driver_rating?: number | null;
   price: number;
   currency: string;
   cancellation_policy: string;
@@ -133,19 +137,19 @@ export interface ResultProvenance {
 export interface FlightResult extends FlightOffer {
   status: "LIVE" | "DEMO" | "UNAVAILABLE";
   cabin: string;
-  price: number;
+  price: number | null;
 }
 
 export interface TrainResult extends TrainOffer {
   status: "LIVE" | "DEMO" | "UNAVAILABLE";
-  price: number;
+  price: number | null;
 }
 
 export interface HotelResult extends HotelOffer {
   status: "LIVE" | "DEMO" | "UNAVAILABLE";
-  nightly_price: number;
-  breakfast: boolean;
-  cancellation: string;
+  nightly_price: number | null;
+  breakfast?: boolean | null;
+  cancellation?: string | null;
 }
 
 export interface CabResult extends CabOffer {
@@ -166,7 +170,8 @@ export interface ActivityResult {
   title: string;
   destination: string;
   duration: string;
-  price: number;
+  description?: string | null;
+  price: number | null;
   currency: string;
   is_demo: boolean;
 }
@@ -184,7 +189,12 @@ export interface DestinationResult {
 export interface SearchMetadata {
   provider: { name: string; status: string };
   requestId: string;
+  mode?: SearchMode;
+  source?: string;
+  fetched_at?: string;
 }
+
+export type SearchMode = "LIVE" | "ESTIMATE" | "SCHEDULE_ONLY" | "DISCOVERY" | "ASSISTED";
 
 export interface ProviderStatus {
   provider: string;
@@ -249,7 +259,10 @@ export interface BookingEnquiry {
   type: EnquiryType;
   customer_name: string;
   phone: string;
-  email: string;
+  email?: string;
+  preferred_contact_time?: string;
+  /** Honeypot: hidden from real users; bots fill it. Never logged. */
+  website?: string;
   origin?: string;
   destination?: string;
   travel_start_date?: string;
