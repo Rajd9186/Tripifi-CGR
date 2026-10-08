@@ -4,6 +4,7 @@ import { DESTINATIONS, findDestination } from "@/lib/destinations";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import DestinationHero from "@/components/destinations/DestinationHero";
+import WeatherChips from "@/components/destinations/WeatherChips";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -63,6 +64,7 @@ export default async function DestinationDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </div>
+            <WeatherChips lat={destination.lat} lng={destination.lng} name={destination.name} />
           </div>
         </div>
       </section>

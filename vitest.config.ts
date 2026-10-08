@@ -3,8 +3,12 @@ import path from "path";
 
 export default defineConfig({
   test: {
-    environment: "node",
-    include: ["src/**/*.test.ts"],
+    environment: "jsdom",
+    include: ["src/**/*.test.{ts,tsx}"],
+    setupFiles: ["./vitest.setup.ts"],
+  },
+  esbuild: {
+    jsx: "automatic",
   },
   resolve: {
     alias: {

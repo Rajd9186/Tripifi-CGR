@@ -4,13 +4,14 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import FlightCard from "@/components/flights/FlightCard";
-import { searchFlights } from "@/lib/api";
-import type { FlightResult, FlightOffer } from "@/lib/api/types";
+import { modeNote, searchFlights, type SearchMeta } from "@/lib/api";
+import type { FlightResult, FlightOffer, SearchMode } from "@/lib/api/types";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import BottomSheet from "@/components/ui/BottomSheet";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
-import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
+import AssistedFallbackCard from "@/components/booking/AssistedFallbackCard";
+import { SourceBadge } from "@/components/booking/ProviderStatusBadge";
 import { useApp } from "@/lib/store";
 import { addSearchToHistory } from "@/lib/searchHistory";
 
@@ -33,8 +34,10 @@ export default function FlightResultsClient() {
   const cabin = params.get("class") ?? "Economy";
 
   const [offers, setOffers] = useState<FlightResult[]>([]);
+  const [meta, setMeta] = useState<SearchMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [sort, setSort] = useState<Sort>("Recommended");
@@ -48,6 +51,7 @@ export default function FlightResultsClient() {
       .then((r) => {
         if (cancelled) return;
         setOffers(r.results);
+        setMeta(r.meta);
         setLoading(false);
         // Add to search history on successful search
         addSearchToHistory({
@@ -61,7 +65,9 @@ export default function FlightResultsClient() {
         if (e.code === "NO_RESULTS") {
           setOffers([]);
         } else {
-          setError("We couldn't retrieve live availability right now.");
+          setError(e.code === "SERVER_WAKING" || e.code === "NETWORK"
+            ? "Server is waking up, retrying… If this persists, request assistance below and keep your details."
+            : "We couldn't retrieve live availability right now.");
         }
         setLoading(false);
       });
@@ -69,7 +75,7 @@ export default function FlightResultsClient() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, to, date]);
+  }, [from, to, date, refreshKey]);
 
   const toggleFilter = (f: string) => {
     setActiveFilters((prev) => (prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]));
@@ -97,8 +103,9 @@ export default function FlightResultsClient() {
     return list;
   }, [offers, activeFilters, sort]);
 
-  const handleSelect = (flight: FlightOffer) => {
-    setSelectedId(flight.id);
+  const selectedFlight = visible.find((o) => o.id === selectedId) ?? null;
+
+  const handleSelect = (flight: FlightOffer) => {    setSelectedId(flight.id);
     const trip = ensureDraftTrip({ origin: from, destination: to, startDate: date, travellers });
     addItemToTrip(trip.id, {
       type: "flight",
@@ -134,8 +141,12 @@ export default function FlightResultsClient() {
             Flight Results
           </h1>
           <p className="mt-2 text-[15px] text-white/80">
-            {date || "Flexible dates"} · {travellers} traveller{travellers > 1 ? "s" : ""} · {cabin} ·{" "}
-            <span className="italic">Demo availability</span>
+            {date || "Flexible dates"} · {travellers} traveller{travellers > 1 ? "s" : ""} · {cabin}
+            {modeNote(meta, offers.some((o) => o.is_demo)) && (
+              <>
+                {" "}· <span className="italic">{modeNote(meta, offers.some((o) => o.is_demo))}</span>
+              </>
+            )}
           </p>
           <Link
             href={`/flights?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${encodeURIComponent(date)}`}
@@ -199,10 +210,23 @@ export default function FlightResultsClient() {
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="info">{cabin}</Badge>
               <Badge variant="default">{sort}</Badge>
+              {meta && (
+                <SourceBadge
+                  mode={(meta.mode ?? "ASSISTED") as SearchMode}
+                  source={meta.source}
+                  fetchedAt={meta.fetched_at}
+                  onRefresh={() => setRefreshKey((k) => k + 1)}
+                  refreshing={loading}
+                />
+              )}
             </div>
             <p className="text-sm text-ink-600">
-              {loading ? "Searching flights…" : `Showing ${visible.length} flight${visible.length === 1 ? "" : "s"}`} ·{" "}
-              <span className="italic">Demo availability</span>
+              {loading ? "Searching flights…" : `Showing ${visible.length} flight${visible.length === 1 ? "" : "s"}`}
+              {modeNote(meta, visible.some((o) => o.is_demo)) && (
+                <>
+                  {" "}· <span className="italic">{modeNote(meta, visible.some((o) => o.is_demo))}</span>
+                </>
+              )}
             </p>
           </div>
 
@@ -217,7 +241,10 @@ export default function FlightResultsClient() {
               ))}
             </div>
           ) : error && visible.length === 0 ? (
-            <ErrorState onRetry={() => window.location.reload()} />
+            <>
+              <ErrorState onRetry={() => setRefreshKey((k) => k + 1)} />
+              <p className="mt-3 text-center text-sm text-ink-600" role="alert">{error}</p>
+            </>
           ) : visible.length === 0 ? (
             <EmptyState
               title="No flights found for these dates."
@@ -247,11 +274,27 @@ export default function FlightResultsClient() {
           </Card>
 
           <div className="mt-6">
-            <AssistedBookingCTA
+            <AssistedFallbackCard
+              type="FLIGHT"
               title="Need help booking this flight?"
-              description="Flight information can't be ticketed instantly yet. Share your details and our travel team will check availability and arrange the best option."
-              href="/assistance"
-              prefill={{ type: "FLIGHT" }}
+              description="Flights can't be ticketed instantly yet. Share your details and a customer representative will contact you shortly to confirm availability and arrange the best option."
+              prefill={{
+                serviceLabel: "Flight",
+                origin: from,
+                destination: to,
+                travel_start_date: date || undefined,
+                traveller_count: travellers,
+              }}
+              summary={[
+                { label: "Service", value: "Flight" },
+                { label: "From", value: from },
+                { label: "To", value: to },
+                ...(date ? [{ label: "Date", value: date }] : []),
+                { label: "Travellers", value: String(travellers) },
+                ...(selectedFlight
+                  ? [{ label: "Selected option", value: `${selectedFlight.airline} ${selectedFlight.flight_number}` }]
+                  : []),
+              ]}
             />
           </div>
 

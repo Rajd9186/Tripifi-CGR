@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import HotelCard from "@/components/hotels/HotelCard";
-import { searchHotels } from "@/lib/api";
-import type { HotelResult, HotelOffer } from "@/lib/api/types";
+import { modeNote, searchHotels, type SearchMeta } from "@/lib/api";
+import type { HotelResult, HotelOffer, SearchMode } from "@/lib/api/types";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
-import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
+import AssistedFallbackCard from "@/components/booking/AssistedFallbackCard";
+import { SourceBadge } from "@/components/booking/ProviderStatusBadge";
 import { useApp } from "@/lib/store";
 import { nightsBetween } from "@/lib/utils";
 import { addSearchToHistory } from "@/lib/searchHistory";
@@ -22,18 +23,21 @@ export default function HotelResultsClient() {
 
   const nights = checkin && checkout ? Math.max(1, nightsBetween(checkin, checkout)) : 3;
   const [offers, setOffers] = useState<HotelResult[]>([]);
+  const [meta, setMeta] = useState<SearchMeta | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    setError(false);
+    setError(null);
     searchHotels({ destination, checkin: checkin || undefined, checkout: checkout || undefined, guests: 2 })
       .then((r) => {
         if (cancelled) return;
         setOffers(r.results);
+        setMeta(r.meta);
         setLoading(false);
         addSearchToHistory({
           type: "hotel",
@@ -46,7 +50,9 @@ export default function HotelResultsClient() {
         if (e.code === "NO_RESULTS") {
           setOffers([]);
         } else {
-          setError(true);
+          setError(e.code === "SERVER_WAKING" || e.code === "NETWORK"
+            ? "Server is waking up, retrying… If this persists, request assistance below and keep your details."
+            : "We couldn't retrieve live availability right now.");
         }
         setLoading(false);
       });
@@ -54,7 +60,7 @@ export default function HotelResultsClient() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [destination, checkin, checkout]);
+  }, [destination, checkin, checkout, refreshKey]);
 
   const handleSelect = (hotel: HotelOffer) => {
     setSelected(hotel.id);
@@ -84,13 +90,29 @@ export default function HotelResultsClient() {
           <p className="micro-meta text-[11px] text-white/50">{destination.toUpperCase()} · {nights} NIGHT{nights > 1 ? "S" : ""}</p>
           <h1 className="fluid-section mt-1 font-display font-semibold tracking-tight text-white">Hotel Results</h1>
           <p className="mt-2 text-[15px] text-white/80">
-            {checkin || "Flexible dates"}{checkout ? ` → ${checkout}` : ""} · {guests} · <span className="italic">Simulated inventory</span>
+            {checkin || "Flexible dates"}{checkout ? ` → ${checkout}` : ""} · {guests}
+            {modeNote(meta, offers.some((o) => o.is_demo)) && (
+              <>
+                {" "}· <span className="italic">{modeNote(meta, offers.some((o) => o.is_demo))}</span>
+              </>
+            )}
           </p>
         </div>
       </section>
 
       <section className="px-4 sm:px-6 lg:px-8 mt-6">
         <div className="max-w-8xl mx-auto">
+          {meta && (
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <SourceBadge
+                mode={(meta.mode ?? "ASSISTED") as SearchMode}
+                source={meta.source}
+                fetchedAt={meta.fetched_at}
+                onRefresh={() => setRefreshKey((k) => k + 1)}
+                refreshing={loading}
+              />
+            </div>
+          )}
           {loading ? (
             <div className="space-y-4" aria-label="Loading hotels">
               {[0, 1].map((i) => (
@@ -101,7 +123,10 @@ export default function HotelResultsClient() {
               ))}
             </div>
           ) : error && offers.length === 0 ? (
-            <ErrorState onRetry={() => window.location.reload()} />
+            <>
+              <ErrorState onRetry={() => setRefreshKey((k) => k + 1)} />
+              <p className="mt-3 text-center text-sm text-ink-600" role="alert">{error}</p>
+            </>
           ) : offers.length === 0 ? (
             <EmptyState title="We couldn't find a stay matching those preferences." description="Try other dates or a nearby destination — or let our team help." actionLabel="Request hotel assistance" actionHref="/assistance?type=HOTEL" />
           ) : (
@@ -113,11 +138,24 @@ export default function HotelResultsClient() {
           )}
 
           <div className="mt-6">
-            <AssistedBookingCTA
+            <AssistedFallbackCard
+              type="HOTEL"
               title="Let Tripifi find the right hotel for you"
-              description="Tell us your dates, budget and preferences — our travel team will arrange suitable options and confirm availability."
-              href="/assistance"
-              prefill={{ type: "HOTEL" }}
+              description="Tell us your dates, budget and preferences — a customer representative will contact you shortly to arrange suitable options and confirm availability."
+              prefill={{
+                serviceLabel: "Hotel",
+                destination,
+                travel_start_date: checkin || undefined,
+                travel_end_date: checkout || undefined,
+              }}
+              summary={[
+                { label: "Service", value: "Hotel" },
+                { label: "Destination", value: destination },
+                ...(checkin ? [{ label: "Check-in", value: checkin }] : []),
+                ...(checkout ? [{ label: "Check-out", value: checkout }] : []),
+                { label: "Nights", value: String(nights) },
+                { label: "Guests", value: guests },
+              ]}
             />
           </div>
 

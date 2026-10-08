@@ -69,3 +69,23 @@ export async function postSearch<T>(path: string, body: Record<string, unknown>)
 export function backendReady(): boolean {
   return isBackendConfigured();
 }
+
+/** User-facing honesty note for a search mode. Demo-flavoured when demo. */
+export function modeNote(meta: SearchMeta | null | undefined, isDemo: boolean): string | null {
+  const mode = meta?.mode;
+  if (!mode) return isDemo ? "Demo availability" : null;
+  switch (mode) {
+    case "LIVE":
+      return "Live availability";
+    case "ESTIMATE":
+      return "Estimated fares — booking requires confirmation";
+    case "SCHEDULE_ONLY":
+      return "Scheduled timetable — availability not live";
+    case "DISCOVERY":
+      return "Live discovery — prices on request";
+    case "ASSISTED":
+      return isDemo ? "Demo availability" : "Assisted booking";
+    default:
+      return null;
+  }
+}

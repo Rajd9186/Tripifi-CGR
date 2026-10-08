@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import TrainCard from "@/components/trains/TrainCard";
-import { searchTrains } from "@/lib/api";
-import type { TrainResult, TrainOffer } from "@/lib/api/types";
+import { modeNote, searchTrains, type SearchMeta } from "@/lib/api";
+import type { TrainResult, TrainOffer, SearchMode } from "@/lib/api/types";
 import Card from "@/components/ui/Card";
 import Badge from "@/components/ui/Badge";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
-import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
+import AssistedFallbackCard from "@/components/booking/AssistedFallbackCard";
+import { SourceBadge } from "@/components/booking/ProviderStatusBadge";
 import { useApp } from "@/lib/store";
 import { addSearchToHistory } from "@/lib/searchHistory";
 
@@ -23,19 +24,22 @@ export default function TrainResultsClient() {
   const date = params.get("date") ?? "";
 
   const [offers, setOffers] = useState<TrainResult[]>([]);
+  const [meta, setMeta] = useState<SearchMeta | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [classFilter, setClassFilter] = useState(params.get("class") ?? "All Classes");
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    setError(false);
+    setError(null);
     searchTrains({ origin: from, destination: to, departure_date: date || undefined })
       .then((r) => {
         if (cancelled) return;
         setOffers(r.results);
+        setMeta(r.meta);
         setLoading(false);
         addSearchToHistory({
           type: "train",
@@ -48,7 +52,9 @@ export default function TrainResultsClient() {
         if (e.code === "NO_RESULTS") {
           setOffers([]);
         } else {
-          setError(true);
+          setError(e.code === "SERVER_WAKING" || e.code === "NETWORK"
+            ? "Server is waking up, retrying… If this persists, request assistance below and keep your details."
+            : "We couldn't retrieve live availability right now.");
         }
         setLoading(false);
       });
@@ -56,7 +62,7 @@ export default function TrainResultsClient() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, to, date]);
+  }, [from, to, date, refreshKey]);
 
   const visible = useMemo(
     () => (classFilter === "All Classes" ? offers : offers.filter((o) => o.travel_class === classFilter)),
@@ -86,7 +92,12 @@ export default function TrainResultsClient() {
           <p className="micro-meta text-[11px] text-white/50">{from.toUpperCase()} → {to.toUpperCase()}</p>
           <h1 className="fluid-section mt-1 font-display font-semibold tracking-tight text-white">Train Results</h1>
           <p className="mt-2 text-[15px] text-white/80">
-            {date || "Flexible dates"} · <span className="italic">Simulated availability</span>
+            {date || "Flexible dates"}
+            {modeNote(meta, offers.some((o) => o.is_demo)) && (
+              <>
+                {" "}· <span className="italic">{modeNote(meta, offers.some((o) => o.is_demo))}</span>
+              </>
+            )}
           </p>
           <Link href="/trains" className="mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-xl border border-white/20 px-4 text-sm font-medium text-white hover:bg-white/10">
             Modify search
@@ -109,6 +120,18 @@ export default function TrainResultsClient() {
             ))}
           </div>
 
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            {meta && (
+              <SourceBadge
+                mode={(meta.mode ?? "ASSISTED") as SearchMode}
+                source={meta.source}
+                fetchedAt={meta.fetched_at}
+                onRefresh={() => setRefreshKey((k) => k + 1)}
+                refreshing={loading}
+              />
+            )}
+          </div>
+
           {loading ? (
             <div className="space-y-4" aria-label="Loading trains">
               {[0, 1].map((i) => (
@@ -119,7 +142,10 @@ export default function TrainResultsClient() {
               ))}
             </div>
           ) : error && visible.length === 0 ? (
-            <ErrorState onRetry={() => window.location.reload()} />
+            <>
+              <ErrorState onRetry={() => setRefreshKey((k) => k + 1)} />
+              <p className="mt-3 text-center text-sm text-ink-600" role="alert">{error}</p>
+            </>
           ) : visible.length === 0 ? (
             <EmptyState title="No trains found for these inputs." description="Try another date, class, or station." actionLabel="Modify search" actionHref="/trains" />
           ) : (
@@ -143,11 +169,23 @@ export default function TrainResultsClient() {
           </div>
 
           <div className="mt-6">
-            <AssistedBookingCTA
+            <AssistedFallbackCard
+              type="TRAIN"
               title="Request train booking assistance"
-              description="Live railway booking isn't available yet. Share your details and our travel team will arrange your tickets."
-              href="/assistance"
-              prefill={{ type: "TRAIN" }}
+              description="Live railway booking isn't available yet. Share your details and a customer representative will contact you shortly to arrange your tickets."
+              prefill={{
+                serviceLabel: "Train",
+                origin: from,
+                destination: to,
+                travel_start_date: date || undefined,
+              }}
+              summary={[
+                { label: "Service", value: "Train" },
+                { label: "From", value: from },
+                { label: "To", value: to },
+                ...(date ? [{ label: "Date", value: date }] : []),
+                { label: "Class", value: classFilter },
+              ]}
             />
           </div>
 

@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import CabCard from "@/components/cabs/CabCard";
-import { searchCabs } from "@/lib/api";
-import type { CabResult, CabOffer } from "@/lib/api/types";
+import { searchCabs, type SearchMeta } from "@/lib/api";
+import type { CabResult, CabOffer, SearchMode } from "@/lib/api/types";
 import Badge from "@/components/ui/Badge";
 import EmptyState, { ErrorState } from "@/components/ui/EmptyState";
-import AssistedBookingCTA from "@/components/booking/AssistedBookingCTA";
+import AssistedFallbackCard from "@/components/booking/AssistedFallbackCard";
+import { SourceBadge } from "@/components/booking/ProviderStatusBadge";
 import { useApp } from "@/lib/store";
 import type { CabTripType } from "@/lib/providers/cabPricing";
 import { addSearchToHistory } from "@/lib/searchHistory";
@@ -23,18 +24,21 @@ export default function CabResultsClient() {
   const trip = (params.get("trip") ?? "oneway") as CabTripType;
   const [vehicle, setVehicle] = useState(params.get("vehicle") ?? "All Vehicles");
   const [offers, setOffers] = useState<CabResult[]>([]);
+  const [meta, setMeta] = useState<SearchMeta | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    setError(false);
+    setError(null);
     searchCabs({ origin: pickup, destination: drop })
       .then((r) => {
         if (cancelled) return;
         setOffers(r.results);
+        setMeta(r.meta);
         setLoading(false);
         addSearchToHistory({
           type: "cab",
@@ -47,7 +51,9 @@ export default function CabResultsClient() {
         if (e.code === "NO_RESULTS") {
           setOffers([]);
         } else {
-          setError(true);
+          setError(e.code === "SERVER_WAKING" || e.code === "NETWORK"
+            ? "Server is waking up, retrying… If this persists, request assistance below and keep your details."
+            : "We couldn't retrieve live availability right now.");
         }
         setLoading(false);
       });
@@ -55,7 +61,7 @@ export default function CabResultsClient() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pickup, drop]);
+  }, [pickup, drop, refreshKey]);
 
   const visible = vehicle === "All Vehicles" ? offers : offers.filter((o) => o.vehicle_type === vehicle);
 
@@ -93,6 +99,15 @@ export default function CabResultsClient() {
         <div className="max-w-8xl mx-auto">
           <div className="mb-4 flex flex-wrap items-center gap-2" role="group" aria-label="Filter by vehicle">
             <Badge variant="info">{trip}</Badge>
+            {meta && (
+              <SourceBadge
+                mode={(meta.mode ?? "ASSISTED") as SearchMode}
+                source={meta.source}
+                fetchedAt={meta.fetched_at}
+                onRefresh={() => setRefreshKey((k) => k + 1)}
+                refreshing={loading}
+              />
+            )}
             {VEHICLES.map((v) => (
               <button
                 key={v}
@@ -115,7 +130,10 @@ export default function CabResultsClient() {
               ))}
             </div>
           ) : error && visible.length === 0 ? (
-            <ErrorState onRetry={() => window.location.reload()} />
+            <>
+              <ErrorState onRetry={() => setRefreshKey((k) => k + 1)} />
+              <p className="mt-3 text-center text-sm text-ink-600" role="alert">{error}</p>
+            </>
           ) : visible.length === 0 ? (
             <EmptyState title="No cabs match that vehicle filter." description="Try another vehicle category." actionLabel="Modify search" actionHref="/cabs" />
           ) : (
@@ -127,11 +145,22 @@ export default function CabResultsClient() {
           )}
 
           <div className="mt-6">
-            <AssistedBookingCTA
+            <AssistedFallbackCard
+              type="CAB"
               title="Need help arranging this cab?"
-              description="Fares above are estimates from our pricing engine. Share your details and our team will confirm the vehicle and final fare."
-              href="/assistance"
-              prefill={{ type: "CAB" }}
+              description="Fares above are estimates from our pricing engine. Share your details and a customer representative will contact you shortly to confirm the vehicle and final fare."
+              prefill={{
+                serviceLabel: "Cab",
+                origin: pickup,
+                destination: drop,
+              }}
+              summary={[
+                { label: "Service", value: "Private cab" },
+                { label: "Pickup", value: pickup },
+                { label: "Drop", value: drop },
+                { label: "Trip", value: trip },
+                { label: "Vehicle", value: vehicle },
+              ]}
             />
           </div>
 
