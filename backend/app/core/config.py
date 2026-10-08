@@ -52,7 +52,22 @@ class Settings(BaseSettings):
     map_provider: str = "demo"
     routing_provider: str = "demo"
     geocoding_provider: str = "nominatim"
+    weather_provider: str = "demo"
     aviation_api_key: str = ""
+    aviationstack_base_url: str = "https://api.aviationstack.com/v1"
+    aviationstack_paid_key: bool = False
+    aviationstack_monthly_quota: int = 100
+    aviationstack_base_url: str = "https://api.aviationstack.com/v1"
+    aviationstack_paid_key: bool = False
+    aviationstack_monthly_quota: int = 100
+    open_meteo_api_key: str = ""
+    open_meteo_base_url: str = "https://api.open-meteo.com/v1"
+    overpass_base_url: str = "https://overpass-api.de/api"
+    # Reliability: timeouts, circuit breaker, quota guard.
+    external_timeout_seconds: int = 8
+    circuit_failure_threshold: int = 3
+    circuit_open_seconds: int = 60
+    quota_stop_pct: int = 90
     graphhopper_api_key: str = ""
     osrm_base_url: str = "https://router.project-osrm.org"
     nominatim_base_url: str = "https://nominatim.openstreetmap.org"

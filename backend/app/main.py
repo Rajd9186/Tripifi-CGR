@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.core.config import get_settings
+from app.providers import registry
 from app.routers import admin_enquiries, ai, auth, bookings, enquiries, geo, payments, search, trips, webhooks, wishlist
 from app.routers.providers import packages_router, router as providers_router
 from app.utils.request_id import RequestIDMiddleware
@@ -40,6 +41,12 @@ async def unhandled_handler(request: Request, exc: Exception):
 @app.get("/health")
 async def health():
     return {"status": "ok", "environment": settings.environment}
+
+
+@app.on_event("startup")
+async def validate_provider_config() -> None:
+    # Fail fast on unknown adapter names — never at request time.
+    registry.validate_registry()
 
 
 api = APIRouter(prefix="/api/v1")
