@@ -49,6 +49,8 @@ __pycache__/
 .pytest_cache/
 backend/.env
 tripifi.db
+# Runtime quota counters (rebuilt automatically; never commit counts)
+backend/data/quotas.json
 
 # Stale patch artifacts (untracked helper, never commit)
 /tripifi-ui-patch/
