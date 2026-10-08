@@ -1,6 +1,8 @@
 "use client";
 
 import Hero from "@/components/hero/Hero";
+import JourneyMap from "@/components/journey/JourneyMap";
+import CountUp from "@/components/journey/CountUp";
 import { SearchBar } from "@/components/search/SearchBar";
 import DestinationCard from "@/components/destination/DestinationCard";
 import { Card } from "@/components/ui/Card";
@@ -37,10 +39,10 @@ const FEATURES = [
 ];
 
 const STATS = [
-  { value: "12K+", label: "Happy Travellers" },
-  { value: "250+", label: "Destinations" },
-  { value: "98%", label: "Satisfaction Rate" },
-  { value: "24/7", label: "Support Available" },
+  { value: 12, suffix: "K+", label: "Happy Travellers" },
+  { value: 250, suffix: "+", label: "Destinations" },
+  { value: 98, suffix: "%", label: "Satisfaction Rate" },
+  { value: 24, suffix: "/7", label: "Support Available" },
 ];
 
 export default function HomePage() {
@@ -105,24 +107,18 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Route map — self-contained section, no overlap with other content */}
+      <JourneyMap />
+
       {/* Stats */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-aurora/30">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 journey-band">
         <div className="max-w-8xl mx-auto">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {STATS.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1, duration: 0.5 }}
-                className="text-center"
-              >
-                <div className="font-display text-display-xl font-bold text-gradient mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-body text-text-muted">{stat.label}</div>
-              </motion.div>
+            {STATS.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <CountUp to={stat.value} suffix={stat.suffix} label={stat.label} />
+                <div className="text-body text-text-muted mt-2">{stat.label}</div>
+              </div>
             ))}
           </div>
         </div>
@@ -143,7 +139,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/destinations"
-              className="inline-flex items-center gap-2 text-body font-medium text-cyan hover:text-saffron transition-colors"
+              className="inline-flex min-h-[44px] items-center gap-2 text-body font-medium text-cyan hover:text-saffron transition-colors"
             >
               View all destinations
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
@@ -165,7 +161,7 @@ export default function HomePage() {
       </section>
 
       {/* Curated Packages */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-aurora/30">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 journey-band">
         <div className="max-w-8xl mx-auto">
           <div className="flex items-center justify-between mb-10">
             <div>
@@ -179,7 +175,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/packages"
-              className="inline-flex items-center gap-2 text-body font-medium text-cyan hover:text-saffron transition-colors"
+              className="inline-flex min-h-[44px] items-center gap-2 text-body font-medium text-cyan hover:text-saffron transition-colors"
             >
               View all packages
               <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

@@ -1,29 +1,23 @@
 import Link from "next/link";
 
 const footerLinks = {
-  Product: [
+  Explore: [
+    { label: "Destinations", href: "/destinations" },
+    { label: "Packages", href: "/packages" },
     { label: "Flights", href: "/flights" },
     { label: "Trains", href: "/trains" },
+    { label: "Hotels", href: "/hotels" },
     { label: "Cabs", href: "/cabs" },
-    { label: "Packages", href: "/packages" },
+  ],
+  Plan: [
     { label: "Trip Builder", href: "/plan" },
-    { label: "Destinations", href: "/destinations" },
+    { label: "AI Planner", href: "/ai" },
+    { label: "Map", href: "/map" },
+    { label: "Wishlist", href: "/wishlist" },
+    { label: "Get Assistance", href: "/assistance" },
+    { label: "Help & FAQs", href: "/help" },
   ],
-  Company: [
-    { label: "About", href: "/about" },
-    { label: "Careers", href: "/careers" },
-    { label: "Press", href: "/press" },
-    { label: "Contact", href: "/contact" },
-    { label: "Blog", href: "/blog" },
-  ],
-  Support: [
-    { label: "Help Center", href: "/help" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-    { label: "Cancellation Policy", href: "/cancellation" },
-    { label: "FAQs", href: "/faqs" },
-  ],
-  Travel: [
+  Popular: [
     { label: "Kashmir", href: "/destinations/kashmir" },
     { label: "Goa", href: "/destinations/goa" },
     { label: "Kerala", href: "/destinations/kerala" },

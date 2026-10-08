@@ -78,6 +78,98 @@ function ImageSlider() {
   );
 }
 
+/**
+ * HeroJourney — airplane following an animated dashed flight path
+ * between cities (SMIL animateMotion, no JS per frame), fading
+ * contrail, pins pulse on arrival. Static snapshot when the user
+ * prefers reduced motion.
+ */
+function HeroJourney({ reducedMotion }: { reducedMotion: boolean }) {
+  const pathD = "M 20 130 C 150 50, 300 150, 420 80 S 540 60, 580 45";
+  return (
+    <div className="pointer-events-none relative mx-auto mt-10 w-full max-w-3xl" aria-hidden="true">
+      <svg viewBox="0 0 600 160" className="h-auto w-full" role="presentation">
+        <defs>
+          <linearGradient id="hero-journey-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#19C3B2" />
+            <stop offset="55%" stopColor="#FFB454" />
+            <stop offset="100%" stopColor="#FF6B6B" />
+          </linearGradient>
+        </defs>
+        {/* Base dashed path */}
+        <path
+          d={pathD}
+          fill="none"
+          stroke="url(#hero-journey-gradient)"
+          strokeWidth="2"
+          strokeDasharray="8 8"
+          strokeLinecap="round"
+          opacity="0.85"
+        />
+        {/* Fading contrail */}
+        {!reducedMotion && (
+          <path
+            d={pathD}
+            fill="none"
+            stroke="#FFB454"
+            strokeWidth="5"
+            strokeLinecap="round"
+            opacity="0"
+          >
+            <animate attributeName="opacity" values="0.55;0" dur="2.4s" repeatCount="indefinite" />
+            <animate attributeName="stroke-width" values="5;9" dur="2.4s" repeatCount="indefinite" />
+          </path>
+        )}
+        {/* City pins */}
+        {[
+          { x: 20, y: 130, label: "DEL" },
+          { x: 300, y: 118, label: "VNS" },
+          { x: 580, y: 45, label: "CCU" },
+        ].map((pin, i) => (
+          <g key={pin.label}>
+            <circle
+              cx={pin.x}
+              cy={pin.y}
+              r="5"
+              fill="#0B1026"
+              stroke="#FFB454"
+              strokeWidth="2"
+            >
+              {!reducedMotion && (
+                <animate attributeName="r" values="5;5;7;5" dur="2.4s" begin={`${i * 0.8}s`} repeatCount="indefinite" />
+              )}
+            </circle>
+            <text x={pin.x} y={pin.y + 20} textAnchor="middle" fill="#F5F7FF" fontSize="11" fontWeight="600" opacity="0.85">
+              {pin.label}
+            </text>
+          </g>
+        ))}
+        {/* Airplane */}
+        {reducedMotion ? (
+          <g transform="translate(580 45)">
+            <path d="M-9 0 L9 0 M0 -7 L0 7 M-5 -5 L5 5 M-5 5 L5 -5" stroke="#F5F7FF" strokeWidth="2.4" strokeLinecap="round" />
+          </g>
+        ) : (
+          <g>
+            <circle r="10" fill="#FFB454" opacity="0.25">
+              <animateMotion dur="9s" repeatCount="indefinite" path={pathD} />
+            </circle>
+            <g className="journey-plane">
+              <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path={pathD} />
+              <path
+                d="M-10 0 L10 0 M0 -8 L0 8 M-6 -6 L6 6 M-6 6 L6 -6"
+                stroke="#F5F7FF"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+              />
+            </g>
+          </g>
+        )}
+      </svg>
+    </div>
+  );
+}
+
 function ScrollIndicator({ reducedMotion }: { reducedMotion: boolean }) {
   return (
     <motion.div
@@ -156,10 +248,10 @@ export default function Hero() {
             transition={{ delay: 0.6, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <motion.a
-              href="#plan"
+              href="/plan"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="btn-primary min-h-[56px] px-10 text-body-lg"
+              className="btn-primary journey-press journey-cta-glow min-h-[56px] px-10 text-body-lg"
             >
               <Sparkles className="mr-2 h-5 w-5" aria-hidden="true" />
               Plan My Trip with AI
@@ -174,8 +266,11 @@ export default function Hero() {
             </motion.a>
           </motion.div>
 
+          {/* Animated flight path */}
+          <HeroJourney reducedMotion={reducedMotion} />
+
           <motion.div
-            className="mt-16 flex flex-wrap items-center justify-center gap-8 text-text-dim"
+            className="mt-10 flex flex-wrap items-center justify-center gap-8 text-text-dim"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.75, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}

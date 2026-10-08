@@ -19,6 +19,7 @@ interface Message {
   timestamp: Date;
   actions?: AIAction[];
   isStreaming?: boolean;
+  error?: boolean;
 }
 
 interface AIAction {
@@ -53,7 +54,9 @@ export function AITripPlanner() {
       <button
         onClick={() => setOpen(true)}
         className={cn(
-          "group fixed bottom-6 right-6 z-[80] touch-target rounded-full",
+          "group fixed right-4 z-[80] touch-target rounded-full",
+          "bottom-[calc(var(--nav-h-mobile)+env(safe-area-inset-bottom,0px)+16px)]",
+          "md:bottom-6 md:right-6",
           "transition-all duration-300 hover:scale-105 active:scale-95",
           isMobile ? "p-1" : "p-0"
         )}
@@ -121,9 +124,14 @@ function AIPlannerSheetContent({ onClose }: { onClose: () => void }) {
     setInput("");
     setIsStreaming(true);
 
-    // Simulate AI response streaming
+    // Simulate AI response streaming (20s timeout, graceful errors)
     try {
-      const response = await simulateAIResponse(userInput);
+      const response = await Promise.race([
+        simulateAIResponse(userInput),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("AI_TIMEOUT")), 20000)
+        ),
+      ]);
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -155,7 +163,18 @@ function AIPlannerSheetContent({ onClose }: { onClose: () => void }) {
         )
       );
     } catch {
-      // Error handling
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `${Date.now()}-error`,
+          role: "assistant",
+          content:
+            "Sorry, I couldn't reach the travel assistant just now (it may be waking up). Please try again in a moment — or tap Retry below.",
+          timestamp: new Date(),
+          error: true,
+          actions: [{ type: "retry", label: "Retry", payload: { text: userInput } }],
+        },
+      ]);
     } finally {
       setIsStreaming(false);
     }
@@ -163,6 +182,17 @@ function AIPlannerSheetContent({ onClose }: { onClose: () => void }) {
 
   const handleQuickPrompt = (prompt: string) => {
     void handleSend(undefined, prompt);
+  };
+
+  const handleAction = (action: AIAction) => {
+    if (action.type === "retry" && typeof action.payload.text === "string") {
+      void handleSend(undefined, action.payload.text);
+      return;
+    }
+    if (action.type === "search_flights") window.location.href = "/flights";
+    else if (action.type === "search_hotels") window.location.href = "/hotels";
+    else if (action.type === "search_cabs") window.location.href = "/cabs";
+    else if (action.type === "search_activities") window.location.href = "/destinations";
   };
 
   const copyMessage = (content: string) => {
@@ -203,6 +233,7 @@ function AIPlannerSheetContent({ onClose }: { onClose: () => void }) {
                 key={message.id}
                 message={message}
                 onCopy={copyMessage}
+                onAction={handleAction}
               />
             ))}
             {isStreaming && (
@@ -282,7 +313,8 @@ function AIPlannerSheetContent({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={() => setInput("")}
-                className="absolute right-3 bottom-3 p-1 text-text-muted hover:text-text transition-colors"
+                aria-label="Clear message"
+                className="absolute right-2 bottom-2 flex min-h-[44px] min-w-[44px] items-center justify-center text-text-muted hover:text-text transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -295,6 +327,7 @@ function AIPlannerSheetContent({ onClose }: { onClose: () => void }) {
             className="min-h-[52px] glow"
             disabled={!input.trim() || isStreaming}
             whileTap={{ scale: 0.98 }}
+            aria-label="Send message"
           >
             {isStreaming ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
           </Button>
@@ -310,9 +343,11 @@ function AIPlannerSheetContent({ onClose }: { onClose: () => void }) {
 function MessageBubble({
   message,
   onCopy,
+  onAction,
 }: {
   message: Message;
   onCopy: (content: string) => void;
+  onAction: (action: AIAction) => void;
 }) {
   return (
     <motion.div
@@ -350,7 +385,7 @@ function MessageBubble({
                 key={action.type}
                 variant="outline"
                 size="sm"
-                onClick={() => console.log("Action:", action)}
+                onClick={() => onAction(action)}
               >
                 {action.label}
               </Button>
@@ -364,15 +399,15 @@ function MessageBubble({
             <>
               <button
                 onClick={() => onCopy(message.content)}
-                className="p-1 text-text-muted hover:text-text transition-colors"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center text-text-muted hover:text-text transition-colors"
                 aria-label="Copy message"
               >
                 <Copy className="h-4 w-4" />
               </button>
-              <button className="p-1 text-text-muted hover:text-cyan transition-colors" aria-label="Good response">
+              <button className="flex min-h-[44px] min-w-[44px] items-center justify-center text-text-muted hover:text-cyan transition-colors" aria-label="Good response">
                 <ThumbsUp className="h-4 w-4" />
               </button>
-              <button className="p-1 text-text-muted hover:text-error transition-colors" aria-label="Bad response">
+              <button className="flex min-h-[44px] min-w-[44px] items-center justify-center text-text-muted hover:text-error transition-colors" aria-label="Bad response">
                 <ThumbsDown className="h-4 w-4" />
               </button>
             </>

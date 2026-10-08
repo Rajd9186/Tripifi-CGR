@@ -131,7 +131,7 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
               type="button"
               onClick={() => setSearchType(type.value)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-medium transition-all duration-200",
+                "flex min-h-[44px] items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-medium transition-all duration-200",
                 searchType === type.value
                   ? "bg-surface-hover text-cyan shadow-sm"
                   : "text-text-muted hover:text-text"

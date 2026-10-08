@@ -49,3 +49,6 @@ __pycache__/
 .pytest_cache/
 backend/.env
 tripifi.db
+
+# Stale patch artifacts (untracked helper, never commit)
+/tripifi-ui-patch/

@@ -3,23 +3,26 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
-import { Home, Compass, MapPin, Heart, Sparkles, Menu } from "lucide-react";
+import { motion } from "motion/react";
+import { Plane, Compass, MapPin, Heart, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMediaQuery";
+import { useApp } from "@/lib/store";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Home", icon: Home },
+  { href: "/", label: "Home", icon: Plane },
   { href: "/destinations", label: "Explore", icon: Compass },
-  { href: "/trips", label: "Trips", icon: MapPin },
-  { href: "/wishlist", label: "Wishlist", icon: Heart },
-  { href: "/ai", label: "AI Planner", icon: Sparkles },
+  { href: "/map", label: "Map", icon: MapPin },
+  { href: "/wishlist", label: "Favorites", icon: Heart },
+  { href: "/ai", label: "AI", icon: Sparkles },
 ] as const;
 
 export default function BottomNavigation() {
   const pathname = usePathname();
   const isMobile = useMobile();
   const [mounted, setMounted] = useState(false);
+  const { wishlist } = useApp();
+  const savedCount = wishlist.length;
 
   useEffect(() => setMounted(true), []);
 
@@ -38,7 +41,7 @@ export default function BottomNavigation() {
 
   return (
     <motion.nav
-      className="fixed bottom-0 left-0 right-0 z-[90] safe-bottom"
+      className="fixed inset-x-0 bottom-0 z-[90] safe-bottom"
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 100, opacity: 0 }}
@@ -46,48 +49,55 @@ export default function BottomNavigation() {
       role="navigation"
       aria-label="Bottom navigation"
     >
-      <div className="mx-auto max-w-[400px] glass rounded-t-3xl border-t border-border p-1 shadow-card-hover">
+      <div className="glass mx-auto max-w-[400px] rounded-t-3xl border-t border-border p-1 shadow-card-hover">
         <div className="flex items-center justify-around">
           {NAV_ITEMS.map((item, index) => {
             const isActive = index === activeIndex;
             const Icon = item.icon;
+            const badge = item.href === "/wishlist" ? savedCount : 0;
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative flex flex-col items-center gap-1 px-4 py-2.5 rounded-xl",
-                  "touch-target transition-all duration-300",
-                  isActive
-                    ? "text-saffron"
-                    : "text-text-muted hover:text-text",
-                  "active:scale-95"
+                  "journey-press relative flex min-h-[56px] min-w-[56px] flex-col items-center justify-center gap-1 rounded-xl px-3 py-2",
+                  "transition-colors duration-200",
+                  isActive ? "text-[#FFB454]" : "text-text-muted hover:text-text"
                 )}
                 aria-current={isActive ? "page" : undefined}
-                aria-label={item.label}
+                aria-label={badge > 0 ? `${item.label}, ${badge} saved` : item.label}
               >
-                <motion.div
-                  layoutId="nav-indicator"
-                  className={cn(
-                    "absolute -top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-saffron",
-                    "transition-transform duration-300 ease-out"
+                {isActive && (
+                  <motion.span
+                    layoutId="journey-nav-pill"
+                    className="absolute inset-0 rounded-xl border border-[#FFB454]/25 bg-[#FFB454]/10"
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                )}
+                <span className="relative z-10 flex h-6 w-6 items-center justify-center">
+                  <Icon
+                    key={`${item.href}-${isActive}`}
+                    className={cn("h-6 w-6", isActive && "journey-nav-active-icon")}
+                    aria-hidden="true"
+                  />
+                  {badge > 0 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FF6B6B] px-1 text-[10px] font-bold leading-none text-white"
+                    >
+                      {badge > 99 ? "99+" : badge}
+                    </span>
                   )}
-                  style={{ opacity: isActive ? 1 : 0 }}
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
-                <motion.span
-                  className="relative z-10 flex h-6 w-6 items-center justify-center"
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Icon className={cn("h-6 w-6 transition-transform", isActive && "scale-110")} aria-hidden="true" />
-                </motion.span>
-                <motion.span
-                  className="text-micro font-medium transition-opacity duration-200"
-                  animate={{ opacity: isActive ? 1 : 0, y: isActive ? 0 : 4 }}
+                </span>
+                <span
+                  className={cn(
+                    "relative z-10 text-micro font-medium",
+                    !isActive && "opacity-70"
+                  )}
                 >
                   {item.label}
-                </motion.span>
+                </span>
               </Link>
             );
           })}

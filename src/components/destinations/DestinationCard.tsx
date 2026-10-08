@@ -177,7 +177,7 @@ export default function DestinationCard({
     <Link
       href={`/destinations/${destination.slug}`}
       className={cn(
-        "card-hover group flex flex-col overflow-hidden",
+        "card-hover journey-press group flex flex-col overflow-hidden",
         isHovered && "shadow-card-hover"
       )}
       onMouseEnter={() => setIsHovered(true)}

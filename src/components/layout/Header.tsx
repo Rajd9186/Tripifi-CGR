@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Menu, X, Search, Sparkles, Heart, MapPin, User, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,7 +27,7 @@ const QUICK_ACTIONS = [
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2" aria-label="Tripifi CGR Home">
+    <Link href="/" className="flex min-h-[44px] items-center gap-2" aria-label="Tripifi CGR Home">
       <motion.span
         className="text-display-sm font-display font-bold text-white"
         initial={{ opacity: 0, scale: 0.8 }}
@@ -48,7 +49,7 @@ function DesktopNav() {
         <Link
           key={item.href}
           href={item.href}
-          className="relative px-4 py-2 text-body-sm font-medium text-text-muted hover:text-text transition-colors duration-200 rounded-lg hover:bg-surface"
+          className="relative inline-flex min-h-[44px] items-center px-4 py-2 text-body-sm font-medium text-text-muted hover:text-text transition-colors duration-200 rounded-lg hover:bg-surface"
         >
           {item.label}
         </Link>
@@ -64,7 +65,7 @@ function DesktopActions() {
         <Link
           key={action.href}
           href={action.href}
-          className="relative p-2 rounded-xl text-text-muted hover:text-text hover:bg-surface transition-all duration-200"
+          className="relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 text-text-muted hover:text-text hover:bg-surface transition-all duration-200"
           aria-label={action.label}
         >
           <action.icon className="h-5 w-5" />
@@ -128,6 +129,7 @@ function Separator({ className }: { className?: string }) {
 
 export default function Header() {
   const { y, direction, isScrolled } = useScrollPosition(20);
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const isMobile = useMobile();
@@ -137,6 +139,11 @@ export default function Header() {
   useEffect(() => {
     setScrolled(isScrolled);
   }, [isScrolled]);
+
+  // Close the drawer on route change (Radix handles Esc/outside-tap/focus trap)
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
 
   const handleMenuToggle = () => {
     setMobileMenuOpen((prev) => !prev);
@@ -161,7 +168,7 @@ export default function Header() {
       role="banner"
     >
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-[var(--header-height)]">
+        <div className="flex items-center justify-between h-16 md:h-[var(--header-h)]">
           {/* Logo */}
           <Logo />
 

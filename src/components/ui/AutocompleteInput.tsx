@@ -172,7 +172,7 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
           <button
             type="button"
             onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-ink-400 hover:text-ink-700 transition-colors"
+            className="absolute right-1 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center text-ink-400 hover:text-ink-700 transition-colors"
             aria-label="Clear search"
           >
             <XIcon className="w-5 h-5" />

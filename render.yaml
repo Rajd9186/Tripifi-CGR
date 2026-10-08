@@ -11,3 +11,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      # Point at the deployed FastAPI backend when available, e.g.
+      # https://tripifi-api.onrender.com/api/v1 — unset = demo/local data mode.
+      - key: NEXT_PUBLIC_API_URL
+        sync: false

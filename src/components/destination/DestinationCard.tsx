@@ -163,7 +163,7 @@ export default function DestinationCard({
 
         {/* Wishlist button */}
         <motion.button
-          className="absolute top-5 right-5 z-10"
+          className="absolute top-4 right-4 z-10 flex min-h-[44px] min-w-[44px] items-center justify-center"
           onClick={toggleWishlist}
           whileTap={{ scale: 0.9 }}
           aria-label={isWishlisted ? `Remove ${destination.name} from wishlist` : `Save ${destination.name} to wishlist`}
@@ -350,8 +350,8 @@ export default function DestinationCard({
         <div className="absolute top-3 right-3">
           <motion.button
             className={cn(
-              "p-2 rounded-xl bg-surface/80 backdrop-blur-xl border border-border transition-all duration-200",
-              isWishlisted ? "bg-saffron/20 border-saffron/50 text-saffron" : "text-white/80 hover:text-saffron hover:bg-saffron/10"
+              "flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border transition-all duration-200",
+              isWishlisted ? "bg-saffron/20 border-saffron/50 text-saffron" : "bg-surface/80 backdrop-blur-xl border-border text-white/80 hover:text-saffron hover:bg-saffron/10"
             )}
             onClick={toggleWishlist}
             whileTap={{ scale: 0.9 }}

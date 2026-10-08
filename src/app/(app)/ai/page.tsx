@@ -8,8 +8,8 @@ export const metadata: Metadata = {
 
 export default function AIPage() {
   return (
-    <div className="h-[calc(100vh-80px)] flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl h-full md:h-[700px] rounded-2xl overflow-hidden border border-ink-100 shadow-soft">
+    <div className="flex min-h-[calc(100dvh-64px-var(--content-pb-mobile))] items-center justify-center p-4 md:min-h-0 md:h-[calc(100vh-80px)]">
+      <div className="h-[70dvh] w-full max-w-4xl overflow-hidden rounded-2xl border border-ink-100 shadow-soft md:h-[700px]">
         <TripifiAI isFullScreen />
       </div>
     </div>
