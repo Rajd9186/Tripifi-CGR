@@ -117,15 +117,16 @@ class FlightOffer(BaseModel):
     stops: int
     cabin: str = "Economy"
     baggage_kg: int = 15
-    fare: int
+    # Unknown price is None ("Price on request") — never 0, never invented.
+    fare: int | None = None
     price: int | None = None
     currency: str = "INR"
-    refundable: bool = True
-    seat_available: bool = True
+    refundable: bool | None = None
+    seat_available: bool = False
     is_demo: bool = True
 
     def model_post_init(self, _ctx) -> None:
-        if self.price is None:
+        if self.price is None and self.fare is not None:
             object.__setattr__(self, "price", self.fare)
 
 
@@ -141,15 +142,17 @@ class TrainOffer(BaseModel):
     arrival: str
     duration_minutes: int
     travel_class: str
-    fare: int
+    # Unknown fare is None — never 0, never invented.
+    fare: int | None = None
     price: int | None = None
     currency: str = "INR"
-    availability: str = "Available"
+    # Scheduled timetable only — never a live-availability claim.
+    availability: str = "Scheduled timetable"
     running_days: list[str] = Field(default_factory=list)
     is_demo: bool = True
 
     def model_post_init(self, _ctx) -> None:
-        if self.price is None:
+        if self.price is None and self.fare is not None:
             object.__setattr__(self, "price", self.fare)
 
 
@@ -160,21 +163,22 @@ class HotelOffer(BaseModel):
     name: str
     destination: str
     location: str
-    rating: float = 4.0
-    room_type: str = "Deluxe Room"
+    # Unknown rating/meal/price details are None — never invented.
+    rating: float | None = None
+    room_type: str | None = None
     amenities: list[str] = Field(default_factory=list)
-    breakfast: bool = True
-    cancellation: str = "Free cancellation"
+    breakfast: bool | None = None
+    cancellation: str | None = None
     nightly_price: int | None = None
-    price_per_night: int = 0
-    total_price: int = 0
+    price_per_night: int | None = None
+    total_price: int | None = None
     currency: str = "INR"
-    cancellation_policy: str = "Free cancellation"
-    meal_plan: str = "Breakfast included"
+    cancellation_policy: str | None = None
+    meal_plan: str | None = None
     is_demo: bool = True
 
     def model_post_init(self, _ctx) -> None:
-        if self.nightly_price is None:
+        if self.nightly_price is None and self.price_per_night is not None:
             object.__setattr__(self, "nightly_price", self.price_per_night)
 
 
@@ -191,7 +195,7 @@ class CabOffer(BaseModel):
     luggage: int = 2
     included_km: int
     extra_km_price: int
-    driver_rating: float = 4.8
+    driver_rating: float | None = None
     base_fare: int | None = None
     toll_estimate: int = 0
     taxes: int = 0
@@ -219,7 +223,8 @@ class ActivityOffer(BaseModel):
     title: str
     destination: str
     duration: str = "Half day"
-    price: int = 0
+    description: str | None = None
+    price: int | None = None
     currency: str = "INR"
     is_demo: bool = True
 

@@ -14,12 +14,14 @@ class DemoHotelProvider:
                 id=f"HTL-{key}-001", provider="demo", name="The Grand Himalaya",
                 destination=dest, location=f"MG Marg, {dest}", rating=4.7,
                 room_type="Deluxe Room", amenities=["WiFi", "Breakfast", "Heater", "Mountain view"],
+                breakfast=True, cancellation="Free cancellation",
                 price_per_night=6800, total_price=20400, is_demo=True,
             ),
             HotelOffer(
                 id=f"HTL-{key}-002", provider="demo", name="Alpine Retreat",
                 destination=dest, location=f"Near Mall Road, {dest}", rating=4.3,
                 room_type="Premium Room", amenities=["WiFi", "Breakfast", "Parking"],
+                breakfast=True, cancellation="Free cancellation",
                 price_per_night=4200, total_price=12600, is_demo=True,
             ),
         ]

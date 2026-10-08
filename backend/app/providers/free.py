@@ -50,14 +50,21 @@ class NominatimGeocodingProvider:
         if cached is not None:
             return cached
         await _nominatim_rate_limit()
-        try:
-            async with httpx.AsyncClient(timeout=8, headers={"User-Agent": APP_UA, "Referer": settings.frontend_url}) as client:
-                res = await client.get(
+        from app.services.reliability import retry_get
+
+        async def fetch():
+            async with httpx.AsyncClient(timeout=settings.external_timeout_seconds, headers={"User-Agent": APP_UA, "Referer": settings.frontend_url}) as client:
+                return await client.get(
                     f"{settings.nominatim_base_url}/search",
                     params={"q": query, "format": "jsonv2", "limit": max(1, min(limit, 5)), "countrycodes": "in"},
                 )
+
+        try:
+            res = await retry_get(fetch)
         except httpx.TimeoutException as e:
             raise ProviderError("TIMEOUT", str(e))
+        except httpx.ConnectError as e:
+            raise ProviderError("UNAVAILABLE", str(e))
         if res.status_code == 429:
             raise ProviderError("RATE_LIMITED", "Geocoding rate limited")
         if res.status_code != 200:
@@ -108,15 +115,23 @@ class OSRMRoutingProvider:
         cached = await cache.get(key)
         if cached is not None:
             return cached
+        from app.services.reliability import https_only, retry_get
+
+        https_only(settings.osrm_base_url, "OSRM")
         try:
-            async with httpx.AsyncClient(timeout=10, headers={"User-Agent": APP_UA}) as client:
-                # OSRM expects lon,lat ordering.
-                res = await client.get(
-                    f"{settings.osrm_base_url}/route/v1/driving/{o[1]},{o[0]};{d[1]},{d[0]}",
-                    params={"overview": "false"},
-                )
+            async def fetch():
+                async with httpx.AsyncClient(timeout=settings.external_timeout_seconds, headers={"User-Agent": APP_UA}) as client:
+                    # OSRM expects lon,lat ordering.
+                    return await client.get(
+                        f"{settings.osrm_base_url}/route/v1/driving/{o[1]},{o[0]};{d[1]},{d[0]}",
+                        params={"overview": "false"},
+                    )
+
+            res = await retry_get(fetch)
         except httpx.TimeoutException as e:
             raise ProviderError("TIMEOUT", str(e))
+        except httpx.ConnectError as e:
+            raise ProviderError("UNAVAILABLE", str(e))
         if res.status_code != 200:
             raise ProviderError("UNAVAILABLE", f"Routing HTTP {res.status_code}")
         routes = (res.json().get("routes") or [])
@@ -150,18 +165,28 @@ class GraphHopperRoutingProvider:
 
 
 class AviationstackFlightProvider:
-    """Non-commercial dev only on the free tier. Schedules, not bookings."""
+    """Flight STATUS by route (schedules only — no fares, no availability, no booking).
+
+    Free tier is ~100 req/month personal-use: disabled unless a paid key is
+    explicitly opted in (AVIATIONSTACK_PAID_KEY=true), with a persisted
+    monthly quota guard that stops at 90% of AVIATIONSTACK_MONTHLY_QUOTA.
+    """
 
     name = "aviationstack"
 
     async def search(self, origin: str, destination: str, date: str | None, travellers: int = 2) -> list[FlightOffer]:
+        from app.services.reliability import https_only, quota_check, quota_consume, quota_remaining, retry_get
+
         settings = get_settings()
-        if not settings.aviation_api_key:
-            raise ProviderError("NOT_SUPPORTED", "Aviationstack not configured")
-        try:
-            async with httpx.AsyncClient(timeout=10) as client:
-                res = await client.get(
-                    "http://api.aviationstack.com/v1/flights",
+        if not settings.aviation_api_key or not settings.aviationstack_paid_key:
+            raise ProviderError("NOT_SUPPORTED", "Flight status lookup needs a paid Aviationstack key")
+        quota_check("aviationstack", settings.aviationstack_monthly_quota)
+        base = https_only(settings.aviationstack_base_url, "Aviationstack")
+
+        async def fetch():
+            async with httpx.AsyncClient(timeout=settings.external_timeout_seconds) as client:
+                return await client.get(
+                    f"{base}/flights",
                     params={
                         "access_key": settings.aviation_api_key,
                         "dep_iata": origin.upper(),
@@ -169,16 +194,28 @@ class AviationstackFlightProvider:
                         "limit": 20,
                     },
                 )
+
+        try:
+            res = await retry_get(fetch)
         except httpx.TimeoutException as e:
             raise ProviderError("TIMEOUT", str(e))
+        except httpx.ConnectError as e:
+            raise ProviderError("UNAVAILABLE", str(e))
         if res.status_code == 401:
             raise ProviderError("AUTH_ERROR", "Aviationstack key rejected")
         if res.status_code == 429:
             raise ProviderError("RATE_LIMITED", "Aviationstack rate limited")
         if res.status_code != 200:
             raise ProviderError("UNAVAILABLE", f"Aviationstack HTTP {res.status_code}")
+        try:
+            items = (res.json().get("data") or [])[:10]
+        except Exception as e:
+            raise ProviderError("UNAVAILABLE", f"Aviationstack bad response: {e}")
+        quota_consume("aviationstack")
+        if quota_remaining("aviationstack", settings.aviationstack_monthly_quota) <= 0:
+            raise ProviderError("RATE_LIMITED", "Aviationstack monthly quota guard tripped")
         offers: list[FlightOffer] = []
-        for i, item in enumerate((res.json().get("data") or [])[:10]):
+        for i, item in enumerate(items):
             dep = (item.get("departure") or {})
             arr = (item.get("arrival") or {})
             airline = ((item.get("airline") or {}).get("name")) or "Unknown airline"
@@ -186,6 +223,7 @@ class AviationstackFlightProvider:
                 FlightOffer(
                     id=f"aviationstack-{origin}-{destination}-{i}",
                     provider="aviationstack",
+                    status="LIVE",
                     airline=airline,
                     flight_number=str((item.get("flight") or {}).get("iata") or "—"),
                     origin=origin.upper(),
@@ -194,8 +232,8 @@ class AviationstackFlightProvider:
                     arrival=str(arr.get("scheduled") or arr.get("estimated") or "—"),
                     duration_minutes=0,
                     stops=0,
-                    fare=0,  # Aviationstack free tier has no fares — never invent one.
-                    refundable=False,
+                    fare=None,  # No fares on this tier — UI shows "Price on request".
+                    refundable=None,
                     seat_available=False,
                     is_demo=False,
                 )
@@ -203,6 +241,67 @@ class AviationstackFlightProvider:
         if not offers:
             raise ProviderError("NO_RESULTS", "No flights returned")
         return offers
+
+    async def flight_status(self, flight_iata: str) -> dict:
+        """Track a single flight by number. STATUS_ONLY — schedules, never fares."""
+        from app.services.reliability import https_only, quota_check, quota_consume, retry_get
+        from app.services.envelope import result_envelope
+
+        settings = get_settings()
+        number = (flight_iata or "").strip().upper()
+        if not number:
+            raise ProviderError("INVALID", "Flight number is required")
+        if not settings.aviation_api_key or not settings.aviationstack_paid_key:
+            raise ProviderError("NOT_SUPPORTED", "Flight status lookup needs a paid Aviationstack key")
+        quota_check("aviationstack", settings.aviationstack_monthly_quota)
+        base = https_only(settings.aviationstack_base_url, "Aviationstack")
+
+        async def fetch():
+            async with httpx.AsyncClient(timeout=settings.external_timeout_seconds) as client:
+                return await client.get(
+                    f"{base}/flights",
+                    params={"access_key": settings.aviation_api_key, "flight_iata": number, "limit": 1},
+                )
+
+        try:
+            res = await retry_get(fetch)
+        except httpx.TimeoutException as e:
+            raise ProviderError("TIMEOUT", str(e))
+        except httpx.ConnectError as e:
+            raise ProviderError("UNAVAILABLE", str(e))
+        if res.status_code == 401:
+            raise ProviderError("AUTH_ERROR", "Aviationstack key rejected")
+        if res.status_code == 429:
+            raise ProviderError("RATE_LIMITED", "Aviationstack rate limited")
+        if res.status_code != 200:
+            raise ProviderError("UNAVAILABLE", f"Aviationstack HTTP {res.status_code}")
+        try:
+            items = res.json().get("data") or []
+        except Exception as e:
+            raise ProviderError("UNAVAILABLE", f"Aviationstack bad response: {e}")
+        if not items:
+            raise ProviderError("NO_RESULTS", "No such flight found")
+        quota_consume("aviationstack")
+        item = items[0]
+        dep, arr = (item.get("departure") or {}), (item.get("arrival") or {})
+        return result_envelope(
+            state="SUCCESS",
+            data={
+                "flight_number": number,
+                "airline": ((item.get("airline") or {}).get("name")) or "Unknown airline",
+                "origin": dep.get("iata"),
+                "destination": arr.get("iata"),
+                "scheduled_departure": dep.get("scheduled"),
+                "scheduled_arrival": arr.get("scheduled"),
+                "status": item.get("flight_status"),
+                "fare": None,
+            },
+            source="aviationstack",
+            is_live=True,
+            attribution="Flight data by Aviationstack (free tier, personal use)",
+            cache_ttl=120,
+            mode="LIVE",
+        )
 
     async def get_details(self, offer_id: str) -> FlightOffer | None:
         return None
