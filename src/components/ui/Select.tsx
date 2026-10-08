@@ -96,7 +96,7 @@ export function Select({
           <SelectPrimitive.Content
             position="popper"
             sideOffset={4}
-            className="z-50 max-h-96 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-border bg-bg-elevated shadow-card-hover"
+            className="z-[120] max-h-96 min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-xl border border-border bg-bg-elevated shadow-card-hover"
           >
             <SelectPrimitive.Viewport className="p-1">{children}</SelectPrimitive.Viewport>
             <SelectPrimitive.ScrollUpButton className="flex h-8 items-center justify-center">

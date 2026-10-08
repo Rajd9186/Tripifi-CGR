@@ -10,7 +10,7 @@ export default function ToastContainer() {
 
   return (
     <div
-      className="fixed inset-x-0 top-[76px] z-toast flex flex-col items-center gap-2 px-4 sm:inset-x-auto sm:right-4 sm:top-20 sm:items-end"
+      className="fixed inset-x-0 top-[76px] z-[140] flex flex-col items-center gap-2 px-4 sm:inset-x-auto sm:right-4 sm:top-20 sm:items-end"
       role="status"
       aria-live="polite"
     >

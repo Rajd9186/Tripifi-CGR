@@ -230,6 +230,12 @@
   --nav-h-mobile: 76px;
   --content-pb-mobile: calc(var(--nav-h-mobile) + env(safe-area-inset-bottom, 0px) + 24px);
 
+  /* ---- Z-index scale (single source of truth) ----
+     backdrop/sky: -50 · content: 0-20 · header: 100 · bottom nav: 90
+     FAB: 80 · overlays (sheet/dialog/bottomsheet): 110 ·
+     popup content (sheet/dialog/select/tooltip/bottomsheet): 120 ·
+     toasts: 140. Overlays must always sit above header/nav/FAB. */
+
   /* ---- Spacing scale (4/8/12/16/24/32) ---- */
   --space-1: 4px;
   --space-2: 8px;

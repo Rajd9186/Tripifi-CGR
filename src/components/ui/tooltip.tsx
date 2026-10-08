@@ -32,7 +32,7 @@ const TooltipContent = React.forwardRef<React.ElementRef<typeof TooltipPrimitive
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 rounded-lg bg-bg-elevated border border-border px-3 py-2 text-caption text-text",
+        "z-[120] rounded-lg bg-bg-elevated border border-border px-3 py-2 text-caption text-text",
         "glass shadow-card-hover",
         "animate-in fade-in-0 zoom-in-95",
         "data-[state=delayed-open]:animate-in data-[state=closed]:animate-out",

@@ -146,7 +146,7 @@ export default function FlightResultsClient() {
         </div>
       </section>
 
-      <div className="sticky top-[60px] z-sticky border-b border-ink-100 bg-cream-50/95 backdrop-blur">
+      <div className="sticky top-16 md:top-[var(--header-h)] z-sticky border-b border-ink-100 bg-cream-50/95 backdrop-blur">
         <div className="mx-auto flex max-w-8xl items-center gap-2 px-4 py-3 sm:px-6 lg:px-8">
           <button
             onClick={() => setFiltersOpen(true)}

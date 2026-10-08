@@ -16,7 +16,7 @@ interface ToastViewportProps extends React.ComponentPropsWithoutRef<typeof Toast
 const ToastViewport = ({ className, ...props }: ToastViewportProps) => (
   <ToastPrimitive.Viewport
     className={cn(
-      "fixed bottom-0 right-0 z-[100] flex flex-col gap-2 p-4 sm:p-6",
+      "fixed bottom-0 right-0 z-[140] flex flex-col gap-2 p-4 sm:p-6",
       "max-w-[420px] w-full",
       className
     )}
