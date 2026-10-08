@@ -83,13 +83,48 @@ async def search_activities(body: dict, request: Request):
 
 @router.post("/destinations")
 async def search_destinations(body: dict, request: Request):
+    from app.services.envelope import utcnow_iso
+
     rid = _rid(request)
     results = destination_service.search_destinations(body)
     if not results:
         return error_envelope("NO_RESULTS", rid)
     return {
         "success": True,
-        "data": {"results": results, "provider": {"name": "tripifi-catalog", "status": "DEMO"}},
+        "data": {
+            "results": results,
+            "provider": {"name": "tripifi-catalog", "status": "DEMO"},
+            "mode": "ASSISTED",
+            "source": "tripifi-catalog",
+            "fetched_at": utcnow_iso(),
+        },
         "error": None,
         "requestId": rid,
     }
+
+
+@router.post("/flight-status")
+async def flight_status(body: dict, request: Request):
+    """Track one flight by number. STATUS_ONLY schedules — never fares."""
+    from app.providers import registry
+    from app.providers.free import ProviderError
+    from app.services.envelope import failure_envelope, utcnow_iso
+
+    rid = _rid(request)
+    number = str(body.get("number") or body.get("flight_number") or "").strip().upper()
+    if not number:
+        return error_envelope("INVALID_SEARCH", rid)
+    provider = registry.get_flight_provider()
+    status_fn = getattr(provider, "flight_status", None)
+    if getattr(provider, "name", "") == "disabled" or not callable(status_fn):
+        return error_envelope("PROVIDER_UNAVAILABLE", rid)
+    try:
+        return await status_fn(number)
+    except ProviderError as e:
+        if e.state == "NO_RESULTS":
+            return error_envelope("NO_RESULTS", rid)
+        if e.state == "RATE_LIMITED":
+            return error_envelope("RATE_LIMITED", rid)
+        if e.state == "TIMEOUT":
+            return error_envelope("PROVIDER_TIMEOUT", rid)
+        return error_envelope("PROVIDER_UNAVAILABLE", rid)

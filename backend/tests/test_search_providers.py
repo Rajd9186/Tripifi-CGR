@@ -141,14 +141,14 @@ def test_disabled_provider_returns_unavailable():
     class Disabled:
         name = "disabled"
 
-    orig = reg.get_hotel_provider
-    reg.get_hotel_provider = lambda: Disabled()
+    orig = reg.get_provider_chain
+    reg.get_provider_chain = lambda service: [Disabled()]
     try:
         with pytest.raises(SearchError) as e:
             _run(hotel_service.search_hotels({"destination": "Goa"}, "t"))
         assert e.value.code == "PROVIDER_UNAVAILABLE"
     finally:
-        reg.get_hotel_provider = orig
+        reg.get_provider_chain = orig
 
 
 def test_cache_dedupes_provider_calls():

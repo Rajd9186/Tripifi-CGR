@@ -21,6 +21,23 @@ ERROR_MESSAGES = {
 }
 
 
+def provider_error_to_search(exc: Exception) -> "SearchError":
+    """Map provider failures to user-facing search errors (no leaks)."""
+    from app.providers.free import ProviderError
+
+    if isinstance(exc, SearchError):
+        return exc
+    if isinstance(exc, ProviderError):
+        mapping = {
+            "NO_RESULTS": "NO_RESULTS",
+            "TIMEOUT": "PROVIDER_TIMEOUT",
+            "RATE_LIMITED": "RATE_LIMITED",
+        }
+        code = mapping.get(exc.state, "PROVIDER_UNAVAILABLE")
+        return SearchError(code, str(exc))
+    return SearchError("PROVIDER_UNAVAILABLE", str(exc))
+
+
 class SearchError(Exception):
     def __init__(self, code: str, detail: str = ""):
         super().__init__(detail or code)
@@ -41,6 +58,70 @@ def envelope(results: list[dict], provider: dict, request_id: str) -> dict:
         "error": None,
         "requestId": request_id,
     }
+
+
+def envelope_with_mode(
+    results: list[dict],
+    provider,
+    request_id: str,
+    service: str,
+) -> dict:
+    """Envelope plus honesty metadata: mode/source/fetched_at.
+
+    mode in LIVE|ESTIMATE|SCHEDULE_ONLY|DISCOVERY|ASSISTED (capability
+    matrix); source is the serving adapter; fetched_at is ISO-8601 UTC.
+    Demo payloads keep mode ASSISTED so the UI always offers the
+    assisted-booking path next to flagged demo data.
+    """
+    from app.services import capability
+    from app.services.envelope import utcnow_iso
+
+    name = getattr(provider, "name", "") or "unknown"
+    matrix = capability.service_mode(service)
+    payload = envelope(
+        results,
+        {"name": name, "status": "DEMO" if name == "demo" else "LIVE"},
+        request_id,
+    )
+    payload["data"]["mode"] = matrix["mode"]
+    payload["data"]["source"] = name
+    payload["data"]["fetched_at"] = utcnow_iso()
+    return payload
+
+
+async def run_chain(service: str, fetch):
+    """Try each provider in the registry chain, in order.
+
+    fetch(provider) -> offers. Falls through on UNAVAILABLE/TIMEOUT/
+    RATE_LIMITED/AUTH_ERROR/NOT_SUPPORTED; NO_RESULTS stops the chain
+    with an empty list. Returns (offers, serving_provider).
+    """
+    from app.providers import registry as reg
+    from app.providers.free import ProviderError
+    from app.services.reliability import guarded
+
+    last_error: Exception | None = None
+    tried = False
+    for provider in reg.get_provider_chain(service):
+        if getattr(provider, "name", "") == "disabled":
+            continue
+        tried = True
+        try:
+            offers = await guarded(f"{service}:{provider.name}", lambda p=provider: fetch(p))
+            return offers, provider
+        except ProviderError as e:
+            if e.state == "NO_RESULTS":
+                return [], provider
+            last_error = e
+        except SearchError:
+            raise
+        except Exception as e:
+            last_error = e
+    if last_error is not None:
+        raise provider_error_to_search(last_error)
+    if not tried:
+        raise SearchError("PROVIDER_UNAVAILABLE", "Service is disabled.")
+    raise SearchError("PROVIDER_UNAVAILABLE", "All providers failed.")
 
 
 def error_envelope(code: str, request_id: str, detail: str = "") -> dict:

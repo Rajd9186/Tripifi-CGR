@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -10,12 +12,21 @@ from app.utils.request_id import RequestIDMiddleware
 
 settings = get_settings()
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Fail fast on unknown adapter names — never at request time.
+    registry.validate_registry()
+    yield
+
+
 app = FastAPI(
     title="Tripifi CGR API",
     description="Journey-centric travel platform API. Demo providers return is_demo inventory.",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 app.add_middleware(RequestIDMiddleware)
@@ -41,12 +52,6 @@ async def unhandled_handler(request: Request, exc: Exception):
 @app.get("/health")
 async def health():
     return {"status": "ok", "environment": settings.environment}
-
-
-@app.on_event("startup")
-async def validate_provider_config() -> None:
-    # Fail fast on unknown adapter names — never at request time.
-    registry.validate_registry()
 
 
 api = APIRouter(prefix="/api/v1")
