@@ -35,15 +35,27 @@ export function CountUpStat({ to = 0, suffix = "", decimals = 0, staticText, lab
 
     let raf = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    let fallback: ReturnType<typeof setTimeout> | undefined;
+    let done = false;
     const run = () => {
       const start = performance.now();
       const duration = 1600;
       const tick = (now: number) => {
+        if (done) return;
         const p = Math.min((now - start) / duration, 1);
         setValue(to * easeOutCubic(p));
         if (p < 1) raf = requestAnimationFrame(tick);
+        else done = true;
       };
       raf = requestAnimationFrame(tick);
+      // Fallback: rAF stalls in background tabs — guarantee completion.
+      fallback = setTimeout(() => {
+        if (!done) {
+          done = true;
+          if (raf) cancelAnimationFrame(raf);
+          setValue(to);
+        }
+      }, duration + delay + 800);
     };
 
     const io = new IntersectionObserver(
@@ -59,6 +71,7 @@ export function CountUpStat({ to = 0, suffix = "", decimals = 0, staticText, lab
     return () => {
       io.disconnect();
       if (timer) clearTimeout(timer);
+      if (fallback) clearTimeout(fallback);
       if (raf) cancelAnimationFrame(raf);
     };
   }, [to, delay, reduce, staticText]);
