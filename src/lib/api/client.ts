@@ -51,23 +51,22 @@ export async function apiRequest<T>(path: string, opts: RequestOpts = {}): Promi
   }
   if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
 
-  const res = await fetch(`${baseUrl()}${path}`, {
-    ...init,
-    headers,
-    // Render free tier sleeps — fail fast instead of hanging.
-    signal: AbortSignal.timeout(15000),
-  }).catch((err: unknown) => {
-    if (err instanceof DOMException && err.name === "TimeoutError") {
-      throw new ApiError(
-        "Our server is waking up (Render cold start). Please retry in a few seconds.",
-        { code: "SERVER_WAKING", requestId: "req-unknown", status: 0 }
-      );
-    }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 25_000);
+  let res: Response;
+  try {
+    res = await fetch(`${baseUrl()}${path}`, { ...init, headers, signal: init.signal ?? controller.signal });
+  } catch (e) {
+    const aborted = (e as Error)?.name === "AbortError";
     throw new ApiError(
-      "Could not reach our server. Check your connection — or retry in a few seconds (the server may be waking up).",
-      { code: "NETWORK_UNREACHABLE", requestId: "req-unknown", status: 0 }
+      aborted
+        ? "The server is waking up. Please try again in a few seconds."
+        : "Can't reach the server. Check your connection and try again.",
+      { code: aborted ? "SERVER_WAKING" : "NETWORK", requestId: "req-client", status: 0 }
     );
-  });
+  } finally {
+    clearTimeout(timer);
+  }
   if (res.status === 204) return undefined as T;
   const body = (await res.json().catch(() => ({}))) as T & { error?: ApiErrorBody };
   if (!res.ok) {

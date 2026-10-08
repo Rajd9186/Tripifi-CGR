@@ -1,8 +1,8 @@
 "use client";
 
 import Hero from "@/components/hero/Hero";
-import JourneyMap from "@/components/journey/JourneyMap";
-import CountUp from "@/components/journey/CountUp";
+import { CountUpStat } from "@/components/home/CountUpStat";
+import { RouteMap } from "@/components/home/RouteMap";
 import { SearchBar } from "@/components/search/SearchBar";
 import DestinationCard from "@/components/destination/DestinationCard";
 import { Card } from "@/components/ui/Card";
@@ -36,13 +36,6 @@ const FEATURES = [
     title: "Human Assistance",
     description: "When live booking isn't available, our travel team arranges everything for you end-to-end.",
   },
-];
-
-const STATS = [
-  { value: 12, suffix: "K+", label: "Happy Travellers" },
-  { value: 250, suffix: "+", label: "Destinations" },
-  { value: 98, suffix: "%", label: "Satisfaction Rate" },
-  { value: 24, suffix: "/7", label: "Support Available" },
 ];
 
 export default function HomePage() {
@@ -107,20 +100,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Route map — self-contained section, no overlap with other content */}
-      <JourneyMap />
+      {/* Route map (own section; no longer a fixed layer behind everything) */}
+      <RouteMap />
 
       {/* Stats */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 journey-band">
-        <div className="max-w-8xl mx-auto">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <CountUp to={stat.value} suffix={stat.suffix} label={stat.label} />
-                <div className="text-body text-text-muted mt-2">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+      <section className="journey-band px-4 py-16 sm:px-6 lg:px-8" aria-label="Tripifi in numbers">
+        <div className="max-w-8xl mx-auto grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
+          <CountUpStat to={12} suffix="K+" label="Happy Travellers" />
+          <CountUpStat to={250} suffix="+" label="Destinations" delay={120} />
+          <CountUpStat to={98} suffix="%" label="Satisfaction Rate" delay={240} />
+          <CountUpStat staticText="24/7" label="Support Available" delay={360} />
         </div>
       </section>
 

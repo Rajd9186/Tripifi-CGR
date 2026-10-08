@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
+import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 interface PageTransitionProps {
@@ -9,18 +11,31 @@ interface PageTransitionProps {
 }
 
 /**
- * Short slide/fade between routes. Remounts content on pathname
- * change so the entrance animation replays per page.
+ * Short fade/slide on every route change.
+ * - Content is server-rendered immediately (the old version rendered a light-theme skeleton
+ *   first on every navigation, which flashed and hid content from crawlers).
+ * - The first paint is never animated; only client-side navigations are.
  */
 export function PageTransition({ children, className }: PageTransitionProps) {
   const pathname = usePathname();
+  const reduce = useReducedMotion();
+  const isFirst = useRef(true);
+
+  useEffect(() => {
+    isFirst.current = false;
+  }, []);
 
   return (
-    <div
+    <motion.div
       key={pathname}
-      className={cn("animate-fade-up", className)}
+      className={cn(className)}
+      initial={reduce || isFirst.current ? false : { opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
+
+export default PageTransition;

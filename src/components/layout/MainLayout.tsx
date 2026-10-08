@@ -5,7 +5,7 @@ import { Providers } from "./Providers";
 import Header from "./Header";
 import BottomNavigation from "./BottomNavigation";
 import Footer from "./Footer";
-import GoldenHourSky from "@/components/scene/GoldenHourSky";
+import { JourneyBackdrop } from "@/components/layout/JourneyBackdrop";
 import { AITripPlanner } from "@/components/ai/AITripPlanner";
 import { Toaster } from "@/components/ui/toast";
 import ToastContainer from "@/components/ui/ToastContainer";
@@ -21,7 +21,7 @@ export function MainLayout({ children, className }: MainLayoutProps) {
   return (
     <Providers>
       <div className={cn("relative flex min-h-screen flex-col bg-bg font-body antialiased", className)}>
-        <GoldenHourSky />
+        <JourneyBackdrop />
         <Header />
         <main
           className="relative z-10 min-h-screen flex-1 pt-16 pb-[var(--content-pb-mobile)] md:pt-[var(--header-h)] md:pb-0"

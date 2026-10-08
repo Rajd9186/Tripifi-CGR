@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./journey.css";
 
 /* ================================================================== */
 /*  AURORA NIGHT — design tokens                                      */
@@ -867,17 +868,7 @@ div[id],
 .bg-gradient-aurora {
   background: var(--gradient-aurora);
 }
-
-/* Soft tinted band for alternating sections (opacity modifiers
-   don't apply to custom classes, so this is explicit) */
-.journey-band {
-  background: linear-gradient(
-    135deg,
-    rgba(25, 195, 178, 0.08) 0%,
-    rgba(139, 92, 246, 0.07) 45%,
-    rgba(255, 180, 84, 0.09) 100%
-  );
-}
+/* NOTE: .journey-band lives in journey.css (canonical). */
 .bg-gradient-scrim {
   background: var(--gradient-scrim);
 }
@@ -1117,7 +1108,7 @@ div[id],
   60% { opacity: 1; transform: scale(1.15); }
   100% { opacity: 1; transform: scale(1); }
 }
-@keyframes journey-ripple {
+@keyframes journey-ripple-soft {
   0% { opacity: 0.7; transform: scale(0.4); }
   100% { opacity: 0; transform: scale(2.4); }
 }
@@ -1173,7 +1164,7 @@ div[id],
 }
 .journey-pin.is-visible + .journey-ripple,
 .journey-ripple.is-visible {
-  animation: journey-ripple 1.6s ease-out 0.3s infinite;
+  animation: journey-ripple-soft 1.6s ease-out 0.3s infinite;
 }
 .journey-stat-number {
   background: linear-gradient(
@@ -1191,7 +1182,7 @@ div[id],
 .journey-nav-active-icon {
   animation: journey-bounce-soft 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.journey-plane {
+.journey-plane-bob {
   animation: journey-plane-bob 2.4s ease-in-out infinite;
 }
 

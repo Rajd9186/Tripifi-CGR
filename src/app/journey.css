@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Tripifi — "Golden Hour Journey" theme layer
+   Backdrop, route map, stats and motion utilities.
+   Imported from globals.css:  @import "./journey.css";
+   Only transform / opacity are animated, so everything stays GPU-friendly.
+   ========================================================================== */
+
+/* ---------- Fixed scenic backdrop (replaces the old global FlightPath SVG) ---------- */
+.journey-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 55% at 50% 108%, rgba(255, 180, 84, 0.30) 0%, rgba(255, 107, 107, 0.10) 38%, transparent 70%),
+    linear-gradient(180deg, #070b1e 0%, #0b1026 36%, #0c2a3c 78%, #103a4a 100%);
+}
+.journey-layer {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  bottom: 0;
+  height: 42vh;
+  will-change: transform;
+  transform: translate3d(0, calc(var(--sy, 0) * var(--speed, 0.03) * -1px), 0);
+}
+.journey-layer svg { width: 100%; height: 100%; display: block; }
+
+.journey-stars {
+  position: absolute;
+  top: 0; left: 0;
+  width: 2px; height: 2px;
+  border-radius: 9999px;
+  background: transparent;
+  animation: journey-twinkle 4.5s ease-in-out infinite;
+}
+.journey-stars[data-b] { animation-duration: 6.5s; animation-delay: -2.2s; }
+
+.journey-cloud {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(28px);
+  background: radial-gradient(closest-side, rgba(245, 247, 255, 0.16), transparent);
+  animation: journey-drift 80s linear infinite alternate;
+}
+
+.journey-plane {
+  position: absolute;
+  top: 16%;
+  left: -12%;
+  color: #ffb454;
+  animation: journey-plane-cross 46s linear infinite;
+  will-change: transform;
+}
+
+/* ---------- Translucent section band (replaces invalid `bg-gradient-aurora/30`) ---------- */
+.journey-band {
+  background: linear-gradient(180deg, rgba(11, 16, 38, 0) 0%, rgba(25, 195, 178, 0.07) 50%, rgba(11, 16, 38, 0) 100%);
+  border-block: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ---------- Stats ---------- */
+.stat-number {
+  background: linear-gradient(100deg, #5be7d8 0%, #7aa8ff 40%, #ffb454 60%, #5be7d8 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: journey-shimmer 6s linear infinite;
+}
+
+/* ---------- Route map ---------- */
+.route-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 2.8s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.route-map[data-inview="true"] .route-draw { stroke-dashoffset: 0; }
+
+.route-pin {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.4);
+  cursor: pointer;
+}
+.route-map[data-inview="true"] .route-pin {
+  animation: journey-pop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation-delay: var(--d, 0s);
+}
+.route-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: journey-ripple 2.6s ease-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes journey-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.95; } }
+@keyframes journey-drift { from { transform: translate3d(-8vw, 0, 0); } to { transform: translate3d(14vw, 0, 0); } }
+@keyframes journey-plane-cross {
+  0%   { transform: translate3d(0, 0, 0) rotate(8deg); opacity: 0; }
+  6%   { opacity: 0.9; }
+  50%  { transform: translate3d(65vw, -6vh, 0) rotate(0deg); }
+  94%  { opacity: 0.9; }
+  100% { transform: translate3d(130vw, 4vh, 0) rotate(-6deg); opacity: 0; }
+}
+@keyframes journey-shimmer { to { background-position: -220% 0; } }
+@keyframes journey-pop { to { opacity: 1; transform: scale(1); } }
+@keyframes journey-ripple { 0% { transform: scale(0.6); opacity: 0.55; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes journey-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+
+/* ---------- Reduced motion: keep everything visible, stop everything moving ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .journey-stars, .journey-cloud, .journey-plane, .stat-number, .route-ripple { animation: none !important; }
+  .journey-plane { display: none; }
+  .journey-layer { transform: none !important; }
+  .route-draw { stroke-dashoffset: 0 !important; transition: none !important; }
+  .route-pin { opacity: 1 !important; transform: none !important; animation: none !important; }
+}

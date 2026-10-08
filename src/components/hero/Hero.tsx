@@ -154,7 +154,7 @@ function HeroJourney({ reducedMotion }: { reducedMotion: boolean }) {
             <circle r="10" fill="#FFB454" opacity="0.25">
               <animateMotion dur="9s" repeatCount="indefinite" path={pathD} />
             </circle>
-            <g className="journey-plane">
+            <g className="journey-plane-bob">
               <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path={pathD} />
               <path
                 d="M-10 0 L10 0 M0 -8 L0 8 M-6 -6 L6 6 M-6 6 L6 -6"
@@ -248,7 +248,7 @@ export default function Hero() {
             transition={{ delay: 0.6, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <motion.a
-              href="/plan"
+              href="/ai"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="btn-primary journey-press journey-cta-glow min-h-[56px] px-10 text-body-lg"
