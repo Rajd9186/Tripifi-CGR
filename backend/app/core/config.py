@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000"
 
-    ai_provider: str = "demo"
+    ai_provider: str = "groq"
     ai_api_key: str = ""
     ai_model: str = "tripifi-demo-planner"
 
@@ -37,7 +37,12 @@ class Settings(BaseSettings):
     ai_max_tool_calls: int = 6
     ai_streaming_enabled: bool = True
     groq_api_key: str = ""
+    groq_model: str = "llama-3.3-70b-versatile"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
     nvidia_api_key: str = ""
+    nvidia_model: str = "meta/llama-3.3-70b-instruct"
+    nvidia_base_url: str = "https://integrate.api.nvidia.com/v1"
+    ai_timeout: int = 60
 
     # Phase 5 — free-first provider selection (env-driven, replaceable)
     flight_provider: str = "demo"

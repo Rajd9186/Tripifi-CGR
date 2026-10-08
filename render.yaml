@@ -11,7 +11,43 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      # Point at the deployed FastAPI backend when available, e.g.
+      # Point at the deployed FastAPI backend below, e.g.
       # https://tripifi-api.onrender.com/api/v1 — unset = demo/local data mode.
       - key: NEXT_PUBLIC_API_URL
         sync: false
+
+  # Tripifi FastAPI backend: AI (Groq/NVIDIA/Ollama), search, enquiries.
+  # No database attached: AI + demo-mode endpoints work standalone;
+  # attach a DATABASE_URL later for DB-backed endpoints (auth/bookings).
+  - type: web
+    name: tripifi-api
+    env: docker
+    region: oregon
+    plan: free
+    branch: main
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: AI_PROVIDER
+        value: groq
+      - key: GROQ_API_KEY
+        sync: false
+      - key: NVIDIA_API_KEY
+        sync: false
+      - key: GROQ_MODEL
+        value: llama-3.3-70b-versatile
+      - key: NVIDIA_MODEL
+        value: meta/llama-3.3-70b-instruct
+      - key: OLLAMA_BASE_URL
+        value: http://localhost:11434
+      - key: CORS_ORIGINS
+        value: https://tripifi-cgr.onrender.com
+      - key: FRONTEND_URL
+        value: https://tripifi-cgr.onrender.com
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true

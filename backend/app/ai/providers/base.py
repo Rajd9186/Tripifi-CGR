@@ -3,6 +3,14 @@
 from typing import Any, AsyncIterator, Protocol
 
 
+class AIProviderError(Exception):
+    """Base error for all LLM providers. Gateway catches this, never provider specifics."""
+
+    def __init__(self, kind: str, message: str = ""):
+        super().__init__(message or kind)
+        self.kind = kind  # UNAVAILABLE|TIMEOUT|MODEL_ERROR|BAD_RESPONSE|AUTH_ERROR
+
+
 class AIProvider(Protocol):
     name: str
 

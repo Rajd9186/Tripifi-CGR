@@ -8,6 +8,7 @@ from sse_starlette.sse import EventSourceResponse
 
 from app.ai.gateway import TripifiAIGateway
 from app.ai.schemas.actions import SAFETY, ActionSafety
+from app.core.config import get_settings
 from app.providers.demo import DemoAIProvider
 from app.schemas.schemas import AIChatIn, AIChatOut
 
@@ -92,9 +93,9 @@ async def reject_action(body: dict):
 @router.get("/health")
 async def ai_health():
     try:
-        status = await TripifiAIGateway().provider.health()
+        status = await get_gateway().provider.health()
     except Exception:
-        status = {"provider": "ollama", "configured": False, "reachable": False}
+        status = {"provider": get_settings().ai_provider, "configured": False, "reachable": False}
     status.pop("api_key", None)
     return status
 

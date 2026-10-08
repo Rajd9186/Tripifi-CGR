@@ -12,7 +12,8 @@ from typing import Any, AsyncIterator
 from app.ai.memory import conversation as conversation_memory
 from app.ai.memory import trip as trip_memory
 from app.ai.prompts.system import PROMPT_VERSION, SYSTEM_PROMPT
-from app.ai.providers.ollama import OllamaError, OllamaProvider
+from app.ai.providers import get_ai_provider
+from app.ai.providers.base import AIProvider, AIProviderError
 from app.ai.schemas.actions import UIAction
 from app.ai.schemas.intent import IntentType
 from app.ai.schemas.responses import AIResponse
@@ -33,8 +34,8 @@ def _request_id() -> str:
 
 
 class TripifiAIGateway:
-    def __init__(self, provider: OllamaProvider | None = None):
-        self.provider = provider or OllamaProvider()
+    def __init__(self, provider: AIProvider | None = None):
+        self.provider = provider or get_ai_provider()
 
     async def _narrate(self, prompt: str, fallback: str) -> str:
         """LLM prose layer. Any failure returns the deterministic fallback."""
@@ -48,7 +49,7 @@ class TripifiAIGateway:
             )
             text = result.get("content", "").strip()
             return text if text else fallback
-        except OllamaError:
+        except AIProviderError:
             return fallback
 
     async def chat(
@@ -125,7 +126,7 @@ class TripifiAIGateway:
         await emit("AI_COMPLETED", {"request_id": request_id, "latency_ms": latency_ms})
         # Structured logging without secrets or personal data.
         print(f"[ai] request_id={request_id} intent={intent_name} latency_ms={latency_ms} "
-              f"model={get_settings().ollama_model} actions={len(actions)}")
+              f"provider={self.provider.name} actions={len(actions)}")
         return response
 
     async def stream_chat(

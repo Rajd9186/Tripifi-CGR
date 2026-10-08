@@ -5,13 +5,12 @@ from typing import Any, AsyncIterator
 
 import httpx
 
+from app.ai.providers.base import AIProviderError
 from app.core.config import get_settings
 
 
-class OllamaError(Exception):
-    def __init__(self, kind: str, message: str = ""):
-        super().__init__(message or kind)
-        self.kind = kind  # UNAVAILABLE|TIMEOUT|MODEL_ERROR|BAD_RESPONSE
+class OllamaError(AIProviderError):
+    pass
 
 
 class OllamaProvider:

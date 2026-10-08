@@ -77,7 +77,8 @@ export async function streamMessage(
     const { done, value } = await reader.read();
     if (done) break;
     buffer += decoder.decode(value, { stream: true });
-    const parts = buffer.split("\n\n");
+    // SSE frames end with a blank line: \n\n or \r\n\r\n (sse-starlette uses \r\n).
+    const parts = buffer.split(/\r?\n\r?\n/);
     buffer = parts.pop() ?? "";
     for (const part of parts) {
       const eventMatch = /^event:\s*(.+)$/m.exec(part);
@@ -86,7 +87,7 @@ export async function streamMessage(
       const event = eventMatch[1].trim() as AIEvent["event"];
       let data: Record<string, unknown> = {};
       try {
-        data = JSON.parse(dataMatch[1]) as Record<string, unknown>;
+        data = JSON.parse(dataMatch[1].trim()) as Record<string, unknown>;
       } catch {
         continue;
       }
