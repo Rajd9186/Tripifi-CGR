@@ -73,6 +73,48 @@ export const DESTINATION_MEDIA: Record<string, DestinationMediaConfig> = {
     localMobileHero: "/media/destinations/darjeeling/hero-mobile.webp",
     effects: ["mist", "clouds"],
   },
+  "himachal-pradesh": {
+    queries: ["Himachal Pradesh India", "Shimla Himachal", "Manali Himachal", "Spiti Himachal"],
+    galleryQueries: ["Manali Himachal", "Shimla Himachal"],
+    localHero: "/media/destinations/himachal-pradesh/hero.webp",
+    localMobileHero: "/media/destinations/himachal-pradesh/hero-mobile.webp",
+    effects: ["clouds", "mist"],
+  },
+  "uttarakhand": {
+    queries: ["Uttarakhand India", "Rishikesh Uttarakhand", "Nainital Uttarakhand", "Mussoorie Uttarakhand"],
+    galleryQueries: ["Nainital Uttarakhand", "Rishikesh Uttarakhand"],
+    localHero: "/media/destinations/uttarakhand/hero.webp",
+    localMobileHero: "/media/destinations/uttarakhand/hero-mobile.webp",
+    effects: ["clouds", "mist"],
+  },
+  "tamil-nadu": {
+    queries: ["Tamil Nadu India", "Madurai Tamil Nadu", "Mahabalipuram Tamil Nadu", "Ooty Tamil Nadu"],
+    galleryQueries: ["Madurai Tamil Nadu", "Ooty Tamil Nadu"],
+    localHero: "/media/destinations/tamil-nadu/hero.webp",
+    localMobileHero: "/media/destinations/tamil-nadu/hero-mobile.webp",
+    effects: ["light"],
+  },
+  "andaman-nicobar": {
+    queries: ["Andaman Islands India", "Andaman Nicobar", "Havelock Island", "Radhanagar Beach Andaman"],
+    galleryQueries: ["Havelock Island", "Radhanagar Beach Andaman"],
+    localHero: "/media/destinations/andaman-nicobar/hero.webp",
+    localMobileHero: "/media/destinations/andaman-nicobar/hero-mobile.webp",
+    effects: ["water", "light"],
+  },
+  "northeast-india": {
+    queries: ["Northeast India", "Meghalaya Northeast", "Assam Northeast", "Arunachal Northeast"],
+    galleryQueries: ["Meghalaya Northeast", "Assam Northeast"],
+    localHero: "/media/destinations/northeast-india/hero.webp",
+    localMobileHero: "/media/destinations/northeast-india/hero-mobile.webp",
+    effects: ["mist", "clouds"],
+  },
+  "west-bengal": {
+    queries: ["West Bengal India", "Darjeeling West Bengal", "Kolkata West Bengal", "Sundarbans West Bengal"],
+    galleryQueries: ["Darjeeling West Bengal", "Kolkata West Bengal"],
+    localHero: "/media/destinations/west-bengal/hero.webp",
+    localMobileHero: "/media/destinations/west-bengal/hero-mobile.webp",
+    effects: ["light"],
+  },
 };
 
 export function mediaConfigFor(destination: string): DestinationMediaConfig | null {

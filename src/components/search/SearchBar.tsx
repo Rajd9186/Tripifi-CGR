@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, X, MapPin, Plane, Home, Car, Calendar, Users, ChevronDown, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -31,6 +32,7 @@ const SEARCH_TYPES = [
 ] as const;
 
 export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "sticky" | "page"; onSearch?: (params: Record<string, string>) => void }) {
+  const router = useRouter();
   const { y, isScrolled } = useScrollPosition(100);
   const [searchType, setSearchType] = useState("destinations");
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
@@ -38,6 +40,8 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
   const [showTypeSelector, setShowTypeSelector] = useState(false);
   const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const [travellers, setTravellers] = useState("1 Traveller, Economy");
+  const [primary, setPrimary] = useState("");
+  const [secondary, setSecondary] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const typewriterRef = useRef<number>();
 
@@ -55,9 +59,41 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Build search params based on type
-    const params: Record<string, string> = { type: searchType };
-    onSearch?.(params);
+    const travCount = String(parseInt(travellers, 10) || 1);
+    const travClass = travellers.includes("Business") ? "Business" : "Economy";
+    const params: Record<string, string> = {
+      type: searchType,
+      from: primary,
+      to: secondary,
+      start: dateRange.start,
+      end: dateRange.end,
+      travellers: travCount,
+      class: travClass,
+    };
+    if (onSearch) {
+      onSearch(params);
+      return;
+    }
+    // Default: navigate to the matching results page so submit always works.
+    const q = (o: Record<string, string>) =>
+      new URLSearchParams(Object.fromEntries(Object.entries(o).filter(([, v]) => v))).toString();
+    switch (searchType) {
+      case "flights":
+        router.push(`/flights/results?${q({ from: primary, to: secondary, date: dateRange.start, travellers: travCount, class: travClass })}`);
+        break;
+      case "trains":
+        router.push(`/trains/results?${q({ from: primary, to: secondary, date: dateRange.start, class: "All Classes" })}`);
+        break;
+      case "hotels":
+        router.push(`/hotels/results?${q({ destination: primary, checkin: dateRange.start, checkout: dateRange.end, guests: "2 Guests, 1 Room" })}`);
+        break;
+      case "cabs":
+        router.push(`/cabs/results?${q({ pickup: primary, drop: secondary, trip: "oneway" })}`);
+        break;
+      default:
+        router.push(primary ? `/destinations?q=${encodeURIComponent(primary)}` : "/destinations");
+        break;
+    }
   };
 
   const getInputConfig = () => {
@@ -129,7 +165,11 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
             <button
               key={type.value}
               type="button"
-              onClick={() => setSearchType(type.value)}
+              onClick={() => {
+                setSearchType(type.value);
+                setPrimary("");
+                setSecondary("");
+              }}
               className={cn(
                 "flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-body-sm font-medium transition-all duration-200",
                 searchType === type.value
@@ -151,14 +191,15 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
             
             <AutocompleteInput
               ref={inputRef}
+              key={`primary-${searchType}`}
               label={config.label}
               placeholder={config.placeholder}
               options={config.options}
               onChange={(e) => {
-                // Update options based on input
+                setPrimary(e.target.value);
               }}
               onSelect={(option) => {
-                // Handle selection
+                setPrimary(option.id ? option.label : "");
               }}
               className={cn(
                 "field min-h-[56px] pl-12 pr-12 text-body-lg",
@@ -175,10 +216,16 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
             {config.secondaryLabel && (
               <div className="mt-3 relative">
                 <AutocompleteInput
+                  key={`secondary-${searchType}`}
                   label={config.secondaryLabel}
                   placeholder={config.secondaryPlaceholder}
                   options={config.secondaryOptions}
-                  onSelect={() => {}}
+                  onChange={(e) => {
+                    setSecondary(e.target.value);
+                  }}
+                  onSelect={(option) => {
+                    setSecondary(option.id ? option.label : "");
+                  }}
                   className="field min-h-[52px] pl-12 pr-12 bg-surface/80 backdrop-blur-xl border-border/50 focus:border-cyan focus:ring-2 focus:ring-cyan/30 shadow-glass-hover"
                 />
               </div>
@@ -192,13 +239,17 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
                   type="date"
                   placeholder="Select date"
                   min={new Date().toISOString().split("T")[0]}
+                  value={dateRange.start}
+                  onChange={(e) => setDateRange((d) => ({ ...d, start: e.target.value }))}
                   className="field min-h-[52px] bg-surface/80 backdrop-blur-xl border-border/50 focus:border-cyan focus:ring-2 focus:ring-cyan/30"
                 />
                 <Input
                   label={searchType === "hotels" ? "Check-out" : "Return (optional)"}
                   type="date"
                   placeholder="Select date"
-                  min={new Date().toISOString().split("T")[0]}
+                  min={dateRange.start || new Date().toISOString().split("T")[0]}
+                  value={dateRange.end}
+                  onChange={(e) => setDateRange((d) => ({ ...d, end: e.target.value }))}
                   className="field min-h-[52px] bg-surface/80 backdrop-blur-xl border-border/50 focus:border-cyan focus:ring-2 focus:ring-cyan/30"
                 />
               </div>
@@ -210,6 +261,8 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
                 label="Travellers & Class"
                 placeholder="Select"
                 className="w-full"
+                value={travellers}
+                onValueChange={setTravellers}
               >
                 <SelectItem value="1 Traveller, Economy">1 Traveller, Economy</SelectItem>
                 <SelectItem value="2 Travellers, Economy">2 Travellers, Economy</SelectItem>

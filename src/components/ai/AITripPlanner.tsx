@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { useMobile } from "@/hooks/useMediaQuery";
@@ -217,11 +217,6 @@ function AIPlannerSheetContent({ onClose }: { onClose: () => void }) {
             <p className="text-caption text-text-muted">Plan your perfect journey with AI</p>
           </div>
         </div>
-        <SheetClose asChild>
-          <Button variant="ghost" size="icon" className="text-text-muted hover:text-text">
-            <X className="h-5 w-5" />
-          </Button>
-        </SheetClose>
       </div>
 
       {/* Messages */}

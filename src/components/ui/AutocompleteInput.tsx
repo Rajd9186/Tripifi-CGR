@@ -93,8 +93,9 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
         case "Enter":
           e.preventDefault();
           if (highlightedIndex >= 0 && filteredOptions[highlightedIndex]) {
-            onSelect(filteredOptions[highlightedIndex]);
-            setQuery("");
+            const option = filteredOptions[highlightedIndex];
+            onSelect(option);
+            setQuery(option.label);
             setIsOpen(false);
             setHighlightedIndex(-1);
             inputRef.current?.blur();
@@ -120,7 +121,8 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
 
   const handleSelectOption = (option: AutocompleteOption) => {
     onSelect(option);
-    setQuery("");
+    // Keep the selection visible in the field (empty id = cleared).
+    setQuery(option.id ? option.label : "");
     setIsOpen(false);
     setHighlightedIndex(-1);
     inputRef.current?.blur();

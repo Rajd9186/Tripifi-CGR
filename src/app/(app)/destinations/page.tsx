@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import DestinationsClient from "./DestinationsClient";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function DestinationsPage() {
-  return <DestinationsClient />;
+  return (
+    <Suspense>
+      <DestinationsClient />
+    </Suspense>
+  );
 }

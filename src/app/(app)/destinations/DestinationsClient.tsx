@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Search, X } from "lucide-react";
 import { DESTINATIONS } from "@/lib/destinations";
@@ -19,7 +20,8 @@ const REGIONS = [
 ];
 
 export default function DestinationsPage() {
-  const [query, setQuery] = useState("");
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [region, setRegion] = useState("all");
 
   const filtered = useMemo(() => {

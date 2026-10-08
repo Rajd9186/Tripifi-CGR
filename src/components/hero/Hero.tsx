@@ -6,13 +6,15 @@ import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/hooks/useMediaQuery";
 
-// Hero background images — real India photography
+// Hero background images — curated, accurate India photography
 const HERO_IMAGES = [
-  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1920&q=80", // Himalayas / Sikkim
-  "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1920&q=80", // Kerala backwaters
-  "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1920&q=80", // Rajasthan forts
-  "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1920&q=80", // Goa coast
-  "https://images.unsplash.com/photo-1626624340240-aadc087844fa?w=1920&q=80", // Northeast hills
+  "/media/destinations/kashmir/hero.webp", // Kashmir
+  "/media/destinations/kerala/hero.webp", // Kerala backwaters
+  "/media/destinations/rajasthan/hero.webp", // Rajasthan forts
+  "/media/destinations/goa/hero.webp", // Goa coast
+  "/media/destinations/sikkim/hero.webp", // Sikkim
+  "/media/destinations/ladakh/hero.webp", // Ladakh
+  "/media/destinations/meghalaya/hero.webp", // Meghalaya
 ];
 
 // CSS-only aurora background (replaces the former WebGL shader layer)
@@ -64,10 +66,10 @@ function ImageSlider() {
           initial={false}
           animate={{
             opacity: index === currentIndex ? 1 : 0,
-            scale: index === currentIndex ? 1.15 : 1,
+            scale: index === currentIndex ? 1.08 : 1,
           }}
-          transition={{ duration: 2, ease: [0.25, 0.46, 0.45, 0.94] }}
-          style={{ filter: "contrast(1.1) saturate(1.2) brightness(0.9)" }}
+          transition={{ duration: 1.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{ filter: "contrast(1.05) saturate(1.12) brightness(0.95)" }}
           loading={index === 0 ? "eager" : "lazy"}
           fetchPriority={index === 0 ? "high" : "low"}
         />

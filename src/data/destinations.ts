@@ -35,7 +35,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Jammu & Kashmir",
     region: "North India",
     tagline: "Paradise on Earth, all four seasons of it",
-    heroImage: "https://images.unsplash.com/photo-1584285405429-136bf988919c?w=1600&q=80",
+    heroImage: "/media/destinations/kashmir/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1584285405429-136bf988919c?w=1200&q=80",
       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
@@ -81,7 +81,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Ladakh (UT)",
     region: "North India",
     tagline: "Land of high passes and turquoise lakes",
-    heroImage: "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=1600&q=80",
+    heroImage: "/media/destinations/ladakh/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=1200&q=80",
       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
@@ -125,7 +125,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Himachal Pradesh",
     region: "North India",
     tagline: "Apple orchards, colonial malls and alpine adventures",
-    heroImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80",
+    heroImage: "/media/destinations/himachal-pradesh/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
       "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
@@ -171,7 +171,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Rajasthan",
     region: "West India",
     tagline: "Forts, palaces and the great Thar desert",
-    heroImage: "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1600&q=80",
+    heroImage: "/media/destinations/rajasthan/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=1200&q=80",
       "https://images.unsplash.com/photo-1564507592333-c60657eea523?w=1200&q=80",
@@ -216,7 +216,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Goa",
     region: "West India",
     tagline: "Beach days, susegad nights",
-    heroImage: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1600&q=80",
+    heroImage: "/media/destinations/goa/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1200&q=80",
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
@@ -260,7 +260,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Kerala",
     region: "South India",
     tagline: "God's own country — backwaters, tea and Ayurveda",
-    heroImage: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1600&q=80",
+    heroImage: "/media/destinations/kerala/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=80",
       "https://images.unsplash.com/photo-1593693397690-362cb9666fc2?w=1200&q=80",
@@ -304,9 +304,9 @@ export const DESTINATIONS: Destination[] = [
     state: "Meghalaya · Assam · Arunachal",
     region: "East India",
     tagline: "Living root bridges, cloud valleys and river islands",
-    heroImage: "https://images.unsplash.com/photo-1626624340240-aadc087844fa?w=1600&q=80",
+    heroImage: "/media/destinations/northeast-india/hero.webp",
     gallery: [
-      "https://images.unsplash.com/photo-1626624340240-aadc087844fa?w=1200&q=80",
+      "/media/destinations/northeast-india/hero.webp",
       "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1200&q=80",
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200&q=80",
       "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=80",
@@ -348,7 +348,7 @@ export const DESTINATIONS: Destination[] = [
     state: "West Bengal",
     region: "East India",
     tagline: "Tea gardens, toy trains and Kanchenjunga sunrises",
-    heroImage: "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=1600&q=80",
+    heroImage: "/media/destinations/west-bengal/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1571934811356-5cc061b6821f?w=1200&q=80",
       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
@@ -393,7 +393,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Sikkim",
     region: "East India",
     tagline: "Kanchenjunga's kingdom of monasteries and orchids",
-    heroImage: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1600&q=80",
+    heroImage: "/media/destinations/sikkim/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
@@ -437,7 +437,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Uttarakhand",
     region: "North India",
     tagline: "Ganga's valleys, Char Dham and yoga's birthplace",
-    heroImage: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1600&q=80",
+    heroImage: "/media/destinations/uttarakhand/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80",
       "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=1200&q=80",
@@ -482,7 +482,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Tamil Nadu",
     region: "South India",
     tagline: "Dravidian temples, French quarters and hill tea",
-    heroImage: "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1600&q=80",
+    heroImage: "/media/destinations/tamil-nadu/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=1200&q=80",
       "https://images.unsplash.com/photo-1580136579312-94651dfd596d?w=1200&q=80",
@@ -527,7 +527,7 @@ export const DESTINATIONS: Destination[] = [
     state: "Andaman & Nicobar Islands",
     region: "Islands",
     tagline: "India's Maldives — coral seas and rainforest islands",
-    heroImage: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1600&q=80",
+    heroImage: "/media/destinations/andaman-nicobar/hero.webp",
     gallery: [
       "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80",
       "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
