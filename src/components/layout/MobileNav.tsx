@@ -120,7 +120,7 @@ export default function MobileNav() {
       <div className="fixed inset-x-0 bottom-0 z-navigation md:hidden safe-bottom">
         <nav
           aria-label="Mobile primary"
-          className="mx-3 mb-3 rounded-2xl border border-ink-100 bg-white/95 shadow-lift backdrop-blur-xl"
+          className="mx-3 mb-3 rounded-2xl border border-ink-100 bg-bg-elevated/95 shadow-lift backdrop-blur-xl"
         >
           <div className="grid grid-cols-5 gap-1 px-2 py-2">
             {navItems.map(({ label, href, icon: Icon }) => {
@@ -132,7 +132,7 @@ export default function MobileNav() {
                   aria-current={isActive ? "page" : undefined}
                   className={cn(
                     "relative flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-xl transition-all duration-200",
-                    isActive ? "text-navy-900" : "text-ink-500 hover:text-ink-900 hover:bg-ink-50"
+                    isActive ? "text-text" : "text-ink-500 hover:text-ink-900 hover:bg-ink-50"
                   )}
                 >
                   {isActive && (

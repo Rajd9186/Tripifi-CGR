@@ -54,7 +54,7 @@ export default function CuratedPackages() {
           </div>
           <Link
             href="/packages"
-            className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-navy-900 hover:gap-3 transition-all"
+            className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-text hover:gap-3 transition-all"
           >
             View all packages
             <svg

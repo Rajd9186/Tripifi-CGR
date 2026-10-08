@@ -19,7 +19,7 @@ export default function TrendingDestinations() {
           </div>
           <Link
             href="/destinations"
-            className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-navy-900 hover:gap-3 transition-all"
+            className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-text hover:gap-3 transition-all"
           >
             View all destinations
             <svg

@@ -19,7 +19,7 @@ export default function WishlistButton({ id, label, className, dark = false }: {
       }}
       className={cn(
         "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full shadow-sm backdrop-blur transition-all",
-        dark ? "bg-navy-950/55 text-white hover:bg-navy-950/75" : "bg-white/95 text-ink-700 hover:text-saffron-600",
+        dark ? "bg-navy-950/55 text-white hover:bg-navy-950/75" : "bg-bg-elevated/95 text-ink-700 hover:text-saffron-600",
         saved && !dark && "text-saffron-600",
         className
       )}

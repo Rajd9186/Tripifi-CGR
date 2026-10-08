@@ -32,7 +32,7 @@ export default function Navbar() {
       className={cn(
         "fixed left-0 right-0 top-0 z-navigation transition-all duration-300 safe-top",
         scrolled
-          ? "bg-white/95 backdrop-blur-xl border-b border-ink-100 shadow-sm"
+          ? "bg-bg-elevated/95 backdrop-blur-xl border-b border-ink-100 shadow-sm"
           : "bg-transparent border-b border-white/10"
       )}
     >
@@ -78,7 +78,7 @@ export default function Navbar() {
                 className={cn(
                   "group relative inline-flex min-h-[44px] items-center text-sm font-medium transition-colors",
                   scrolled
-                    ? "text-ink-700 hover:text-navy-900"
+                    ? "text-ink-700 hover:text-text"
                     : "text-white/90 hover:text-white"
                 )}
               >
@@ -87,7 +87,7 @@ export default function Navbar() {
                   aria-hidden="true"
                   className={cn(
                     "absolute -bottom-0.5 left-0 h-0.5 w-full origin-left scale-x-0 transition-transform duration-200 group-hover:scale-x-100",
-                    scrolled ? "bg-saffron-500" : "bg-white"
+                    scrolled ? "bg-saffron-500" : "bg-surface"
                   )}
                 />
               </Link>
@@ -186,7 +186,7 @@ export default function Navbar() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="border-t border-ink-100 bg-white md:hidden">
+        <div className="border-t border-ink-100 bg-surface md:hidden">
           <nav className="max-w-8xl mx-auto px-4 py-2" aria-label="Mobile">
             {navItems.map((item) => (
               <Link

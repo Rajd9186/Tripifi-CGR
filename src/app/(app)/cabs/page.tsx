@@ -7,7 +7,10 @@ export const metadata: Metadata = {
   description: "Book private cabs for local, outstation and airport transfers across India with Tripifi CGR.",
 };
 
-export default function CabsPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function CabsPage(props: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const searchParams = await props.searchParams;
   return (
     <div className="pb-16">
       <section className="bg-navy-950 py-12">

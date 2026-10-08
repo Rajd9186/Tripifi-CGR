@@ -16,7 +16,7 @@ export default function EnquirySuccess({ reference }: { reference: string }) {
       </p>
       <div className="mx-auto mt-6 max-w-xs rounded-2xl border border-ink-100 bg-cream-100 px-5 py-4">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-500">Reference Number</p>
-        <p className="mt-1 font-mono text-xl font-bold tracking-wide text-navy-900">{reference}</p>
+        <p className="mt-1 font-mono text-xl font-bold tracking-wide text-text">{reference}</p>
         <p className="mt-1 text-[11px] text-ink-500">Please keep this reference for future communication.</p>
       </div>
       <div className="mt-6 flex flex-col justify-center gap-2 sm:flex-row">

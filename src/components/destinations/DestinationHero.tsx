@@ -71,7 +71,7 @@ export default function DestinationHero({ destination }: { destination: Destinat
               <a href="/plan" className="btn-primary inline-flex min-h-[52px] justify-center shadow-glow">
                 Plan My {destination.name} Trip
               </a>
-              <a href="/packages" className="btn-ghost inline-flex min-h-[52px] justify-center bg-white/90 backdrop-blur hover:bg-white">
+              <a href="/packages" className="btn-ghost inline-flex min-h-[52px] justify-center bg-bg-elevated/90 backdrop-blur hover:bg-surface">
                 View Packages
               </a>
               {media?.hero?.source === "unsplash" && (

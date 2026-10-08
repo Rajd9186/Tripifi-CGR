@@ -68,7 +68,7 @@ export default function AdminEnquiriesPage() {
             role="tab"
             aria-selected={status === s}
             onClick={() => setStatus(s)}
-            className={`inline-flex min-h-[44px] shrink-0 items-center rounded-full border px-4 text-sm font-medium ${status === s ? "border-navy-900 bg-navy-900 text-white" : "border-ink-200 bg-white text-ink-700"}`}
+            className={`inline-flex min-h-[44px] shrink-0 items-center rounded-full border px-4 text-sm font-medium ${status === s ? "border-navy-900 bg-navy-900 text-white" : "border-ink-200 bg-surface text-ink-700"}`}
           >
             {s || "All"}
           </button>
@@ -86,7 +86,7 @@ export default function AdminEnquiriesPage() {
         ) : (
           rows.map((r: any) => (
             <Link key={r.id ?? r.reference_number} href={`/admin/enquiries/${r.id ?? r.reference_number}`} className="grid gap-1 border-b border-ink-100 px-5 py-4 transition-colors last:border-0 hover:bg-ink-50/60 md:grid-cols-[110px_1fr_1fr_120px_130px] md:items-center md:gap-3">
-              <span className="font-mono text-xs font-bold text-navy-900">{r.reference_number}</span>
+              <span className="font-mono text-xs font-bold text-text">{r.reference_number}</span>
               <span className="text-sm text-ink-900">{r.customer_name}</span>
               <span className="text-sm text-ink-600">{r.type} · {r.destination ?? "—"}</span>
               <span className="text-xs text-ink-500">{r.travel_start_date ?? "—"}</span>

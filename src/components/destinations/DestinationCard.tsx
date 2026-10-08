@@ -26,7 +26,7 @@ export default function DestinationCard({
     return (
       <Link
         href={`/destinations/${destination.slug}`}
-        className="group relative overflow-hidden rounded-2xl bg-ink-900 h-[420px] block"
+        className="group relative overflow-hidden rounded-2xl bg-bg-elevated h-[420px] block"
       >
         <div className="absolute inset-0 overflow-hidden">
           {!imageLoaded && (
@@ -90,7 +90,7 @@ export default function DestinationCard({
     return (
       <Link
         href={`/destinations/${destination.slug}`}
-        className="group flex items-center gap-4 rounded-xl border border-ink-100 bg-white p-2 transition-all duration-300 hover:border-navy-200 hover:shadow-sm hover:-translate-y-0.5"
+        className="group flex items-center gap-4 rounded-xl border border-ink-100 bg-surface p-2 transition-all duration-300 hover:border-navy-200 hover:shadow-sm hover:-translate-y-0.5"
       >
         <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
           <Image
@@ -102,7 +102,7 @@ export default function DestinationCard({
           />
         </div>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-semibold text-ink-900 group-hover:text-navy-900 transition-colors">
+          <h3 className="truncate text-sm font-semibold text-ink-900 group-hover:text-text transition-colors">
             {destination.name}
           </h3>
           <p className="truncate text-xs text-ink-600">{destination.state}</p>
@@ -134,7 +134,7 @@ export default function DestinationCard({
             <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/20 to-transparent group-hover:from-navy-950/95" />
           </div>
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-medium text-ink-900 shadow-sm backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-bg-elevated/95 px-3 py-1 text-xs font-medium text-ink-900 shadow-sm backdrop-blur">
               <MapPinIcon className="w-3 h-3" />
               {destination.region}
             </span>
@@ -145,7 +145,7 @@ export default function DestinationCard({
           </div>
         </div>
         <div className="p-6">
-          <h3 className="font-display text-xl font-semibold text-ink-900 group-hover:text-navy-900 transition-colors">
+          <h3 className="font-display text-xl font-semibold text-ink-900 group-hover:text-text transition-colors">
             {destination.name}
           </h3>
           <p className="text-sm text-ink-600 mt-2 line-clamp-2">
@@ -163,7 +163,7 @@ export default function DestinationCard({
           </div>
           <Link
             href={`/destinations/${destination.slug}`}
-            className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-navy-900 group-hover:gap-3 transition-all duration-300"
+            className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-text group-hover:gap-3 transition-all duration-300"
           >
             Explore {destination.name}
             <ArrowRightIcon className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -203,7 +203,7 @@ export default function DestinationCard({
           <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/20 to-transparent group-hover:from-navy-950/95" />
         </div>
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 animate-fade-up">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1 text-xs font-medium text-ink-900 shadow-sm backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-bg-elevated/95 px-2.5 py-1 text-xs font-medium text-ink-900 shadow-sm backdrop-blur">
             <MapPinIcon className="w-3 h-3" />
             {destination.region}
           </span>
@@ -216,7 +216,7 @@ export default function DestinationCard({
           <WishlistButton id={`dest:${destination.slug}`} label={destination.name} />
         </div>
         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 translate-y-2 transition-all duration-300 animate-fade-up">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-bg-elevated/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
             <SparkleIcon className="w-3 h-3 text-saffron-500" />
             Plan your trip
             <ArrowRightIcon className="w-3 h-3" />
@@ -224,7 +224,7 @@ export default function DestinationCard({
         </div>
       </div>
       <div className="p-4 flex flex-col flex-1">
-        <h3 className="font-display text-lg font-semibold text-ink-900 group-hover:text-navy-900 transition-colors">
+        <h3 className="font-display text-lg font-semibold text-ink-900 group-hover:text-text transition-colors">
           {destination.name}
         </h3>
         <p className="text-sm text-ink-600 mt-1 line-clamp-2">

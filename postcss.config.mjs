@@ -1,9 +1,7 @@
-/** @type {import('postcss-load-config').Config} */
-const config = {
+export default {
   plugins: {
-    tailwindcss: {},
+    'postcss-nested': {},
+    '@tailwindcss/postcss': {},
     autoprefixer: {},
   },
 };
-
-export default config;

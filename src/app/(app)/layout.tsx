@@ -1,25 +1,26 @@
-import Navbar from "@/components/layout/Navbar";
-import MobileNav from "@/components/layout/MobileNav";
+import Header from "@/components/layout/Header";
+import BottomNavigation from "@/components/layout/BottomNavigation";
 import Footer from "@/components/layout/Footer";
-import ToastContainer from "@/components/ui/ToastContainer";
-import AIChatButton from "@/components/ai/AIChatButton";
+import { FlightPath } from "@/components/layout/FlightPath";
+import { AITripPlanner } from "@/components/ai/AITripPlanner";
 import { PageTransition } from "@/components/ui/PageTransition";
+import { Toaster } from "@/components/ui/toast";
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
-      <Navbar />
-      <main className="flex-1 pt-[var(--header-h)]">
+    <div className="relative flex min-h-screen flex-col">
+      <FlightPath />
+      <Header />
+      <main
+        id="main-content"
+        className="relative z-10 flex-1 pt-16 pb-24 md:pt-[var(--header-h)] md:pb-0"
+      >
         <PageTransition>{children}</PageTransition>
       </main>
-      <MobileNav />
       <Footer />
-      <ToastContainer />
-      <AIChatButton />
-    </>
+      <BottomNavigation />
+      <AITripPlanner />
+      <Toaster />
+    </div>
   );
 }

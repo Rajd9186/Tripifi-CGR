@@ -14,7 +14,7 @@ export default function TripEnquirySummary({
   budget: number;
 }) {
   return (
-    <div className="rounded-2xl border border-ink-100 bg-white p-5">
+    <div className="rounded-2xl border border-ink-100 bg-surface p-5">
       <p className="micro-meta text-[10px] text-ink-400">TRIP SUMMARY · INCLUDED IN ENQUIRY</p>
       <div className="mt-3 space-y-2.5">
         <RouteVisualization from={origin} to={stops[0] ?? origin} variant="light" />

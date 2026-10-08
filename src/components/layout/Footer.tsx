@@ -35,12 +35,12 @@ const footerLinks = {
 
 export default function Footer() {
   return (
-    <footer className="bg-navy-950 text-navy-100">
+    <footer className="bg-navy-950 text-text">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5 mb-6">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-navy-900 shadow-soft">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-surface text-text shadow-soft">
                 <svg
                   width="18"
                   height="18"
@@ -58,7 +58,7 @@ export default function Footer() {
                 Tripifi CGR
               </div>
             </div>
-            <p className="text-navy-300 text-sm leading-relaxed max-w-md mb-6">
+            <p className="text-text-muted text-sm leading-relaxed max-w-md mb-6">
               Your trip. Your way. Plan, personalize and book your entire Indian
               journey in one place. Don't just book a ticket. Build the entire
               journey.
@@ -75,7 +75,7 @@ export default function Footer() {
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-navy-300 hover:text-white text-sm transition-colors"
+                      className="text-text-muted hover:text-white text-sm transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -88,10 +88,10 @@ export default function Footer() {
 
         <div className="mt-12 pt-8 border-t border-navy-800">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-navy-400 text-sm">
+            <p className="text-text-muted text-sm">
               © {new Date().getFullYear()} Tripifi CGR. All rights reserved.
             </p>
-            <p className="text-navy-400 text-sm">
+            <p className="text-text-muted text-sm">
               Made with care for Indian travelers
             </p>
           </div>

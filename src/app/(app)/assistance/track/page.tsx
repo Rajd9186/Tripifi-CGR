@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   description: "Check the status of your Tripifi CGR booking enquiry.",
 };
 
-export default function TrackPage({ searchParams }: { searchParams: { ref?: string } }) {
-  return <TrackClient initialRef={searchParams.ref} />;
+export default async function TrackPage({ searchParams }: { searchParams: Promise<{ ref?: string }> }) {
+  const { ref } = await searchParams;
+  return <TrackClient initialRef={ref} />;
 }

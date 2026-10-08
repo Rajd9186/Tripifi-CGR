@@ -1,10 +1,21 @@
-import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
-import { AppProvider } from "@/lib/store";
+import { Providers } from "@/components/layout/Providers";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-display" });
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-grotesk",
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
+});
 
 export const metadata: Metadata = {
   title: {
@@ -40,8 +51,7 @@ export const metadata: Metadata = {
     url: "https://tripifi.in",
     siteName: "Tripifi CGR",
     title: "Tripifi CGR — Your trip. Your way.",
-    description:
-      "Plan, personalize and book your entire Indian journey in one place. Don't just book a ticket. Build the entire journey.",
+    description: "Plan, personalize and book your entire Indian journey in one place.",
     images: [
       {
         url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80",
@@ -54,40 +64,41 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Tripifi CGR — Your trip. Your way.",
-    description:
-      "Plan, personalize and book your entire Indian journey in one place.",
+    description: "Plan, personalize and book your entire Indian journey in one place.",
     images: ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80"],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-video-preview": -1,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-    },
   },
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  themeColor: "#05070F",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${manrope.variable}`}>
-      <body className="bg-cream-50 text-ink-900 font-sans antialiased">
-        <AppProvider>
-          <div className="min-h-screen flex flex-col overflow-x-hidden">
-            {children}
-          </div>
-        </AppProvider>
+    <html
+      lang="en"
+      className={`${spaceGrotesk.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
+      <body className="bg-bg font-body text-text antialiased">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

@@ -34,15 +34,15 @@ export default function BottomSheet({
 
   return createPortal(
     <div className="fixed inset-0 z-modal md:flex md:items-center md:justify-center" role="dialog" aria-modal="true" aria-label={title}>
-      <div className="absolute inset-0 bg-ink-950/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in" onClick={onClose} />
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-3xl bg-white shadow-lift animate-slide-up safe-bottom",
+          "absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-3xl bg-surface shadow-lift animate-slide-up safe-bottom",
           "md:relative md:inset-auto md:max-h-[80vh] md:w-[520px] md:rounded-2xl",
           className
         )}
       >
-        <div className="sticky top-0 bg-white/95 backdrop-blur px-5 pt-3 pb-4 border-b border-ink-100 rounded-t-3xl md:rounded-t-2xl">
+        <div className="sticky top-0 bg-bg-elevated/95 backdrop-blur px-5 pt-3 pb-4 border-b border-ink-100 rounded-t-3xl md:rounded-t-2xl">
           <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-ink-200 md:hidden" aria-hidden="true" />
           <div className="flex items-center justify-between gap-3">
             {title && <h2 className="text-base font-semibold text-ink-900">{title}</h2>}

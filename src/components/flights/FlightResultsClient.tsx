@@ -150,7 +150,7 @@ export default function FlightResultsClient() {
         <div className="mx-auto flex max-w-8xl items-center gap-2 px-4 py-3 sm:px-6 lg:px-8">
           <button
             onClick={() => setFiltersOpen(true)}
-            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl border border-ink-200 bg-white px-4 text-sm font-semibold text-ink-800 md:flex-none"
+            className="inline-flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-xl border border-ink-200 bg-surface px-4 text-sm font-semibold text-ink-800 md:flex-none"
             aria-haspopup="dialog"
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -158,7 +158,7 @@ export default function FlightResultsClient() {
             </svg>
             Filters{activeFilters.length > 0 ? ` (${activeFilters.length})` : ""}
           </button>
-          <label className="inline-flex min-h-[44px] flex-1 items-center gap-2 rounded-xl border border-ink-200 bg-white px-4 text-sm md:flex-none">
+          <label className="inline-flex min-h-[44px] flex-1 items-center gap-2 rounded-xl border border-ink-200 bg-surface px-4 text-sm md:flex-none">
             <span className="sr-only">Sort results</span>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <line x1="3" y1="6" x2="15" y2="6" />
@@ -283,7 +283,7 @@ export default function FlightResultsClient() {
                   className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-all ${
                     activeFilters.includes(f)
                       ? "border-saffron-500 bg-saffron-500 text-white"
-                      : "border-ink-200 bg-white text-ink-700"
+                      : "border-ink-200 bg-surface text-ink-700"
                   }`}
                 >
                   {f}
@@ -302,7 +302,7 @@ export default function FlightResultsClient() {
                   className={`inline-flex min-h-[48px] items-center justify-center rounded-xl border px-4 text-sm font-medium transition-all ${
                     sort === s
                       ? "border-navy-900 bg-navy-900 text-white"
-                      : "border-ink-200 bg-white text-ink-700"
+                      : "border-ink-200 bg-surface text-ink-700"
                   }`}
                 >
                   {s}

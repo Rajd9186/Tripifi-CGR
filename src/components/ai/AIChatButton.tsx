@@ -73,10 +73,10 @@ export default function AIChatButton() {
       {isOpen && (
         <div className={cn("fixed inset-0 z-modal")} role="dialog" aria-modal="true" aria-label="Tripifi AI assistant">
           <div
-            className="absolute inset-0 bg-ink-950/50 backdrop-blur-sm animate-fade-in"
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute inset-x-3 bottom-3 top-auto max-h-[86dvh] overflow-hidden rounded-3xl border border-ink-100 bg-white shadow-lift animate-slide-up safe-bottom md:inset-auto md:bottom-6 md:right-6 md:top-auto md:h-[640px] md:w-[420px] md:rounded-2xl">
+          <div className="absolute inset-x-3 bottom-3 top-auto max-h-[86dvh] overflow-hidden rounded-3xl border border-ink-100 bg-surface shadow-lift animate-slide-up safe-bottom md:inset-auto md:bottom-6 md:right-6 md:top-auto md:h-[640px] md:w-[420px] md:rounded-2xl">
             <TripifiAI onClose={() => setIsOpen(false)} />
           </div>
         </div>

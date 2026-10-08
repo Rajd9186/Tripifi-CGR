@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 import { SearchIcon, XIcon, ChevronDownIcon } from "@/components/icons/BookingIcons";
 
@@ -23,9 +23,12 @@ interface UseAutocompleteOptions {
   value?: string;
   error?: string;
   id?: string;
+  className?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
-export function AutocompleteInput({
+export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOptions>(function AutocompleteInput({
   label,
   options,
   onSelect,
@@ -36,11 +39,14 @@ export function AutocompleteInput({
   value = "",
   error,
   id,
-}: UseAutocompleteOptions) {
+  className,
+  onFocus,
+  onBlur,
+}, ref) {
   const [query, setQuery] = useState(value);
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
   const filteredOptions = options
@@ -128,22 +134,32 @@ export function AutocompleteInput({
   };
 
   return (
-    <div className="relative" ref={inputRef}>
+    <div className="relative">
       {label && <label htmlFor={id} className="input-label">{label}</label>}
       <div className="relative">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-ink-400 pointer-events-none" aria-hidden="true" />
         <input
+          ref={(node) => {
+            inputRef.current = node;
+            if (typeof ref === "function") ref(node);
+            else if (ref) (ref as any).current = node;
+          }}
           type="text"
           id={id}
           placeholder={placeholder}
           value={query}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => setIsOpen(true)}
+          onFocus={() => {
+            setIsOpen(true);
+            onFocus?.();
+          }}
+          onBlur={() => onBlur?.()}
           className={cn(
             "field min-h-[52px] pl-10 pr-10",
             query && "pr-20",
-            error && "border-red-500 focus:border-red-500 focus:ring-red-500"
+            error && "border-red-500 focus:border-red-500 focus:ring-red-500",
+            className
           )}
           autoComplete="off"
           aria-autocomplete="list"
@@ -173,7 +189,7 @@ export function AutocompleteInput({
           id="autocomplete-list"
           ref={listRef}
           role="listbox"
-          className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-xl border border-ink-200 bg-white shadow-card p-1"
+          className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-xl border border-ink-200 bg-surface shadow-card p-1"
         >
           {filteredOptions.map((option, index) => (
             <li
@@ -208,10 +224,11 @@ export function AutocompleteInput({
       )}
 
       {isOpen && filteredOptions.length === 0 && query.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl border border-ink-200 bg-white shadow-card p-3 text-center text-sm text-ink-500">
+        <div className="absolute z-50 mt-1 w-full rounded-xl border border-ink-200 bg-surface shadow-card p-3 text-center text-sm text-ink-500">
           No matches found
         </div>
       )}
     </div>
   );
-}
+});
+AutocompleteInput.displayName = "AutocompleteInput";

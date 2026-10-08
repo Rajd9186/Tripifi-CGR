@@ -1,0 +1,205 @@
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "motion/react";
+import { Menu, X, Search, Sparkles, Heart, MapPin, User, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useScrollPosition } from "@/hooks/useScrollPosition";
+import { Button } from "@/components/ui/Button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useMobile } from "@/hooks/useMediaQuery";
+
+const NAV_ITEMS = [
+  { href: "/", label: "Home" },
+  { href: "/destinations", label: "Explore" },
+  { href: "/trips", label: "My Trips" },
+  { href: "/wishlist", label: "Wishlist" },
+  { href: "/ai", label: "AI Planner" },
+];
+
+const QUICK_ACTIONS = [
+  { href: "/flights", icon: Search, label: "Flights" },
+  { href: "/hotels", icon: MapPin, label: "Hotels" },
+  { href: "/packages", icon: Sparkles, label: "Packages" },
+];
+
+function Logo() {
+  return (
+    <Link href="/" className="flex items-center gap-2" aria-label="Tripifi CGR Home">
+      <motion.span
+        className="text-display-sm font-display font-bold text-white"
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
+        whileHover={{ scale: 1.05 }}
+      >
+        Tripifi
+      </motion.span>
+      <span className="text-caption font-medium text-saffron uppercase tracking-wider hidden sm:block">CGR</span>
+    </Link>
+  );
+}
+
+function DesktopNav() {
+  return (
+    <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
+      {NAV_ITEMS.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className="relative px-4 py-2 text-body-sm font-medium text-text-muted hover:text-text transition-colors duration-200 rounded-lg hover:bg-surface"
+        >
+          {item.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+function DesktopActions() {
+  return (
+    <div className="hidden md:flex items-center gap-2">
+      {QUICK_ACTIONS.map((action) => (
+        <Link
+          key={action.href}
+          href={action.href}
+          className="relative p-2 rounded-xl text-text-muted hover:text-text hover:bg-surface transition-all duration-200"
+          aria-label={action.label}
+        >
+          <action.icon className="h-5 w-5" />
+        </Link>
+      ))}
+      <Link href="/ai" className="ml-2">
+        <Button variant="saffron" size="sm" glow>
+          <Sparkles className="mr-1 h-4 w-4" aria-hidden="true" />
+          AI Planner
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+function MobileNav({ onClose }: { onClose: () => void }) {
+  return (
+    <div className="flex flex-col gap-4 pt-4">
+      <nav role="navigation" aria-label="Mobile navigation">
+        {NAV_ITEMS.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onClose}
+            className="flex items-center gap-3 px-4 py-3 text-body font-medium text-text-muted hover:text-text rounded-xl hover:bg-surface transition-all duration-200"
+          >
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+      
+      <Separator className="border-border" />
+      
+      <div className="grid grid-cols-3 gap-2">
+        {QUICK_ACTIONS.map((action) => (
+          <Link
+            key={action.href}
+            href={action.href}
+            onClick={onClose}
+            className="flex flex-col items-center gap-2 p-4 rounded-xl text-text-muted hover:text-text bg-surface hover:bg-surface-hover transition-all duration-200"
+          >
+            <action.icon className="h-6 w-6" />
+            <span className="text-caption font-medium">{action.label}</span>
+          </Link>
+        ))}
+      </div>
+      
+      <Link href="/ai" onClick={onClose}>
+        <Button variant="saffron" size="lg" className="w-full" glow>
+          <Sparkles className="mr-2 h-5 w-5" />
+          AI Trip Planner
+        </Button>
+      </Link>
+    </div>
+  );
+}
+
+function Separator({ className }: { className?: string }) {
+  return <div className={cn("h-px bg-border", className)} role="separator" />;
+}
+
+export default function Header() {
+  const { y, direction, isScrolled } = useScrollPosition(20);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const isMobile = useMobile();
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Update scrolled state with hysteresis
+  useEffect(() => {
+    setScrolled(isScrolled);
+  }, [isScrolled]);
+
+  const handleMenuToggle = () => {
+    setMobileMenuOpen((prev) => !prev);
+  };
+
+  const handleCloseMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  return (
+    <header
+      ref={headerRef}
+      className={cn(
+        "fixed top-0 left-0 right-0 z-[100] transition-all duration-300",
+        scrolled
+          ? "glass-strong shadow-glass-hover"
+          : "bg-transparent",
+        direction === "down" && scrolled && !mobileMenuOpen
+          ? "-translate-y-full"
+          : "translate-y-0"
+      )}
+      role="banner"
+    >
+      <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 md:h-[var(--header-height)]">
+          {/* Logo */}
+          <Logo />
+
+          {/* Desktop Navigation */}
+          <DesktopNav />
+          <DesktopActions />
+
+          {/* Mobile Menu Button */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <button
+                className="md:hidden touch-target rounded-xl p-2 text-text-muted hover:text-text hover:bg-surface transition-colors"
+                aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-menu"
+              >
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </SheetTrigger>
+            
+            <SheetContent id="mobile-menu" size="full" side="right" className="p-0">
+              <MobileNav onClose={handleCloseMenu} />
+            </SheetContent>
+          </Sheet>
+        </div>
+      </div>
+
+      {/* Progress bar on scroll */}
+      {scrolled && (
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-saffron"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          style={{ transformOrigin: "left center" }}
+          aria-hidden="true"
+        />
+      )}
+    </header>
+  );
+}

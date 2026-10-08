@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { adminEnquiriesApi } from "@/lib/api/enquiries";
 import { apiRequest } from "@/lib/api/client";
 import ProviderStatusBadge from "@/components/booking/ProviderStatusBadge";
 
 const FLOW = ["NEW", "CONTACTED", "QUOTED", "AWAITING_CUSTOMER", "CONFIRMED", "CLOSED"];
 
-export default function AdminEnquiryDetailPage({ params }: { params: { id: string } }) {
+export default function AdminEnquiryDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const [data, setData] = useState<any>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [notes, setNotes] = useState<any[]>([]);
@@ -19,9 +20,9 @@ export default function AdminEnquiryDetailPage({ params }: { params: { id: strin
     setLoading(true);
     try {
       const [d, h, n] = await Promise.all([
-        adminEnquiriesApi.get(params.id),
-        apiRequest(`/admin/enquiries/${params.id}/history`).catch(() => []),
-        apiRequest(`/admin/enquiries/${params.id}/notes`).catch(() => []),
+        adminEnquiriesApi.get(id),
+        apiRequest(`/admin/enquiries/${id}/history`).catch(() => []),
+        apiRequest(`/admin/enquiries/${id}/notes`).catch(() => []),
       ]);
       setData(d);
       setHistory(Array.isArray(h) ? h : []);
@@ -34,14 +35,14 @@ export default function AdminEnquiryDetailPage({ params }: { params: { id: strin
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params.id]);
+  }, [id]);
 
   if (loading) return <p className="mx-auto max-w-4xl px-4 py-10 text-sm text-ink-500">Loading enquiry…</p>;
   if (!data) return <p className="mx-auto max-w-4xl px-4 py-10 text-sm text-ink-500">Enquiry not found.</p>;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
-      <p className="font-mono text-sm font-bold text-navy-900">{data.reference_number}</p>
+      <p className="font-mono text-sm font-bold text-text">{data.reference_number}</p>
       <div className="mt-1 flex flex-wrap items-center gap-2">
         <h1 className="font-display text-2xl font-semibold text-ink-900">{data.customer_name}</h1>
         <ProviderStatusBadge state={data.status} label={data.status?.replace(/_/g, " ")} />
@@ -72,10 +73,10 @@ export default function AdminEnquiryDetailPage({ params }: { params: { id: strin
             <button
               key={s}
               onClick={async () => {
-                await apiRequest(`/admin/enquiries/${params.id}`, { method: "PATCH", body: JSON.stringify({ status: s }) });
+                await apiRequest(`/admin/enquiries/${id}`, { method: "PATCH", body: JSON.stringify({ status: s }) });
                 load();
               }}
-              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-xs font-semibold ${data.status === s ? "border-navy-900 bg-navy-900 text-white" : "border-ink-200 bg-white text-ink-700"}`}
+              className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-xs font-semibold ${data.status === s ? "border-navy-900 bg-navy-900 text-white" : "border-ink-200 bg-surface text-ink-700"}`}
             >
               {s.replace(/_/g, " ")}
             </button>
@@ -86,7 +87,7 @@ export default function AdminEnquiryDetailPage({ params }: { params: { id: strin
           <button
             onClick={async () => {
               if (!assignee.trim()) return;
-              await apiRequest(`/admin/enquiries/${params.id}/assign`, { method: "POST", body: JSON.stringify({ assigned_to: assignee.trim() }) });
+              await apiRequest(`/admin/enquiries/${id}/assign`, { method: "POST", body: JSON.stringify({ assigned_to: assignee.trim() }) });
               setAssignee("");
               load();
             }}
@@ -114,7 +115,7 @@ export default function AdminEnquiryDetailPage({ params }: { params: { id: strin
           <button
             onClick={async () => {
               if (!note.trim()) return;
-              await apiRequest(`/admin/enquiries/${params.id}/notes`, { method: "POST", body: JSON.stringify({ note: note.trim() }) });
+              await apiRequest(`/admin/enquiries/${id}/notes`, { method: "POST", body: JSON.stringify({ note: note.trim() }) });
               setNote("");
               load();
             }}
@@ -130,7 +131,7 @@ export default function AdminEnquiryDetailPage({ params }: { params: { id: strin
         <ol className="mt-3 space-y-3">
           {history.map((h: any, i: number) => (
             <li key={i} className="flex gap-3 text-sm">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-50 text-[11px] font-bold text-navy-900">{i + 1}</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-50 text-[11px] font-bold text-text">{i + 1}</span>
               <span className="text-ink-700"><strong>{h.status}</strong> · {h.changed_by ?? "system"}{h.comment ? ` — ${h.comment}` : ""}</span>
             </li>
           ))}

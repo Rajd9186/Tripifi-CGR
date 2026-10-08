@@ -17,7 +17,10 @@ const TITLES: Record<string, { title: string; blurb: string }> = {
   MULTI_SERVICE: { title: "Let Tripifi arrange your entire journey", blurb: "One consolidated request — our travel team will plan, quote and arrange the complete trip." },
 };
 
-export default function AssistancePage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
+export default async function AssistancePage(props: {
+  searchParams: Promise<Record<string, string | undefined>>;
+}) {
+  const searchParams = await props.searchParams;
   const raw = (searchParams.type ?? "CUSTOM_TRIP").toUpperCase();
   const type = (["FLIGHT", "TRAIN", "HOTEL", "CAB", "PACKAGE", "CUSTOM_TRIP", "MULTI_SERVICE"] as EnquiryType[]).includes(raw as EnquiryType)
     ? (raw as EnquiryType)
@@ -52,7 +55,7 @@ export default function AssistancePage({ searchParams }: { searchParams: Record<
             <ol className="mt-3 space-y-3 text-sm text-ink-600">
               {["Request received with a TFC reference number", "Assigned to a travel representative", "Availability checked and quote prepared", "You approve — then booking is arranged"].map((s, i) => (
                 <li key={s} className="flex gap-3">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-50 text-[11px] font-bold text-navy-900">{i + 1}</span>
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-50 text-[11px] font-bold text-text">{i + 1}</span>
                   <span>{s}</span>
                 </li>
               ))}

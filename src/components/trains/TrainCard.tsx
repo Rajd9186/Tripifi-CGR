@@ -51,7 +51,7 @@ export default function TrainCard({ train, selected, selectedClass, onSelect, on
               {train.running_days.map((day) => (
                 <span
                   key={day}
-                  className="flex h-6 w-6 items-center justify-center rounded-full border border-ink-200 bg-white text-[10px] font-medium text-ink-700"
+                  className="flex h-6 w-6 items-center justify-center rounded-full border border-ink-200 bg-surface text-[10px] font-medium text-ink-700"
                 >
                   {day}
                 </span>

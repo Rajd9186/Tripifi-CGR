@@ -6,15 +6,16 @@ import Badge from "@/components/ui/Badge";
 import DestinationHero from "@/components/destinations/DestinationHero";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
   return DESTINATIONS.map((d) => ({ slug: d.slug }));
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-  const destination = findDestination(params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const destination = findDestination(slug);
   if (!destination) {
     return { title: "Destination not found | Tripifi CGR" };
   }
@@ -24,8 +25,9 @@ export function generateMetadata({ params }: PageProps): Metadata {
   };
 }
 
-export default function DestinationDetailPage({ params }: PageProps) {
-  const destination = findDestination(params.slug);
+export default async function DestinationDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const destination = findDestination(slug);
   if (!destination) notFound();
 
   return (

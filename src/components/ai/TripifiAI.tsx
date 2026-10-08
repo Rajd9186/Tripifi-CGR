@@ -177,7 +177,7 @@ export default function TripifiAI({
 
   return (
     <div
-      className={`flex min-h-0 flex-col bg-white ${
+      className={`flex min-h-0 flex-col bg-surface ${
         isFullScreen ? "h-[100dvh]" : "h-full max-h-[86dvh] min-h-[480px]"
       }`}
     >
@@ -376,7 +376,7 @@ function actionLabel(type: string): string {
 
 function ResponseCardView({ card, onAction }: { card: ResponseCard; onAction: (a: UIAction) => void }) {
   return (
-    <div className="rounded-xl border border-ink-100 bg-white p-3">
+    <div className="rounded-xl border border-ink-100 bg-surface p-3">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-teal-700">{card.kind}</p>
       <p className="mt-0.5 text-sm font-semibold text-ink-900">{card.title}</p>
       {card.subtitle && <p className="text-xs text-ink-600">{card.subtitle}</p>}

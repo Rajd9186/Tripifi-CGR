@@ -56,7 +56,7 @@ export default function TrackClient({ initialRef }: { initialRef?: string }) {
       {result && (
         <div className="card mt-4 p-5 sm:p-6 animate-scale-in">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-mono text-lg font-bold text-navy-900">{result.reference_number}</p>
+            <p className="font-mono text-lg font-bold text-text">{result.reference_number}</p>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-50 px-3 py-1 text-xs font-semibold text-saffron-700">
               {result.status.replace(/_/g, " ")}
             </span>

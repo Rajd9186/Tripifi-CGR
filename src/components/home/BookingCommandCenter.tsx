@@ -130,7 +130,7 @@ function SelectInput({
       <div className="relative">
         <select
           className={cn(
-            "field transition-all duration-200 appearance-none bg-white",
+            "field transition-all duration-200 appearance-none bg-surface",
             focused && "border-saffron-500 ring-2 ring-saffron-500/20"
           )}
           value={value}
@@ -337,7 +337,7 @@ export default function BookingCommandCenter() {
                   className={cn(
                     "relative flex items-center gap-2 py-4 text-sm font-medium transition-colors",
                     activeTab === tab.id
-                      ? "text-navy-900"
+                      ? "text-text"
                       : "text-ink-500 hover:text-ink-900"
                   )}
                 >

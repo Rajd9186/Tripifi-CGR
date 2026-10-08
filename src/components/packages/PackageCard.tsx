@@ -15,7 +15,7 @@ function PackageWishlistButton({ slug, title }: { slug: string; title: string })
   return (
     <button
       type="button"
-      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-ink-200 bg-white p-2 text-ink-600 transition-all duration-200 hover:border-saffron-300 hover:bg-saffron-50 hover:text-saffron-600"
+      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border border-ink-200 bg-surface p-2 text-ink-600 transition-all duration-200 hover:border-saffron-300 hover:bg-saffron-50 hover:text-saffron-600"
       aria-label={saved ? `Remove ${title} from wishlist` : `Save ${title} to wishlist`}
       aria-pressed={saved}
       onClick={(e) => {
@@ -108,7 +108,7 @@ export default function PackageCard({
           </div>
 
           <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-medium text-ink-900 shadow-sm backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-bg-elevated/95 px-3 py-1 text-xs font-medium text-ink-900 shadow-sm backdrop-blur">
               {pkg.tags[0] || "Package"}
             </span>
             {hasDiscount && (
@@ -125,7 +125,7 @@ export default function PackageCard({
 
           <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between animate-fade-up">
             <div className="flex items-center gap-2 text-white/90">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-bg-elevated/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
                 <MapPinIcon className="w-3 h-3" />
                 {pkg.route.split("→")[0].trim()}
               </span>
@@ -133,7 +133,7 @@ export default function PackageCard({
             <div className="opacity-0 group-hover:opacity-100 translate-y-2 transition-all duration-300">
               <Link
                 href={`/packages/${pkg.slug}`}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-medium text-ink-900 shadow-lg backdrop-blur group-hover:gap-2 transition-all duration-300"
+                className="inline-flex items-center gap-1.5 rounded-full bg-bg-elevated/95 px-4 py-2 text-xs font-medium text-ink-900 shadow-lg backdrop-blur group-hover:gap-2 transition-all duration-300"
               >
                 View Details
                 <ArrowRightIcon className="w-3 h-3" />
@@ -177,7 +177,7 @@ export default function PackageCard({
     return (
       <Link
         href={`/packages/${pkg.slug}`}
-        className="group flex flex-col gap-3 rounded-xl border border-ink-100 bg-white p-4 transition-all duration-300 hover:border-navy-200 hover:shadow-sm hover:-translate-y-0.5"
+        className="group flex flex-col gap-3 rounded-xl border border-ink-100 bg-surface p-4 transition-all duration-300 hover:border-navy-200 hover:shadow-sm hover:-translate-y-0.5"
       >
         <div className="relative aspect-video overflow-hidden rounded-lg">
           <Image
@@ -197,7 +197,7 @@ export default function PackageCard({
           )}
         </div>
         <div className="flex flex-col flex-1 gap-2">
-          <h3 className="font-display text-base font-semibold text-ink-900 group-hover:text-navy-900 transition-colors line-clamp-1">
+          <h3 className="font-display text-base font-semibold text-ink-900 group-hover:text-text transition-colors line-clamp-1">
             {pkg.title}
           </h3>
           <p className="text-xs text-ink-600 line-clamp-1">{pkg.route}</p>
@@ -278,7 +278,7 @@ export default function PackageCard({
 
         <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 animate-fade-up">
           {pkg.tags.slice(0, 2).map((tag) => (
-            <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-medium text-ink-900 shadow-sm backdrop-blur">
+            <span key={tag} className="inline-flex items-center gap-1 rounded-full bg-bg-elevated/95 px-2.5 py-1 text-[11px] font-medium text-ink-900 shadow-sm backdrop-blur">
               {tag}
             </span>
           ))}
@@ -291,11 +291,11 @@ export default function PackageCard({
         </div>
 
         <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between opacity-0 group-hover:opacity-100 translate-y-2 transition-all duration-300 animate-fade-up">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-bg-elevated/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
             <ShieldIcon className="w-3 h-3 text-saffron-500" />
             Verified Partner
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-bg-elevated/95 px-3 py-1.5 text-xs font-medium text-ink-900 shadow-lg backdrop-blur">
             <HeartIcon className="w-3 h-3 text-saffron-500" />
             Save
           </span>
@@ -304,7 +304,7 @@ export default function PackageCard({
 
       <div className="p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-display text-lg font-semibold text-ink-900 group-hover:text-navy-900 transition-colors line-clamp-1 flex-1">
+          <h3 className="font-display text-lg font-semibold text-ink-900 group-hover:text-text transition-colors line-clamp-1 flex-1">
             {pkg.title}
           </h3>
           {hasDiscount && (

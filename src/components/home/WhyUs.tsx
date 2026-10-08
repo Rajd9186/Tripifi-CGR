@@ -95,7 +95,7 @@ export default function WhyUs() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {features.map((feature) => (
             <div key={feature.title} className="card p-5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-50 text-navy-900 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-navy-50 text-text mb-4">
                 {feature.icon}
               </div>
               <h3 className="font-semibold text-ink-900 mb-2">

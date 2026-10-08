@@ -58,10 +58,10 @@ export default function IconButton({
         "inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron-500 focus-visible:ring-offset-2 active:scale-[0.96] disabled:opacity-50 disabled:pointer-events-none",
         variant === "ghost" && "text-ink-600 hover:bg-ink-50 hover:text-ink-900",
         variant === "solid" && "bg-navy-900 text-white hover:bg-navy-800 shadow-soft",
-        variant === "outline" && "border border-ink-200 bg-white text-ink-700 hover:border-navy-300 hover:bg-navy-50",
+        variant === "outline" && "border border-ink-200 bg-surface text-ink-700 hover:border-navy-300 hover:bg-navy-50",
         variant === "teal" && "bg-teal-500 text-white hover:bg-teal-600",
         variant === "saffron" && "bg-saffron-500 text-white hover:bg-saffron-600 shadow-glow",
-        active && variant === "ghost" && "bg-navy-50 text-navy-900",
+        active && variant === "ghost" && "bg-navy-50 text-text",
         className
       )}
       {...rest}

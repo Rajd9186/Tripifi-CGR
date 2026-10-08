@@ -141,7 +141,7 @@ export default function Hero() {
               className={cn(
                 "h-2 w-2 rounded-full transition-all duration-300",
                 index === currentIndex
-                  ? "bg-white w-6"
+                  ? "bg-surface w-6"
                   : "bg-white/40 hover:bg-white/60"
               )}
               role="tab"

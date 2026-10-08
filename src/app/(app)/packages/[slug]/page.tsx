@@ -7,15 +7,16 @@ import Button from "@/components/ui/Button";
 import PackageCustomize from "@/components/packages/PackageCustomize";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
   return MOCK_PACKAGES.map((p) => ({ slug: p.slug }));
 }
 
-export function generateMetadata({ params }: PageProps): Metadata {
-  const pkg = MOCK_PACKAGES.find((p) => p.slug === params.slug);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const pkg = MOCK_PACKAGES.find((p) => p.slug === slug);
   if (!pkg) return { title: "Package not found | Tripifi CGR" };
   return {
     title: `${pkg.title}`,
@@ -23,8 +24,9 @@ export function generateMetadata({ params }: PageProps): Metadata {
   };
 }
 
-export default function PackageDetailPage({ params }: PageProps) {
-  const pkg = MOCK_PACKAGES.find((p) => p.slug === params.slug);
+export default async function PackageDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const pkg = MOCK_PACKAGES.find((p) => p.slug === slug);
   if (!pkg) notFound();
 
   return (

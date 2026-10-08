@@ -1,23 +1,36 @@
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface SkeletonProps {
   className?: string;
-  variant?: "text" | "circular" | "rectangular" | "card" | "hero" | "list";
-  width?: string;
-  height?: string;
+  variant?: "default" | "text" | "circular" | "rectangular" | "card" | "hero" | "list";
+  width?: string | number;
+  height?: string | number;
   lines?: number;
 }
 
-export function Skeleton({ className, variant = "text", width, height, lines = 1 }: SkeletonProps) {
+export function Skeleton({
+  className,
+  variant = "text",
+  width,
+  height,
+  lines = 1,
+}: SkeletonProps) {
   const baseClasses = "animate-skeleton-pulse bg-ink-200 rounded";
 
   const variants = {
+    default: cn(baseClasses, "rounded-lg"),
     text: cn(baseClasses, "h-4 w-full"),
     circular: cn(baseClasses, "rounded-full"),
     rectangular: cn(baseClasses, "rounded-lg"),
     card: cn(baseClasses, "rounded-xl"),
     hero: cn(baseClasses, "rounded-2xl"),
     list: cn(baseClasses, "h-20 rounded-xl"),
+  };
+
+  const style: React.CSSProperties = {
+    width: typeof width === "number" ? `${width}px` : width,
+    height: typeof height === "number" ? `${height}px` : height,
   };
 
   if (variant === "text" && lines > 1) {
@@ -34,13 +47,63 @@ export function Skeleton({ className, variant = "text", width, height, lines = 1
     );
   }
 
+  return <div className={cn(variants[variant], className)} style={style} />;
+}
+
+/* ------------------------------------------------------------------ */
+/* Redesign variants                                                    */
+/* ------------------------------------------------------------------ */
+
+export function CardSkeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn(variants[variant], className)}
-      style={{ width, height }}
-    />
+    <div className={cn("glass rounded-2xl p-6 space-y-4", className)} {...props}>
+      <div className="flex items-center gap-4">
+        <Skeleton variant="circular" width={48} height={48} />
+        <div className="space-y-2 flex-1">
+          <Skeleton variant="text" width="40%" />
+          <Skeleton variant="text" width="30%" />
+        </div>
+      </div>
+      <Skeleton variant="rectangular" height={160} />
+      <div className="flex gap-2">
+        <Skeleton variant="default" width={80} height={32} />
+        <Skeleton variant="default" width={80} height={32} />
+      </div>
+    </div>
   );
 }
+
+export function FlightCardSkeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cn("card p-4 sm:p-6 space-y-4", className)} {...props}>
+      <div className="flex items-center gap-3">
+        <Skeleton variant="circular" width={36} height={36} />
+        <div className="space-y-1">
+          <Skeleton variant="text" width="80px" />
+          <Skeleton variant="text" width="60px" />
+        </div>
+      </div>
+      <div className="flex items-center justify-between">
+        <Skeleton variant="text" width="50px" height="28px" />
+        <div className="flex-1 px-4">
+          <Skeleton variant="rectangular" className="h-0.5 w-full" />
+        </div>
+        <Skeleton variant="text" width="50px" height="28px" />
+      </div>
+      <div className="flex items-center justify-between border-t border-ink-100 pt-4">
+        <Skeleton variant="text" width="80px" height="28px" />
+        <div className="flex gap-2">
+          <Skeleton variant="default" width={120} height={36} />
+          <Skeleton variant="default" width={120} height={36} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Page / section skeletons                                             */
+/* ------------------------------------------------------------------ */
 
 export function HeroSkeleton() {
   return (
@@ -148,7 +211,7 @@ export function PackageCardSkeleton() {
         <div className="flex flex-wrap gap-1">
           <Skeleton className="h-6 w-16 rounded-full" />
           <Skeleton className="h-6 w-20 rounded-full" />
-          <Skeleton className="h-6 w-18 rounded-full" />
+          <Skeleton className="h-6 w-20 rounded-full" />
         </div>
         <ul className="space-y-2 flex-1">
           {[...Array(3)].map((_, i) => (
@@ -198,10 +261,10 @@ export function TripBuilderSkeleton() {
             <Skeleton className="h-5 w-20" />
             <Skeleton className="h-3 w-40 mt-1" />
           </div>
-          <div className="flex-1 flex items-center justify-center p-6">
+          <div className="flex-1 flex flex-col items-center justify-center p-6">
             <Skeleton className="h-16 w-16 rounded-full mx-auto mb-4" />
-            <Skeleton className="h-5 w-40 mx-auto text-center mb-2" />
-            <Skeleton className="h-4 w-56 mx-auto text-center mb-4" />
+            <Skeleton className="h-5 w-40 mx-auto mb-2" />
+            <Skeleton className="h-4 w-56 mx-auto mb-4" />
             <div className="flex flex-wrap justify-center gap-2">
               <Skeleton className="h-8 w-24 rounded-full" />
               <Skeleton className="h-8 w-24 rounded-full" />
@@ -225,14 +288,14 @@ export function TripBuilderSkeleton() {
                 {[...Array(7)].map((_, i) => (
                   <div key={i} className="flex items-center justify-between">
                     <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-5 w-20 text-right" />
+                    <Skeleton className="h-5 w-20" />
                   </div>
                 ))}
               </div>
               <div className="border-t border-ink-100 pt-2 mt-3">
                 <div className="flex items-center justify-between">
                   <Skeleton className="h-5 w-16" />
-                  <Skeleton className="h-6 w-24 text-right" />
+                  <Skeleton className="h-6 w-24" />
                 </div>
               </div>
             </div>
@@ -358,3 +421,5 @@ export function GridSkeleton({ count = 6, columns = 4 }: { count?: number; colum
     </div>
   );
 }
+
+export default Skeleton;

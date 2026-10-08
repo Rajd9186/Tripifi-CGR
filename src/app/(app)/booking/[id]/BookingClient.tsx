@@ -35,7 +35,7 @@ export default function BookingClient({ id }: { id: string }) {
           {found ? (
             <>
               <Card padding="lg" className="text-center">
-                <div className="h-16 w-16 mx-auto rounded-full bg-navy-50 flex items-center justify-center mb-4 text-navy-900 font-display text-xl font-semibold">
+                <div className="h-16 w-16 mx-auto rounded-full bg-navy-50 flex items-center justify-center mb-4 text-text font-display text-xl font-semibold">
                   {found.title.charAt(0)}
                 </div>
                 <h2 className="text-2xl font-semibold text-ink-900 mb-2">{found.title}</h2>

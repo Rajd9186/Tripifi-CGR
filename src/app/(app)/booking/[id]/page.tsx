@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   description: "View your booking or trip reference with Tripifi CGR.",
 };
 
-export default function BookingPage({ params }: { params: { id: string } }) {
-  return <BookingClient id={params.id} />;
+export default async function BookingPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <BookingClient id={id} />;
 }

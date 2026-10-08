@@ -44,7 +44,7 @@ export function TravelNode({
             "absolute inline-flex h-full w-full animate-ping rounded-full opacity-60",
             variant === "saffron" && "bg-saffron-400",
             variant === "teal" && "bg-teal-400",
-            variant === "default" && "bg-white"
+            variant === "default" && "bg-surface"
           )}
         />
       )}
@@ -53,7 +53,7 @@ export function TravelNode({
           "relative inline-flex h-3 w-3 rounded-full border-2",
           variant === "saffron" && "border-saffron-500 bg-saffron-400",
           variant === "teal" && "border-teal-500 bg-teal-400",
-          variant === "default" && "border-white bg-white/90"
+          variant === "default" && "border-white bg-bg-elevated/90"
         )}
       />
     </span>

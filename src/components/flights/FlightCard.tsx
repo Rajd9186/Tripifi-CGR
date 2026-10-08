@@ -43,7 +43,7 @@ export default function FlightCard({ flight, selected, onSelect, onAddToTrip }: 
       <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-6">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-9 w-9 rounded bg-navy-50 flex items-center justify-center text-navy-900 font-semibold text-xs">
+            <div className="h-9 w-9 rounded bg-navy-50 flex items-center justify-center text-text font-semibold text-xs">
               {flight.airline.substring(0, 2).toUpperCase()}
             </div>
             <div>

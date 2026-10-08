@@ -59,7 +59,7 @@ export default function ItineraryPanel() {
       {conflicts.length > 0 && (
         <div className="px-4 pt-3 space-y-2" role="alert">
           {conflicts.map((c) => (
-            <p key={c.id} className={`rounded-xl px-3 py-2 text-xs ${c.severity === "warning" ? "bg-amber-50 text-amber-800" : "bg-navy-50 text-navy-800"}`}>
+            <p key={c.id} className={`rounded-xl px-3 py-2 text-xs ${c.severity === "warning" ? "bg-amber-50 text-amber-800" : "bg-navy-50 text-text"}`}>
               {c.severity === "warning" ? "⚠ " : "ℹ "}{c.message}
             </p>
           ))}
@@ -105,7 +105,7 @@ export default function ItineraryPanel() {
                           updateTripItem(trip.id, item.id, { details: { ...item.details, Day: `Day ${toDay}` } });
                           e.target.value = "";
                         }}
-                        className={cn("rounded-lg border border-ink-200 bg-white px-2 py-1 text-xs min-h-[44px]")}
+                        className={cn("rounded-lg border border-ink-200 bg-surface px-2 py-1 text-xs min-h-[44px]")}
                       >
                         <option value="">Day…</option>
                         {days.map((d) => (
