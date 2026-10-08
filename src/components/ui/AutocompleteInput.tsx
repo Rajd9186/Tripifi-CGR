@@ -189,7 +189,7 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
           id="autocomplete-list"
           ref={listRef}
           role="listbox"
-          className="absolute z-50 mt-1 w-full max-h-64 overflow-auto rounded-xl border border-ink-200 bg-surface shadow-card p-1"
+          className="absolute z-[60] mt-2 max-h-64 w-full overflow-auto rounded-xl border border-white/15 bg-bg-elevated p-1.5 shadow-card-hover"
         >
           {filteredOptions.map((option, index) => (
             <li
@@ -200,22 +200,24 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
               onClick={() => handleSelectOption(option)}
               onMouseEnter={() => setHighlightedIndex(index)}
               className={cn(
-                "px-3 py-2.5 rounded-lg cursor-pointer transition-colors",
-                index === highlightedIndex ? "bg-saffron-50 text-ink-900" : "text-ink-700 hover:bg-ink-50"
+                "cursor-pointer rounded-lg px-3 py-2.5 transition-colors",
+                index === highlightedIndex
+                  ? "bg-[#FFB454]/15 text-[#F5F7FF]"
+                  : "text-[#F5F7FF]/85 hover:bg-white/[0.06]"
               )}
             >
               <div className="flex items-center gap-2">
                 {option.code && (
-                  <span className="shrink-0 text-xs font-mono text-ink-500 bg-ink-50 px-2 py-0.5 rounded">
+                  <span className="shrink-0 rounded bg-white/10 px-2 py-0.5 font-mono text-xs text-[#9AA4BF]">
                     {option.code}
                   </span>
                 )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{option.label}</p>
-                  {option.sublabel && <p className="text-xs text-ink-500 truncate">{option.sublabel}</p>}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{option.label}</p>
+                  {option.sublabel && <p className="truncate text-xs text-[#9AA4BF]">{option.sublabel}</p>}
                 </div>
                 {option.category && (
-                  <span className="text-xs text-saffron-600 font-medium whitespace-nowrap">{option.category}</span>
+                  <span className="whitespace-nowrap text-xs font-medium text-[#FFB454]">{option.category}</span>
                 )}
               </div>
             </li>
@@ -224,7 +226,7 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
       )}
 
       {isOpen && filteredOptions.length === 0 && query.length > 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-xl border border-ink-200 bg-surface shadow-card p-3 text-center text-sm text-ink-500">
+        <div className="absolute z-[60] mt-2 w-full rounded-xl border border-white/15 bg-bg-elevated p-3 text-center text-sm text-[#9AA4BF] shadow-card-hover">
           No matches found
         </div>
       )}

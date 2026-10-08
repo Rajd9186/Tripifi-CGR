@@ -124,14 +124,14 @@ export function SearchBar({ variant = "hero", onSearch }: { variant?: "hero" | "
     >
       <form onSubmit={handleSearch} className="relative">
         {/* Search type tabs */}
-        <div className="mb-3 flex items-center gap-1 bg-surface rounded-xl p-1 border border-border">
+        <div className="no-scrollbar mb-3 flex items-center gap-1 overflow-x-auto rounded-xl border border-border bg-surface p-1">
           {SEARCH_TYPES.map((type) => (
             <button
               key={type.value}
               type="button"
               onClick={() => setSearchType(type.value)}
               className={cn(
-                "flex min-h-[44px] items-center gap-2 px-4 py-2 rounded-lg text-body-sm font-medium transition-all duration-200",
+                "flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg px-4 py-2 text-body-sm font-medium transition-all duration-200",
                 searchType === type.value
                   ? "bg-surface-hover text-cyan shadow-sm"
                   : "text-text-muted hover:text-text"
