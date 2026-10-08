@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "motion/react";
 import { MapPin, Star, Clock, Calendar, Heart, Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
+import { useApp } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -38,7 +39,9 @@ export default function DestinationCard({
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const { wishlist, toggleWishlist: toggleWishlistInStore } = useApp();
+  const wishlistId = `dest:${destination.slug}`;
+  const isWishlisted = wishlist.includes(wishlistId);
   const cardRef = useRef<HTMLAnchorElement>(null);
 
   // 3D tilt effect on mouse move
@@ -67,7 +70,7 @@ export default function DestinationCard({
   const toggleWishlist = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsWishlisted((prev) => !prev);
+    toggleWishlistInStore(wishlistId);
   };
 
   // Budget parsing
