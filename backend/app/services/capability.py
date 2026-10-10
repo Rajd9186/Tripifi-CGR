@@ -111,6 +111,9 @@ def service_mode(service: str, first_override: str | None = None) -> dict:
     if service == "flight" and first == "aviationstack":
         base.update(mode="SCHEDULE_ONLY", live_data=True, schedule_only=True,
                      reason="live schedules, no fares or availability")
+    elif service == "flight" and first == "serpapi":
+        base.update(mode="LIVE", live_data=True,
+                     reason="live Google Flights fares + schedules; booking assisted")
     elif service == "hotel" and first == "overpass":
         base.update(mode="DISCOVERY", live_data=True,
                      reason="live discovery: names, location, amenities; no prices")

@@ -42,6 +42,9 @@ ADAPTERS: dict[str, dict[str, object]] = {
         "aviationstack": lambda: __import__(
             "app.providers.free", fromlist=["AviationstackFlightProvider"]
         ).AviationstackFlightProvider(),
+        "serpapi": lambda: __import__(
+            "app.providers.flights.serpapi", fromlist=["SerpApiFlightProvider"]
+        ).SerpApiFlightProvider(),
     },
     "train": {
         "demo": DemoTrainProvider,
@@ -200,6 +203,8 @@ def _adapter_configured(service: str, name: str) -> bool:
         return True
     if name == "aviationstack":
         return bool(settings.aviation_api_key and settings.aviationstack_paid_key)
+    if name == "serpapi":
+        return bool(settings.serpapi_api_key)
     return True
 
 

@@ -53,7 +53,7 @@ class Settings(BaseSettings):
 
     # Phase 5 — free-first provider selection (env-driven, replaceable)
     # Live-only: demo fallbacks removed. No live adapter -> assisted enquiry.
-    flight_provider: str = "aviationstack"
+    flight_provider: str = "serpapi,aviationstack"
     train_provider: str = "disabled"
     hotel_provider: str = "overpass"
     cab_provider: str = "demo"
@@ -65,6 +65,9 @@ class Settings(BaseSettings):
     aviationstack_base_url: str = "https://api.aviationstack.com/v1"
     aviationstack_paid_key: bool = False
     aviationstack_monthly_quota: int = 100
+    serpapi_api_key: str = ""
+    serpapi_base_url: str = "https://serpapi.com"
+    serpapi_monthly_quota: int = 100
     open_meteo_api_key: str = ""
     open_meteo_base_url: str = "https://api.open-meteo.com/v1"
     overpass_base_url: str = "https://overpass-api.de/api"

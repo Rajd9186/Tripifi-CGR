@@ -18,7 +18,8 @@ from app.services.search.recommendation_service import recommend
 def test_registry_defaults_to_demo():
     # Live-only defaults: no demo fallbacks for inventory. Demo adapters stay
     # available as explicit config (see _demo fixture below).
-    assert registry.get_flight_provider().name == "aviationstack"
+    assert registry.get_flight_provider().name == "serpapi"
+    assert [p.name for p in registry.get_provider_chain("flight")] == ["serpapi", "aviationstack"]
     assert registry.get_train_provider().name == "disabled"
     assert registry.get_hotel_provider().name == "overpass"
     assert [p.name for p in registry.get_provider_chain("hotel")] == ["overpass"]

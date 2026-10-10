@@ -49,7 +49,7 @@ def test_registry_rejects_unknown_at_selection():
 def test_validate_registry_accepts_defaults():
     resolved = registry.validate_registry()
     # Live-only defaults: no demo fallbacks for inventory.
-    assert resolved["flight"] == ["aviationstack"]
+    assert resolved["flight"] == ["serpapi", "aviationstack"]
     assert resolved["train"] == ["disabled"]
     assert resolved["hotel"] == ["overpass"]
     assert resolved["routing"] == ["osrm", "estimate"]
@@ -72,7 +72,7 @@ def test_validate_registry_rejects_unknown(monkeypatch):
 
 
 def test_chain_first_is_backward_compatible():
-    assert registry.get_flight_provider().name == "aviationstack"
+    assert registry.get_flight_provider().name == "serpapi"
     assert registry.get_train_provider().name == "disabled"
     assert registry.get_hotel_provider().name == "overpass"
     assert registry.get_cab_provider().name == "demo"

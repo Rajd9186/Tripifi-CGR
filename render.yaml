@@ -36,6 +36,16 @@ services:
         sync: false
       - key: OLLAMA_CLOUD_MODEL
         value: gemma4:31b
+      - key: FLIGHT_PROVIDER
+        value: serpapi,aviationstack
+      - key: TRAIN_PROVIDER
+        value: disabled
+      - key: HOTEL_PROVIDER
+        value: overpass
+      - key: SERPAPI_API_KEY
+        sync: false
+      - key: SERPAPI_MONTHLY_QUOTA
+        value: 100
       - key: GROQ_API_KEY
         sync: false
       - key: NVIDIA_API_KEY
