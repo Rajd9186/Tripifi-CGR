@@ -47,6 +47,7 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+backend/venv/
 backend/.env
 tripifi.db
 # Runtime quota counters (rebuilt automatically; never commit counts)
