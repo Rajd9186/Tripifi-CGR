@@ -57,6 +57,9 @@ ADAPTERS: dict[str, dict[str, object]] = {
         "overpass": lambda: __import__(
             "app.providers.hotels.overpass", fromlist=["OverpassHotelProvider"]
         ).OverpassHotelProvider(),
+        "serpapi-hotels": lambda: __import__(
+            "app.providers.hotels.serpapi", fromlist=["SerpApiHotelProvider"]
+        ).SerpApiHotelProvider(),
     },
     "cab": {
         # Internal estimator (routing distance x rate card). "tripifi" kept
@@ -203,7 +206,7 @@ def _adapter_configured(service: str, name: str) -> bool:
         return True
     if name == "aviationstack":
         return bool(settings.aviation_api_key and settings.aviationstack_paid_key)
-    if name == "serpapi":
+    if name in ("serpapi", "serpapi-hotels"):
         return bool(settings.serpapi_api_key)
     return True
 

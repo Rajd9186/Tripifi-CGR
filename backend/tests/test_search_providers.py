@@ -20,9 +20,9 @@ def test_registry_defaults_to_demo():
     # available as explicit config (see _demo fixture below).
     assert registry.get_flight_provider().name == "serpapi"
     assert [p.name for p in registry.get_provider_chain("flight")] == ["serpapi", "aviationstack"]
+    assert registry.get_hotel_provider().name == "serpapi-hotels"
+    assert [p.name for p in registry.get_provider_chain("hotel")] == ["serpapi-hotels", "overpass"]
     assert registry.get_train_provider().name == "disabled"
-    assert registry.get_hotel_provider().name == "overpass"
-    assert [p.name for p in registry.get_provider_chain("hotel")] == ["overpass"]
     assert registry.get_cab_provider().name == "demo"
     assert registry.get_activity_provider().name == "demo"
     assert registry.get_routing_provider().name == "osrm"
@@ -31,14 +31,22 @@ def test_registry_defaults_to_demo():
     assert registry.get_package_provider().name == "demo"
 
 
-def test_envelope_mode_follows_serving_provider():
+def test_envelope_mode_follows_serving_provider(monkeypatch):
+    from app.core.config import get_settings
     from app.services import capability
 
-    # Config-first view: overpass chain reports DISCOVERY.
-    assert capability.service_mode("hotel")["mode"] == "DISCOVERY"
-    # Served-by view: demo fallback reports ASSISTED (never fake DISCOVERY).
-    assert capability.service_mode("hotel", first_override="demo")["mode"] == "ASSISTED"
+    # Unconfigured serpapi-hotels chain reports ASSISTED (never fake LIVE).
+    assert capability.service_mode("hotel")["mode"] == "ASSISTED"
+    # Keyed chain reports LIVE.
+    monkeypatch.setenv("SERPAPI_API_KEY", "k")
+    get_settings.cache_clear()
+    try:
+        assert capability.service_mode("hotel")["mode"] == "LIVE"
+    finally:
+        get_settings.cache_clear()
+    # Served-by view: fallback reports its own mode (never faked).
     assert capability.service_mode("hotel", first_override="overpass")["mode"] == "DISCOVERY"
+    assert capability.service_mode("hotel", first_override="demo")["mode"] == "ASSISTED"
 
 
 def test_registry_rejects_unknown_provider(monkeypatch):

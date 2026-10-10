@@ -41,7 +41,7 @@ services:
       - key: TRAIN_PROVIDER
         value: disabled
       - key: HOTEL_PROVIDER
-        value: overpass
+        value: serpapi-hotels,overpass
       - key: SERPAPI_API_KEY
         sync: false
       - key: SERPAPI_MONTHLY_QUOTA

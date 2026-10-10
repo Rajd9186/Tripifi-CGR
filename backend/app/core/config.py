@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     # Live-only: demo fallbacks removed. No live adapter -> assisted enquiry.
     flight_provider: str = "serpapi,aviationstack"
     train_provider: str = "disabled"
-    hotel_provider: str = "overpass"
+    hotel_provider: str = "serpapi-hotels,overpass"
     cab_provider: str = "demo"
     map_provider: str = "demo"
     routing_provider: str = "osrm,estimate"

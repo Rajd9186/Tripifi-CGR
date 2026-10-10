@@ -117,6 +117,9 @@ def service_mode(service: str, first_override: str | None = None) -> dict:
     elif service == "hotel" and first == "overpass":
         base.update(mode="DISCOVERY", live_data=True,
                      reason="live discovery: names, location, amenities; no prices")
+    elif service == "hotel" and first == "serpapi-hotels":
+        base.update(mode="LIVE", live_data=True,
+                     reason="live Google Hotels rates; booking assisted")
     elif service == "activity" and first == "overpass":
         base.update(mode="DISCOVERY", live_data=True,
                      reason="live discovery: places and info; booking assisted")
