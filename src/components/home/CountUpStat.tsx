@@ -79,7 +79,7 @@ export function CountUpStat({ to = 0, suffix = "", decimals = 0, staticText, lab
   return (
     <div
       ref={ref}
-      className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-5 text-center backdrop-blur-xl sm:p-7"
+      className="relative overflow-hidden rounded-3xl border border-border bg-surface p-5 text-center backdrop-blur-xl sm:p-7"
     >
       <div
         aria-hidden="true"

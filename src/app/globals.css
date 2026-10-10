@@ -9,26 +9,28 @@
 /* ================================================================== */
 
 @theme {
-  /* ---- New semantic (aurora) ---- */
-  --color-bg: #05070f;
-  --color-bg-elevated: #0a0e1a;
-  --color-surface: rgba(255, 255, 255, 0.06);
-  --color-surface-hover: rgba(255, 255, 255, 0.1);
-  --color-surface-active: rgba(255, 255, 255, 0.14);
-  --color-border: rgba(255, 255, 255, 0.12);
-  --color-border-strong: rgba(255, 255, 255, 0.2);
-  --color-cyan: #22d3ee;
+  /* ---- Golden Hour Day (light default) ----
+     Legacy ink/navy/cream/saffron/teal/amber/leaf ramps below are the
+     original light values; .dark (bottom of file) restores night values. */
+  --color-bg: #faf6ef;
+  --color-bg-elevated: #ffffff;
+  --color-surface: rgba(255, 255, 255, 0.82);
+  --color-surface-hover: #f3ede1;
+  --color-surface-active: #eae0d5;
+  --color-border: rgba(26, 34, 46, 0.12);
+  --color-border-strong: rgba(26, 34, 46, 0.24);
+  --color-cyan: #0e7490;
   --color-cyan-glow: #06b6d4;
-  --color-violet: #8b5cf6;
-  --color-violet-glow: #7c3aed;
-  --color-saffron: #ffb347;
-  --color-saffron-glow: #f59e0b;
-  --color-text: #f5f7ff;
-  --color-text-muted: #9aa4bf;
-  --color-text-dim: #6b7a99;
-  --color-error: #ef4444;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
+  --color-violet: #7c3aed;
+  --color-violet-glow: #8b5cf6;
+  --color-saffron: #c74a00;
+  --color-saffron-glow: #ff7a00;
+  --color-text: #1a222e;
+  --color-text-muted: #4b586b;
+  --color-text-dim: #8593a3;
+  --color-error: #dc2626;
+  --color-success: #16a34a;
+  --color-warning: #d97706;
 
   /* ---- Golden Hour Journey palette ---- */
   --color-journey-indigo: #0b1026;
@@ -39,84 +41,84 @@
   --color-journey-amber-deep: #f59e0b;
   --color-journey-coral: #ff6b6b;
   --color-journey-cream: #f5f7ff;
-  --color-coral: #ff6b6b;
-  --color-coral-glow: #ff8e8e;
-  --color-amber: #ffb454;
+  --color-coral: #e11d48;
+  --color-coral-glow: #ff6b6b;
+  --color-amber: #d97706;
   --color-amber-glow: #f59e0b;
 
   /* ---- Legacy palette: ink (text + subtle surfaces) ---- */
-  --color-ink-50: rgba(255, 255, 255, 0.03);
-  --color-ink-100: rgba(255, 255, 255, 0.06);
-  --color-ink-200: rgba(255, 255, 255, 0.1);
-  --color-ink-300: rgba(255, 255, 255, 0.16);
-  --color-ink-400: #7c8aa8;
-  --color-ink-500: #8a94b0;
-  --color-ink-600: #9aa4bf;
-  --color-ink-700: #c7d0e4;
-  --color-ink-800: #e7ecf7;
-  --color-ink-900: #f5f7ff;
-  --color-ink-950: #ffffff;
+  --color-ink-50: #f6f7f8;
+  --color-ink-100: #eceef1;
+  --color-ink-200: #d5dae0;
+  --color-ink-300: #b0b9c4;
+  --color-ink-400: #8593a3;
+  --color-ink-500: #64748b;
+  --color-ink-600: #4b586b;
+  --color-ink-700: #37424f;
+  --color-ink-800: #26303d;
+  --color-ink-900: #1a222e;
+  --color-ink-950: #10161c;
 
   /* ---- Legacy palette: navy (deep surfaces / overlays) ---- */
-  --color-navy-50: rgba(255, 255, 255, 0.05);
-  --color-navy-100: rgba(255, 255, 255, 0.08);
-  --color-navy-200: rgba(255, 255, 255, 0.12);
-  --color-navy-300: rgba(255, 255, 255, 0.18);
-  --color-navy-400: #8faad1;
-  --color-navy-500: #5c82b0;
+  --color-navy-50: #eef3fa;
+  --color-navy-100: #dce5f2;
+  --color-navy-200: #b9cbe4;
+  --color-navy-300: #8faad1;
+  --color-navy-400: #5c82b0;
+  --color-navy-500: #3a6394;
   --color-navy-600: #2a4c78;
   --color-navy-700: #1d3a61;
-  --color-navy-800: #0e1526;
-  --color-navy-900: #0a0e1a;
-  --color-navy-950: #05070f;
+  --color-navy-800: #132947;
+  --color-navy-900: #0b1b33;
+  --color-navy-950: #060f20;
 
   /* ---- Legacy palette: cream (page backgrounds) ---- */
-  --color-cream-50: #05070f;
-  --color-cream-100: #0a0e1a;
-  --color-cream-200: #0e1424;
-  --color-cream-300: #161c2a;
+  --color-cream-50: #fdfbf7;
+  --color-cream-100: #faf6ef;
+  --color-cream-200: #f3ede1;
+  --color-cream-300: #eae0d5;
 
   /* ---- Legacy palette: saffron (accent) ---- */
-  --color-saffron-50: rgba(255, 179, 71, 0.1);
-  --color-saffron-100: rgba(255, 179, 71, 0.16);
-  --color-saffron-200: rgba(255, 179, 71, 0.28);
-  --color-saffron-300: #ffd3a3;
-  --color-saffron-400: #ffc067;
-  --color-saffron-500: #ffb347;
-  --color-saffron-600: #f59e0b;
-  --color-saffron-700: #d97706;
-  --color-saffron-800: #b45309;
-  --color-saffron-900: #92400e;
+  --color-saffron-50: #fff6eb;
+  --color-saffron-100: #ffead1;
+  --color-saffron-200: #ffd3a3;
+  --color-saffron-300: #ffb56b;
+  --color-saffron-400: #ff9433;
+  --color-saffron-500: #ff7a00;
+  --color-saffron-600: #f05e00;
+  --color-saffron-700: #c74a00;
+  --color-saffron-800: #9e3b00;
+  --color-saffron-900: #7a2e00;
 
   /* ---- Legacy palette: teal / amber / leaf ---- */
-  --color-teal-50: rgba(34, 211, 238, 0.1);
-  --color-teal-100: rgba(34, 211, 238, 0.16);
-  --color-teal-200: rgba(34, 211, 238, 0.28);
-  --color-teal-300: #67e8f9;
-  --color-teal-400: #22d3ee;
-  --color-teal-500: #06b6d4;
-  --color-teal-600: #0891b2;
-  --color-teal-700: #0e7490;
-  --color-teal-800: #155e75;
-  --color-teal-900: #164e63;
-  --color-teal-950: #083344;
+  --color-teal-50: #f0fdfa;
+  --color-teal-100: #ccfbf1;
+  --color-teal-200: #99f3e4;
+  --color-teal-300: #5eead4;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+  --color-teal-800: #115e59;
+  --color-teal-900: #134e4a;
+  --color-teal-950: #042f2e;
 
-  --color-amber-50: rgba(245, 158, 11, 0.12);
-  --color-amber-100: rgba(245, 158, 11, 0.18);
-  --color-amber-200: rgba(245, 158, 11, 0.3);
-  --color-amber-300: #fcd34d;
-  --color-amber-400: #fbbf24;
+  --color-amber-50: #fff8ed;
+  --color-amber-100: #ffefd6;
+  --color-amber-200: #ffddad;
+  --color-amber-300: #ffc67a;
+  --color-amber-400: #ffb04d;
   --color-amber-500: #f59e0b;
   --color-amber-600: #d97706;
-  --color-amber-700: #fbbf24;
-  --color-amber-800: #fcd34d;
-  --color-amber-900: #fde68a;
+  --color-amber-700: #b45309;
+  --color-amber-800: #92400e;
+  --color-amber-900: #78350f;
 
-  --color-leaf-50: rgba(34, 197, 94, 0.1);
-  --color-leaf-100: rgba(34, 197, 94, 0.16);
+  --color-leaf-50: #f0fdf4;
+  --color-leaf-100: #dcfce7;
   --color-leaf-500: #22c55e;
-  --color-leaf-600: #4ade80;
-  --color-leaf-700: #86efac;
+  --color-leaf-600: #16a34a;
+  --color-leaf-700: #15803d;
 
   /* ---- Fonts ---- */
   --font-display: var(--font-grotesk), "Space Grotesk", system-ui, sans-serif;
@@ -134,20 +136,20 @@
   --radius-4xl: 2rem;
   --radius-full: 9999px;
 
-  /* ---- Shadows ---- */
-  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.35);
-  --shadow-lift: 0 16px 48px rgba(0, 0, 0, 0.45);
-  --shadow-glow: 0 8px 32px rgba(255, 179, 71, 0.25);
-  --shadow-inner-glow: inset 0 0 60px rgba(255, 179, 71, 0.1);
-  --shadow-inner-glow-teal: inset 0 0 60px rgba(34, 211, 238, 0.1);
-  --shadow-card-premium: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
-  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.25);
-  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  --shadow-glass: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --shadow-glass-hover: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  --shadow-glow-cyan: 0 0 24px rgba(34, 211, 238, 0.3), 0 0 48px rgba(34, 211, 238, 0.15);
-  --shadow-glow-violet: 0 0 24px rgba(139, 92, 246, 0.3), 0 0 48px rgba(139, 92, 246, 0.15);
-  --shadow-glow-saffron: 0 0 24px rgba(255, 179, 71, 0.3), 0 0 48px rgba(255, 179, 71, 0.15);
+  /* ---- Shadows (daylight) ---- */
+  --shadow-soft: 0 8px 30px rgba(11, 27, 51, 0.08);
+  --shadow-lift: 0 16px 48px rgba(11, 27, 51, 0.14);
+  --shadow-glow: 0 8px 32px rgba(242, 140, 40, 0.25);
+  --shadow-inner-glow: inset 0 0 60px rgba(242, 140, 40, 0.1);
+  --shadow-inner-glow-teal: inset 0 0 60px rgba(20, 184, 166, 0.1);
+  --shadow-card-premium: 0 4px 20px rgba(11, 27, 51, 0.08), 0 0 0 1px rgba(11, 27, 51, 0.04);
+  --shadow-card: 0 2px 12px rgba(11, 27, 51, 0.08);
+  --shadow-card-hover: 0 12px 40px rgba(11, 27, 51, 0.14), 0 0 0 1px rgba(11, 27, 51, 0.05);
+  --shadow-glass: 0 4px 24px rgba(11, 27, 51, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --shadow-glass-hover: 0 8px 32px rgba(11, 27, 51, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --shadow-glow-cyan: 0 0 24px rgba(14, 116, 144, 0.25), 0 0 48px rgba(14, 116, 144, 0.12);
+  --shadow-glow-violet: 0 0 24px rgba(124, 58, 237, 0.25), 0 0 48px rgba(124, 58, 237, 0.12);
+  --shadow-glow-saffron: 0 0 24px rgba(242, 140, 40, 0.3), 0 0 48px rgba(242, 140, 40, 0.15);
 
   /* ---- Blur ---- */
   --blur-glass: blur(20px) saturate(140%);
@@ -244,43 +246,133 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  /* ---- Golden hour twilight: indigo -> teal -> warm amber horizon ---- */
+  /* ---- Golden Hour Day: morning sky -> warm sunlit horizon ---- */
   --gradient-hero: linear-gradient(
     180deg,
-    #070b1d 0%,
-    #0b1026 34%,
-    #10233b 58%,
-    #14555a 76%,
-    #b97a2e 92%,
+    #7db9e8 0%,
+    #bfe0f5 30%,
+    #fdeec9 58%,
+    #ffd9a0 78%,
     #ffb454 100%
   );
   --gradient-twilight: linear-gradient(
     180deg,
-    #070b1d 0%,
-    #0b1026 38%,
-    #123043 62%,
-    #1a6b66 80%,
+    #e8f4fb 0%,
+    #fdf6e9 45%,
+    #fdeec9 65%,
+    #ffd9a0 82%,
     #ffb454 100%
   );
   --gradient-aurora: linear-gradient(
     135deg,
-    rgba(34, 211, 238, 0.15) 0%,
-    rgba(139, 92, 246, 0.12) 40%,
-    rgba(255, 179, 71, 0.1) 100%
+    rgba(14, 116, 144, 0.1) 0%,
+    rgba(124, 58, 237, 0.08) 40%,
+    rgba(199, 74, 0, 0.08) 100%
   );
-  --gradient-saffron: linear-gradient(135deg, #ffb347 0%, #ff8c00 100%);
-  --gradient-cyan: linear-gradient(135deg, #22d3ee 0%, #06b6d4 100%);
-  --gradient-violet: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  --gradient-text: linear-gradient(135deg, #f5f7ff 0%, #22d3ee 35%, #8b5cf6 65%, #ffb347 100%);
+  --gradient-saffron: linear-gradient(135deg, #ff9433 0%, #f05e00 100%);
+  --gradient-cyan: linear-gradient(135deg, #2dd4bf 0%, #0d9488 100%);
+  --gradient-violet: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  --gradient-text: linear-gradient(135deg, #0f766e 0%, #0e7490 35%, #7c3aed 65%, #c74a00 100%);
   --gradient-scrim: linear-gradient(
     to top,
-    rgba(5, 7, 15, 0.95) 0%,
-    rgba(5, 7, 15, 0.6) 40%,
-    rgba(5, 7, 15, 0.15) 70%,
+    rgba(6, 15, 32, 0.92) 0%,
+    rgba(6, 15, 32, 0.55) 40%,
+    rgba(6, 15, 32, 0.15) 70%,
     transparent 100%
   );
+  --gradient-vignette: radial-gradient(ellipse at center, transparent 40%, rgba(6, 15, 32, 0.35) 100%);
+}
+
+/* Class-based dark variant (next-themes attribute="class"). All utilities
+   reference the vars above, so this single block re-themes the whole app. */
+.dark {
+  color-scheme: dark;
+  --color-bg: #05070f;
+  --color-bg-elevated: #0a0e1a;
+  --color-surface: rgba(255, 255, 255, 0.06);
+  --color-surface-hover: rgba(255, 255, 255, 0.1);
+  --color-surface-active: rgba(255, 255, 255, 0.14);
+  --color-border: rgba(255, 255, 255, 0.12);
+  --color-border-strong: rgba(255, 255, 255, 0.2);
+  --color-cyan: #22d3ee;
+  --color-cyan-glow: #06b6d4;
+  --color-violet: #8b5cf6;
+  --color-violet-glow: #7c3aed;
+  --color-saffron: #ffb347;
+  --color-saffron-glow: #f59e0b;
+  --color-text: #f5f7ff;
+  --color-text-muted: #9aa4bf;
+  --color-text-dim: #6b7a99;
+  --color-error: #ef4444;
+  --color-success: #22c55e;
+  --color-warning: #f59e0b;
+  --color-journey-indigo: #0b1026;
+  --color-journey-indigo-deep: #070b1d;
+  --color-journey-cream: #f5f7ff;
+  --color-coral: #ff6b6b;
+  --color-coral-glow: #ff8e8e;
+  --color-amber: #ffb454;
+  --color-amber-glow: #f59e0b;
+  --color-ink-50: rgba(255, 255, 255, 0.03);
+  --color-ink-100: rgba(255, 255, 255, 0.06);
+  --color-ink-200: rgba(255, 255, 255, 0.1);
+  --color-ink-300: rgba(255, 255, 255, 0.16);
+  --color-ink-400: #7c8aa8;
+  --color-ink-500: #8a94b0;
+  --color-ink-600: #9aa4bf;
+  --color-ink-700: #c7d0e4;
+  --color-ink-800: #e7ecf7;
+  --color-ink-900: #f5f7ff;
+  --color-ink-950: #ffffff;
+  --color-navy-50: rgba(255, 255, 255, 0.05);
+  --color-navy-100: rgba(255, 255, 255, 0.08);
+  --color-navy-200: rgba(255, 255, 255, 0.12);
+  --color-navy-300: rgba(255, 255, 255, 0.18);
+  --color-navy-800: #0e1526;
+  --color-navy-900: #0a0e1a;
+  --color-navy-950: #05070f;
+  --color-cream-50: #05070f;
+  --color-cream-100: #0a0e1a;
+  --color-cream-200: #0e1424;
+  --color-cream-300: #161c2a;
+  --color-saffron-50: rgba(255, 179, 71, 0.1);
+  --color-saffron-100: rgba(255, 179, 71, 0.16);
+  --color-saffron-200: rgba(255, 179, 71, 0.28);
+  --color-saffron-500: #ffb347;
+  --color-saffron-600: #f59e0b;
+  --color-teal-50: rgba(34, 211, 238, 0.1);
+  --color-teal-100: rgba(34, 211, 238, 0.16);
+  --color-teal-200: rgba(34, 211, 238, 0.28);
+  --color-teal-500: #06b6d4;
+  --color-amber-50: rgba(245, 158, 11, 0.12);
+  --color-amber-100: rgba(245, 158, 11, 0.18);
+  --color-amber-200: rgba(245, 158, 11, 0.3);
+  --color-amber-700: #fbbf24;
+  --color-amber-800: #fcd34d;
+  --color-amber-900: #fde68a;
+  --color-leaf-50: rgba(34, 197, 94, 0.1);
+  --color-leaf-100: rgba(34, 197, 94, 0.16);
+  --color-leaf-600: #4ade80;
+  --color-leaf-700: #86efac;
+  --shadow-soft: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --shadow-lift: 0 16px 48px rgba(0, 0, 0, 0.45);
+  --shadow-card-premium: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.25);
+  --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-glass: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --shadow-glass-hover: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  --shadow-glow-cyan: 0 0 24px rgba(34, 211, 238, 0.3), 0 0 48px rgba(34, 211, 238, 0.15);
+  --shadow-glow-violet: 0 0 24px rgba(139, 92, 246, 0.3), 0 0 48px rgba(139, 92, 246, 0.15);
+  --shadow-glow-saffron: 0 0 24px rgba(255, 179, 71, 0.3), 0 0 48px rgba(255, 179, 71, 0.15);
+  --gradient-hero: linear-gradient(180deg, #070b1d 0%, #0b1026 34%, #10233b 58%, #14555a 76%, #b97a2e 92%, #ffb454 100%);
+  --gradient-twilight: linear-gradient(180deg, #070b1d 0%, #0b1026 38%, #123043 62%, #1a6b66 80%, #ffb454 100%);
+  --gradient-aurora: linear-gradient(135deg, rgba(34, 211, 238, 0.15) 0%, rgba(139, 92, 246, 0.12) 40%, rgba(255, 179, 71, 0.1) 100%);
+  --gradient-text: linear-gradient(135deg, #f5f7ff 0%, #22d3ee 35%, #8b5cf6 65%, #ffb347 100%);
   --gradient-vignette: radial-gradient(ellipse at center, transparent 40%, rgba(5, 7, 15, 0.8) 100%);
 }
+
+/* next-themes uses class strategy; teach Tailwind v4 the `dark:` variant. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 html {
   scroll-behavior: smooth;
@@ -301,7 +393,7 @@ body {
 }
 
 body {
-  background: var(--color-journey-indigo-deep);
+  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
@@ -432,9 +524,12 @@ div[id],
 }
 
 .surface-premium {
-  background-color: rgba(14, 20, 36, 0.95);
+  background-color: #ffffff;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-soft);
+}
+.dark .surface-premium {
+  background-color: rgba(14, 20, 36, 0.95);
 }
 .surface-elevated {
   background-color: var(--color-bg-elevated);
@@ -584,7 +679,7 @@ div[id],
   transition: all 200ms;
 }
 .btn-navy:hover {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--color-surface-hover);
 }
 .btn-navy:active {
   transform: scale(0.98);
@@ -649,12 +744,12 @@ div[id],
   justify-content: center;
   gap: 0.5rem;
   border-radius: 0.75rem;
-  border: 2px solid var(--color-saffron-500);
+  border: 2px solid var(--color-saffron-600);
   background-color: transparent;
   padding: 0.75rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-saffron-600);
+  color: var(--color-saffron-700);
   transition: all 200ms;
 }
 .btn-outline:hover {
@@ -747,12 +842,20 @@ div[id],
   background-image: linear-gradient(
     90deg,
     transparent 0px,
-    rgba(255, 255, 255, 0.08) 60px,
+    rgba(255, 255, 255, 0.75) 60px,
     transparent 120px
   );
   background-size: 400px 100%;
   background-repeat: no-repeat;
   animation: shimmer 1.4s linear infinite;
+}
+.dark .skeleton {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0px,
+    rgba(255, 255, 255, 0.08) 60px,
+    transparent 120px
+  );
 }
 .skeleton-text {
   height: 1rem;
@@ -856,19 +959,30 @@ div[id],
   -webkit-text-fill-color: transparent;
 }
 .text-gradient-navy {
-  background: linear-gradient(to right, #f5f7ff, #9aa4bf);
+  background: linear-gradient(to right, #1a222e, #4b586b);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+.dark .text-gradient-navy {
+  background: linear-gradient(to right, #f5f7ff, #9aa4bf);
+  -webkit-background-clip: text;
+  background-clip: text;
 }
 
 .bg-gradient-hero {
   background: var(--gradient-hero);
 }
 .bg-gradient-premium {
+  background: linear-gradient(135deg, #ffffff 0%, #faf6ef 55%, #f3ede1 100%);
+}
+.dark .bg-gradient-premium {
   background: linear-gradient(135deg, #05070f 0%, #0a0e1a 50%, #121826 100%);
 }
 .bg-gradient-ivory {
+  background: linear-gradient(180deg, #fdfbf7 0%, #faf6ef 100%);
+}
+.dark .bg-gradient-ivory {
   background: linear-gradient(180deg, #0a0e1a 0%, #05070f 100%);
 }
 .bg-gradient-aurora {
@@ -877,6 +991,15 @@ div[id],
 /* NOTE: .journey-band lives in journey.css (canonical). */
 .bg-gradient-scrim {
   background: var(--gradient-scrim);
+}
+/* Top-down scrim for fixed nav legibility over hero photography. */
+.bg-gradient-scrim-top {
+  background: linear-gradient(
+    to bottom,
+    rgba(6, 15, 32, 0.62) 0%,
+    rgba(6, 15, 32, 0.28) 45%,
+    transparent 100%
+  );
 }
 .bg-gradient-vignette {
   background: var(--gradient-vignette);
@@ -1221,6 +1344,9 @@ div[id],
 .journey-skeleton {
   position: relative;
   overflow: hidden;
+  background-color: rgba(26, 34, 46, 0.08);
+}
+.dark .journey-skeleton {
   background-color: rgba(245, 247, 255, 0.08);
 }
 .journey-skeleton::after {
@@ -1230,10 +1356,18 @@ div[id],
   background: linear-gradient(
     100deg,
     transparent 20%,
-    rgba(245, 247, 255, 0.14) 50%,
+    rgba(255, 255, 255, 0.7) 50%,
     transparent 80%
   );
   animation: journey-number-shimmer 1.6s linear infinite;
+}
+.dark .journey-skeleton::after {
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(245, 247, 255, 0.14) 50%,
+    transparent 80%
+  );
 }
 .journey-loader-plane {
   animation: journey-plane-bob 1.2s ease-in-out infinite;

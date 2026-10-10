@@ -70,7 +70,7 @@ export default function TrackClient({ initialRef }: { initialRef?: string }) {
               return (
                 <li key={s} className="relative flex gap-3 pb-5 last:pb-0">
                   {i < STEPS.length - 1 && <span className="absolute left-[13px] top-7 h-full w-px bg-ink-100" aria-hidden="true" />}
-                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${done ? "bg-leaf-600 text-white" : "bg-ink-100 text-ink-400"}`} aria-hidden="true">
+                  <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${done ? "bg-leaf-600 text-[#10161C]" : "bg-ink-100 text-ink-400"}`} aria-hidden="true">
                     {done ? "✓" : i + 1}
                   </span>
                   <span className={`pt-1 text-sm ${done ? "font-medium text-ink-900" : "text-ink-500"}`}>{s}</span>

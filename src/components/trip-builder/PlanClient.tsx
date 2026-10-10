@@ -63,7 +63,7 @@ export default function PlanClient() {
                 className={cn(
                   "inline-flex min-h-[44px] flex-shrink-0 items-center rounded-full border px-5 text-sm font-medium transition-all duration-200",
                   activeTab === tab.id
-                    ? "border-saffron-500 bg-saffron-500 text-white"
+                    ? "border-saffron-500 bg-saffron-500 text-[#10161C]"
                     : "border-ink-200 bg-surface text-ink-700"
                 )}
               >

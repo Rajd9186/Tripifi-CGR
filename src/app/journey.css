@@ -5,13 +5,19 @@
    Only transform / opacity are animated, so everything stays GPU-friendly.
    ========================================================================== */
 
-/* ---------- Fixed scenic backdrop (replaces the old global FlightPath SVG) ---------- */
+/* ---------- Fixed scenic backdrop: Golden Hour Day (dark variant below) ---------- */
 .journey-sky {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
+  background:
+    radial-gradient(90% 42% at 50% 0%, rgba(255, 255, 255, 0.55) 0%, transparent 60%),
+    radial-gradient(120% 55% at 50% 108%, rgba(255, 180, 84, 0.35) 0%, rgba(255, 150, 90, 0.12) 38%, transparent 70%),
+    linear-gradient(180deg, #a8d4f0 0%, #d8ecf9 36%, #fdf3dd 72%, #ffe3b3 100%);
+}
+.dark .journey-sky {
   background:
     radial-gradient(120% 55% at 50% 108%, rgba(255, 180, 84, 0.30) 0%, rgba(255, 107, 107, 0.10) 38%, transparent 70%),
     linear-gradient(180deg, #070b1e 0%, #0b1026 36%, #0c2a3c 78%, #103a4a 100%);
@@ -26,8 +32,18 @@
   transform: translate3d(0, calc(var(--sy, 0) * var(--speed, 0.03) * -1px), 0);
 }
 .journey-layer svg { width: 100%; height: 100%; display: block; }
+.journey-far { fill: rgba(125, 185, 232, 0.45); }
+.journey-mid { fill: rgba(20, 120, 110, 0.25); }
+.journey-near { fill: rgba(120, 72, 20, 0.3); }
+.dark .journey-far { fill: rgba(25, 195, 178, 0.10); }
+.dark .journey-mid { fill: rgba(30, 60, 110, 0.38); }
+.dark .journey-near { fill: rgba(6, 10, 26, 0.88); }
 
 .journey-stars {
+  display: none;
+}
+.dark .journey-stars {
+  display: block;
   position: absolute;
   top: 0; left: 0;
   width: 2px; height: 2px;
@@ -41,8 +57,11 @@
   position: absolute;
   border-radius: 9999px;
   filter: blur(28px);
-  background: radial-gradient(closest-side, rgba(245, 247, 255, 0.16), transparent);
+  background: radial-gradient(closest-side, rgba(255, 255, 255, 0.85), transparent);
   animation: journey-drift 80s linear infinite alternate;
+}
+.dark .journey-cloud {
+  background: radial-gradient(closest-side, rgba(245, 247, 255, 0.16), transparent);
 }
 
 .journey-plane {
@@ -54,8 +73,12 @@
   will-change: transform;
 }
 
-/* ---------- Translucent section band (replaces invalid `bg-gradient-aurora/30`) ---------- */
+/* ---------- Translucent section band ---------- */
 .journey-band {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(20, 184, 166, 0.08) 50%, rgba(255, 255, 255, 0) 100%);
+  border-block: 1px solid rgba(26, 34, 46, 0.06);
+}
+.dark .journey-band {
   background: linear-gradient(180deg, rgba(11, 16, 38, 0) 0%, rgba(25, 195, 178, 0.07) 50%, rgba(11, 16, 38, 0) 100%);
   border-block: 1px solid rgba(255, 255, 255, 0.04);
 }

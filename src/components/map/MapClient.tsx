@@ -37,16 +37,16 @@ export default function MapClient() {
   return (
     <div className="mx-auto max-w-6xl px-4 pb-8 sm:px-6 lg:px-8">
       <p className="micro-meta text-[11px] uppercase text-[#FFB454]">Map</p>
-      <h1 className="mt-2 font-display text-display-lg font-semibold tracking-tight text-[#F5F7FF]">
+      <h1 className="mt-2 font-display text-display-lg font-semibold tracking-tight text-text">
         Places across India
       </h1>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[#F5F7FF]/70">
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-muted">
         Search, browse the map, and tap any marker for details.
       </p>
 
       <div className="relative mt-6">
         <Search
-          className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#F5F7FF]/40"
+          className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-text-dim"
           aria-hidden="true"
         />
         <input
@@ -55,14 +55,14 @@ export default function MapClient() {
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search places, states, regions…"
           aria-label="Search places"
-          className="field min-h-[52px] bg-white/[0.06] pl-12 text-[#F5F7FF] placeholder:text-[#F5F7FF]/35"
+          className="field min-h-[52px] bg-surface pl-12 text-text placeholder:text-text-dim"
         />
         {query && (
           <button
             type="button"
             onClick={() => setQuery("")}
             aria-label="Clear search"
-            className="absolute right-3 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-xl text-[#F5F7FF]/50 hover:text-[#F5F7FF]"
+            className="absolute right-3 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-xl text-text-dim hover:text-text"
           >
             <X className="h-5 w-5" aria-hidden="true" />
           </button>
@@ -94,7 +94,7 @@ export default function MapClient() {
                 type="button"
                 onClick={() => setSelectedSlug(d.slug)}
                 aria-label={`View ${d.name} details`}
-                className="journey-press flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.05] p-3 text-left backdrop-blur-xl"
+                className="journey-press flex w-full items-center gap-4 rounded-2xl border border-border bg-surface p-3 text-left backdrop-blur-xl"
               >
                 <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl">
                   <Image
@@ -107,10 +107,10 @@ export default function MapClient() {
                   />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-display font-semibold text-[#F5F7FF]">
+                  <span className="block truncate font-display font-semibold text-text">
                     {d.name}
                   </span>
-                  <span className="block truncate text-xs text-[#F5F7FF]/60">
+                  <span className="block truncate text-xs text-text-dim">
                     {d.state} · {d.bestTime}
                   </span>
                 </span>
@@ -171,7 +171,7 @@ export default function MapClient() {
                 </Link>
                 <Link
                   href="/plan"
-                  className="journey-press inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl border border-white/15 px-5 text-sm font-semibold text-[#F5F7FF]"
+                  className="journey-press inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl border border-border px-5 text-sm font-semibold text-text"
                 >
                   Plan a trip
                 </Link>

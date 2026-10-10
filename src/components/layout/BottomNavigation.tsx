@@ -28,7 +28,7 @@ export default function BottomNavigation() {
       style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 8px)" }}
       aria-label="Primary"
     >
-      <ul className="glass mx-auto flex max-w-md items-stretch justify-between rounded-3xl border border-white/10 p-1.5 shadow-card-hover">
+      <ul className="glass mx-auto flex max-w-md items-stretch justify-between rounded-3xl border border-border p-1.5 shadow-card-hover">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active =

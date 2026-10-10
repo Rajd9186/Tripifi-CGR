@@ -325,7 +325,7 @@ export default function FlightResultsClient() {
                   aria-pressed={activeFilters.includes(f)}
                   className={`inline-flex min-h-[44px] items-center rounded-full border px-4 text-sm font-medium transition-all ${
                     activeFilters.includes(f)
-                      ? "border-saffron-500 bg-saffron-500 text-white"
+                      ? "border-saffron-500 bg-saffron-500 text-[#10161C]"
                       : "border-ink-200 bg-surface text-ink-700"
                   }`}
                 >

@@ -2,7 +2,7 @@
   "name": "tripifi-cgr",
   "version": "1.0.0",
   "private": true,
-  "description": "Tripifi CGR - India Travel Explorer. Aurora Night Edition.",
+  "description": "Tripifi CGR - India Travel Explorer. Golden Hour Day Edition.",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

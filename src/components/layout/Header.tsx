@@ -4,11 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Search, Sparkles, Heart, MapPin, User, ChevronDown } from "lucide-react";
+import { Menu, X, Search, Sparkles, Heart, MapPin, User, ChevronDown, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { cn } from "@/lib/utils";
 import { useScrollPosition } from "@/hooks/useScrollPosition";
 import { Button } from "@/components/ui/Button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { useMobile } from "@/hooks/useMediaQuery";
 
 const NAV_ITEMS = [
@@ -25,11 +26,14 @@ const QUICK_ACTIONS = [
   { href: "/packages", icon: Sparkles, label: "Packages" },
 ];
 
-function Logo() {
+function Logo({ overlay }: { overlay?: boolean }) {
   return (
     <Link href="/" className="flex min-h-[44px] items-center gap-2" aria-label="Tripifi CGR Home">
       <motion.span
-        className="text-display-sm font-display font-bold text-white"
+        className={cn(
+          "text-display-sm font-display font-bold",
+          overlay ? "text-white" : "text-text"
+        )}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
@@ -42,14 +46,17 @@ function Logo() {
   );
 }
 
-function DesktopNav() {
+function DesktopNav({ overlay }: { overlay?: boolean }) {
   return (
     <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main navigation">
       {NAV_ITEMS.map((item) => (
         <Link
           key={item.href}
           href={item.href}
-          className="relative inline-flex min-h-[44px] items-center px-4 py-2 text-body-sm font-medium text-text-muted hover:text-text transition-colors duration-200 rounded-lg hover:bg-surface"
+          className={cn(
+            "relative inline-flex min-h-[44px] items-center px-4 py-2 text-body-sm font-medium transition-colors duration-200 rounded-lg",
+            overlay ? "text-white/85 hover:text-white hover:bg-white/10" : "text-text-muted hover:text-text hover:bg-surface"
+          )}
         >
           {item.label}
         </Link>
@@ -58,19 +65,46 @@ function DesktopNav() {
   );
 }
 
-function DesktopActions() {
+function ThemeToggle({ overlay }: { overlay?: boolean }) {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  if (!mounted) return null;
+  const dark = theme === "dark";
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(dark ? "light" : "dark")}
+      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      className={cn(
+        "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl transition-colors duration-200",
+        overlay ? "text-white/85 hover:text-white hover:bg-white/10" : "text-text-muted hover:text-text hover:bg-surface"
+      )}
+    >
+      {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    </button>
+  );
+}
+
+function DesktopActions({ overlay }: { overlay?: boolean }) {
   return (
     <div className="hidden md:flex items-center gap-2">
       {QUICK_ACTIONS.map((action) => (
         <Link
           key={action.href}
           href={action.href}
-          className="relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 text-text-muted hover:text-text hover:bg-surface transition-all duration-200"
+          className={cn(
+            "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 transition-all duration-200",
+            overlay ? "text-white/85 hover:text-white hover:bg-white/10" : "text-text-muted hover:text-text hover:bg-surface"
+          )}
           aria-label={action.label}
         >
           <action.icon className="h-5 w-5" />
         </Link>
       ))}
+      <ThemeToggle overlay={overlay} />
       <Link href="/ai" className="ml-2">
         <Button variant="saffron" size="sm" glow>
           <Sparkles className="mr-1 h-4 w-4" aria-hidden="true" />
@@ -170,29 +204,30 @@ export default function Header() {
       <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-[var(--header-h)]">
           {/* Logo */}
-          <Logo />
+          <Logo overlay={!scrolled} />
 
           {/* Desktop Navigation */}
-          <DesktopNav />
-          <DesktopActions />
+          <DesktopNav overlay={!scrolled} />
+          <DesktopActions overlay={!scrolled} />
 
           {/* Mobile Menu Button */}
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
+          <div className="flex items-center gap-1 md:hidden">
+            <ThemeToggle overlay={false} />
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <button
-                className="md:hidden touch-target rounded-xl p-2 text-text-muted hover:text-text hover:bg-surface transition-colors"
+                className="touch-target rounded-xl p-2 text-text-muted hover:text-text hover:bg-surface transition-colors"
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-menu"
+                onClick={handleMenuToggle}
               >
                 {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
-            </SheetTrigger>
-            
-            <SheetContent id="mobile-menu" size="full" side="right" className="p-0">
-              <MobileNav onClose={handleCloseMenu} />
-            </SheetContent>
-          </Sheet>
+              <SheetContent id="mobile-menu" size="full" side="right" className="p-0">
+                <MobileNav onClose={handleCloseMenu} />
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
 

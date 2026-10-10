@@ -138,7 +138,7 @@ export default function DestinationCard({
               <MapPinIcon className="w-3 h-3" />
               {destination.region}
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-500/90 px-3 py-1 text-xs font-medium text-white shadow-sm backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-500/90 px-3 py-1 text-xs font-medium text-[#10161C] shadow-sm backdrop-blur">
               <StarIcon className="w-3 h-3" />
               {destination.estimatedBudget.split(" ")[0].replace("₹", "₹")}
             </span>
@@ -207,7 +207,7 @@ export default function DestinationCard({
             <MapPinIcon className="w-3 h-3" />
             {destination.region}
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-500/90 px-2.5 py-1 text-xs font-medium text-white shadow-sm backdrop-blur">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-500/90 px-2.5 py-1 text-xs font-medium text-[#10161C] shadow-sm backdrop-blur">
             <StarIcon className="w-3 h-3" />
             {destination.estimatedBudget.split(" ")[0].replace("₹", "₹")}
           </span>

@@ -6,22 +6,27 @@ import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/hooks/useMediaQuery";
 
-// Hero background images — curated, accurate India photography
-const HERO_IMAGES = [
-  "/media/destinations/kashmir/hero.webp", // Kashmir
-  "/media/destinations/kerala/hero.webp", // Kerala backwaters
-  "/media/destinations/rajasthan/hero.webp", // Rajasthan forts
-  "/media/destinations/goa/hero.webp", // Goa coast
-  "/media/destinations/sikkim/hero.webp", // Sikkim
-  "/media/destinations/ladakh/hero.webp", // Ladakh
-  "/media/destinations/meghalaya/hero.webp", // Meghalaya
+import { getDestinationMedia } from "@/lib/media/media-provider";
+
+// Hero backgrounds — resolved through /api/media (local licensed file >
+// curated Unsplash > destination fallback), so slides are always accurate
+// and never blank. Slugs double as alt-text sources.
+const HERO_DESTINATIONS = [
+  "kashmir",
+  "kerala",
+  "rajasthan",
+  "goa",
+  "sikkim",
+  "ladakh",
+  "meghalaya",
 ];
 
 // CSS-only aurora background (replaces the former WebGL shader layer)
 function AuroraBackdrop() {
   return (
     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-      <div className="absolute inset-0 bg-gradient-hero" />
+      {/* Warm tint over photography (photos sit beneath this layer). */}
+      <div className="absolute inset-0 bg-gradient-hero opacity-40" />
       <div className="absolute inset-0 animate-gradient-shift bg-gradient-aurora opacity-60" />
       <div
         className="absolute inset-0 animate-gradient-shift bg-gradient-aurora opacity-40"
@@ -44,29 +49,56 @@ function AuroraBackdrop() {
   );
 }
 
-// Ken Burns image slider
+// Ken Burns image slider (media-API backed, with per-image fallback hiding)
 function ImageSlider() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [slides, setSlides] = useState<{ src: string; alt: string }[]>([]);
+  const [failed, setFailed] = useState<Record<string, true>>({});
 
   useEffect(() => {
+    let cancelled = false;
+    Promise.all(
+      HERO_DESTINATIONS.map(async (slug) => {
+        try {
+          const media = await getDestinationMedia(slug);
+          return media?.hero
+            ? { src: media.hero.src, alt: media.hero.alt || `${slug} — Tripifi CGR` }
+            : null;
+        } catch {
+          return null;
+        }
+      })
+    ).then((results) => {
+      if (!cancelled) setSlides(results.filter((s): s is { src: string; alt: string } => !!s));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (slides.length < 2) return;
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+      setCurrentIndex((prev) => (prev + 1) % slides.length);
     }, 8000);
     return () => clearInterval(interval);
-  }, []);
+  }, [slides.length]);
+
+  const visible = slides.filter((s) => !failed[s.src]);
 
   return (
     <div className="absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
-      {HERO_IMAGES.map((src, index) => (
+      {visible.map((slide, index) => (
         <motion.img
-          key={src}
-          src={src}
+          key={slide.src}
+          src={slide.src}
           alt=""
+          onError={() => setFailed((f) => ({ ...f, [slide.src]: true }))}
           className="absolute inset-0 h-full w-full object-cover object-center"
           initial={false}
           animate={{
-            opacity: index === currentIndex ? 1 : 0,
-            scale: index === currentIndex ? 1.08 : 1,
+            opacity: index === currentIndex % Math.max(visible.length, 1) ? 1 : 0,
+            scale: index === currentIndex % Math.max(visible.length, 1) ? 1.08 : 1,
           }}
           transition={{ duration: 1.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           style={{ filter: "contrast(1.05) saturate(1.12) brightness(0.95)" }}
@@ -74,6 +106,7 @@ function ImageSlider() {
           fetchPriority={index === 0 ? "high" : "low"}
         />
       ))}
+      <div className="absolute inset-0 bg-gradient-scrim-top" />
       <div className="absolute inset-0 bg-gradient-scrim" />
       <div className="absolute inset-0 bg-gradient-vignette" />
     </div>

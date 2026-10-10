@@ -67,7 +67,7 @@ export function JourneyBackdrop() {
         <svg viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice">
           <path
             d="M0 220 L120 150 L210 190 L330 100 L450 180 L560 130 L690 200 L820 120 L950 190 L1080 140 L1200 200 L1320 150 L1440 190 L1440 320 L0 320Z"
-            fill="rgba(25,195,178,0.10)"
+            className="journey-far"
           />
         </svg>
       </div>
@@ -76,7 +76,7 @@ export function JourneyBackdrop() {
         <svg viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice">
           <path
             d="M0 260 L90 210 L200 250 L340 170 L470 240 L600 200 L740 260 L880 190 L1010 250 L1150 205 L1290 255 L1440 220 L1440 320 L0 320Z"
-            fill="rgba(30,60,110,0.38)"
+            className="journey-mid"
           />
         </svg>
       </div>
@@ -85,7 +85,7 @@ export function JourneyBackdrop() {
         <svg viewBox="0 0 1440 320" preserveAspectRatio="xMidYMax slice">
           <path
             d="M0 320 L0 292 L140 292 L140 276 L160 276 L160 256 L172 256 L172 232 L184 205 L196 232 L196 256 L208 256 L208 276 L228 276 L228 292 L520 292 L520 284 L540 284 L540 270 Q560 246 580 270 L580 284 L600 284 L600 292 L980 292 L980 278 L1000 278 L1000 258 L1012 258 L1012 236 L1024 210 L1036 236 L1036 258 L1048 258 L1048 278 L1068 278 L1068 292 L1440 292 L1440 320 Z"
-            fill="rgba(6,10,26,0.88)"
+            className="journey-near"
           />
         </svg>
       </div>

@@ -8,7 +8,10 @@ export class FallbackMediaProvider implements MediaProvider {
 
   async getDestinationMedia(destination: string, _options?: MediaQueryOptions): Promise<DestinationMedia | null> {
     const dest = findDestination(resolveDestinationSlug(destination));
-    const src = dest?.heroImage ?? "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80";
+    // heroImage may point at a licensed local file that doesn't ship with the
+    // repo — prefer the first remote URL so the fallback always resolves.
+    const candidates = [dest?.heroImage ?? "", ...(dest?.gallery ?? [])];
+    const src = candidates.find((s) => s.startsWith("http")) ?? "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80";
     const name = dest?.name ?? destination;
     return {
       destination: destination.toLowerCase(),

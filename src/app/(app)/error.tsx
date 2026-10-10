@@ -16,7 +16,7 @@ export default function RouteError({ error, reset }: { error: Error & { digest?:
         <button type="button" onClick={reset} className="min-h-[48px] rounded-full bg-saffron px-6 font-medium text-[#0B1026]">
           Try again
         </button>
-        <Link href="/" className="inline-flex min-h-[48px] items-center rounded-full border border-white/20 px-6 font-medium text-text">
+        <Link href="/" className="inline-flex min-h-[48px] items-center rounded-full border border-border px-6 font-medium text-text">
           Go home
         </Link>
       </div>

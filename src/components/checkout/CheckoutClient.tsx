@@ -93,7 +93,7 @@ export default function CheckoutClient() {
               const active = s.id === step;
               const done = STEPS.findIndex((x) => x.id === step) > i;
               return (
-                <span key={s.id} role="listitem" className={cn("inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-sm font-medium", active ? "border-saffron-500 bg-saffron-500 text-white" : done ? "border-leaf-600 bg-leaf-600 text-white" : "border-white/20 text-white/70")}>
+                <span key={s.id} role="listitem" className={cn("inline-flex min-h-[44px] items-center gap-2 rounded-full border px-4 text-sm font-medium", active ? "border-saffron-500 bg-saffron-500 text-[#10161C]" : done ? "border-leaf-600 bg-leaf-600 text-[#10161C]" : "border-white/20 text-white/70")}>
                   {done ? "✓ " : `${i + 1}. `}{s.label}
                 </span>
               );

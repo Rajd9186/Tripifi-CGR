@@ -19,7 +19,7 @@ export default function ToastContainer() {
           key={toast.id}
           className={cn(
             "flex w-full max-w-[92vw] items-center justify-between gap-3 rounded-xl px-4 py-3 shadow-lift sm:max-w-md",
-            toast.type === "success" && "bg-leaf-600 text-white",
+            toast.type === "success" && "bg-leaf-600 text-[#10161C]",
             toast.type === "error" && "bg-red-600 text-white",
             toast.type === "info" && "bg-navy-900 text-white"
           )}

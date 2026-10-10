@@ -2,7 +2,7 @@
 
 Tripifi CGR — Your trip. Your way. 
 
-A premium Indian travel platform that lets you discover, plan, customize and book complete journeys in one place. Built with Next.js 14 (App Router), TypeScript, and Tailwind CSS.
+A premium Indian travel platform that lets you discover, plan, customize and book complete journeys in one place. Built with Next.js 15 (App Router), TypeScript, and Tailwind CSS v4.
 
 ## Live Demo
 Visit: [Tripifi CGR](https://tripifi-cgr.onrender.com)
@@ -17,10 +17,13 @@ Visit: [Tripifi CGR](https://tripifi-cgr.onrender.com)
 - **Responsive Design** - Mobile-first, works across all devices
 
 ## Tech Stack
-- Next.js 14.2.35 (App Router)
+- Next.js 15 (App Router)
 - React 18.3.1
-- TypeScript 5.5.4
-- Tailwind CSS 3.4.10
+- TypeScript 5.5
+- Tailwind CSS v4 (CSS-first `@theme` tokens in `src/app/globals.css`)
+
+## Theme
+Golden Hour Day light theme by default with a dark-mode toggle (header sun/moon button, persisted via `next-themes`). Design tokens live in one place (`@theme` + `.dark` overrides in `src/app/globals.css`).
 
 ## Getting Started
 

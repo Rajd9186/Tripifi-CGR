@@ -58,7 +58,7 @@ export default function AssistedFallbackCard({
           <p className="mt-1 text-sm leading-relaxed text-ink-600">{description}</p>
         </div>
       </div>
-      <div className="mt-5 rounded-2xl border border-ink-100 bg-white p-4 sm:p-5">
+      <div className="mt-5 rounded-2xl border border-ink-100 bg-bg-elevated p-4 sm:p-5">
         <BookingEnquiryForm
           type={type}
           prefill={formPrefill}

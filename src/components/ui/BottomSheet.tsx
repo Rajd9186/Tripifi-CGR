@@ -37,8 +37,8 @@ export default function BottomSheet({
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-in" onClick={onClose} />
       <div
         className={cn(
-          "absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-3xl border-t border-white/10 bg-bg-elevated shadow-card-hover animate-slide-up safe-bottom",
-          "md:relative md:inset-auto md:max-h-[80vh] md:w-[520px] md:rounded-2xl md:border md:border-white/10",
+          "absolute inset-x-0 bottom-0 max-h-[88dvh] overflow-y-auto rounded-t-3xl border-t border-border bg-bg-elevated shadow-card-hover animate-slide-up safe-bottom",
+          "md:relative md:inset-auto md:max-h-[80vh] md:w-[520px] md:rounded-2xl md:border md:border-border",
           className
         )}
       >

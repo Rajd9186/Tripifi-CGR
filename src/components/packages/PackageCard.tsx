@@ -112,12 +112,12 @@ export default function PackageCard({
               {pkg.tags[0] || "Package"}
             </span>
             {hasDiscount && (
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-500 px-3 py-1 text-xs font-medium text-white shadow-sm">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-500 px-3 py-1 text-xs font-medium text-[#10161C] shadow-sm">
                 <TagIcon className="w-3 h-3" />
                 {discountPercent}% OFF
               </span>
             )}
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-500/90 px-3 py-1 text-xs font-medium text-white shadow-sm backdrop-blur">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-saffron-500/90 px-3 py-1 text-xs font-medium text-[#10161C] shadow-sm backdrop-blur">
               <StarIcon className="w-3 h-3" />
               {pkg.rating || 4.8}
             </span>
@@ -189,7 +189,7 @@ export default function PackageCard({
           />
           {hasDiscount && (
             <div className="absolute top-2 left-2">
-              <span className="inline-flex items-center gap-1 rounded-full bg-saffron-500 px-2 py-0.5 text-[10px] font-medium text-white shadow-sm">
+              <span className="inline-flex items-center gap-1 rounded-full bg-saffron-500 px-2 py-0.5 text-[10px] font-medium text-[#10161C] shadow-sm">
                 <TagIcon className="w-2.5 h-2.5" />
                 {discountPercent}% OFF
               </span>
@@ -249,7 +249,7 @@ export default function PackageCard({
     >
       {hasDiscount && (
         <div className="absolute top-3 right-3 z-10 animate-pop">
-          <span className="inline-flex items-center gap-1 rounded-full bg-saffron-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg">
+          <span className="inline-flex items-center gap-1 rounded-full bg-saffron-500 px-2.5 py-1 text-[11px] font-semibold text-[#10161C] shadow-lg">
             <TagIcon className="w-3 h-3" />
             {discountPercent}% OFF
           </span>
@@ -283,7 +283,7 @@ export default function PackageCard({
             </span>
           ))}
           {pkg.rating && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-saffron-500/90 px-2.5 py-1 text-[11px] font-medium text-white shadow-sm backdrop-blur">
+            <span className="inline-flex items-center gap-1 rounded-full bg-saffron-500/90 px-2.5 py-1 text-[11px] font-medium text-[#10161C] shadow-sm backdrop-blur">
               <StarIcon className="w-3 h-3" />
               {pkg.rating}
             </span>

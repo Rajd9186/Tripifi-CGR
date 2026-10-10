@@ -59,8 +59,8 @@ export default function IconButton({
         variant === "ghost" && "text-ink-600 hover:bg-ink-50 hover:text-ink-900",
         variant === "solid" && "bg-navy-900 text-white hover:bg-navy-800 shadow-soft",
         variant === "outline" && "border border-ink-200 bg-surface text-ink-700 hover:border-navy-300 hover:bg-navy-50",
-        variant === "teal" && "bg-teal-500 text-white hover:bg-teal-600",
-        variant === "saffron" && "bg-saffron-500 text-white hover:bg-saffron-600 shadow-glow",
+        variant === "teal" && "bg-teal-500 text-[#10161C] hover:bg-teal-600",
+        variant === "saffron" && "bg-saffron-500 text-[#10161C] hover:bg-saffron-600 shadow-glow",
         active && variant === "ghost" && "bg-navy-50 text-text",
         className
       )}

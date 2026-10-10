@@ -109,7 +109,7 @@ export function RouteMap() {
                   "min-h-[44px] rounded-full border px-4 text-sm font-medium transition-colors",
                   activeId === c.id
                     ? "border-saffron/60 bg-saffron/15 text-saffron"
-                    : "border-white/10 bg-white/[0.04] text-text-muted hover:text-text"
+                    : "border-border bg-surface text-text-muted hover:text-text"
                 )}
               >
                 {c.name}
@@ -117,7 +117,7 @@ export function RouteMap() {
             ))}
           </div>
 
-          <div className="mt-6 min-h-[132px] rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-xl" aria-live="polite">
+          <div className="mt-6 min-h-[132px] rounded-2xl border border-border bg-surface p-5 backdrop-blur-xl" aria-live="polite">
             {active ? (
               <div key={active.id} className="animate-fade-up">
                 <div className="flex items-center gap-2 font-display text-lg font-semibold text-text">
@@ -143,7 +143,7 @@ export function RouteMap() {
         <div
           ref={wrapRef}
           data-inview={inView}
-          className="route-map relative mx-auto w-full max-w-sm rounded-[28px] border border-white/10 bg-white/[0.04] p-3 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl"
+          className="route-map relative mx-auto w-full max-w-sm rounded-[28px] border border-border bg-surface p-3 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.6)] backdrop-blur-xl"
         >
           <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" role="group" aria-label="Route across India through eight cities">
             <defs>

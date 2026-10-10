@@ -191,7 +191,7 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
           id="autocomplete-list"
           ref={listRef}
           role="listbox"
-          className="absolute z-[60] mt-2 max-h-64 w-full overflow-auto rounded-xl border border-white/15 bg-bg-elevated p-1.5 shadow-card-hover"
+          className="absolute z-[60] mt-2 max-h-64 w-full overflow-auto rounded-xl border border-border bg-bg-elevated p-1.5 shadow-card-hover"
         >
           {filteredOptions.map((option, index) => (
             <li
@@ -204,19 +204,19 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
               className={cn(
                 "cursor-pointer rounded-lg px-3 py-2.5 transition-colors",
                 index === highlightedIndex
-                  ? "bg-[#FFB454]/15 text-[#F5F7FF]"
-                  : "text-[#F5F7FF]/85 hover:bg-white/[0.06]"
+                  ? "bg-[#FFB454]/15 text-text"
+                  : "text-text-muted hover:bg-surface-hover"
               )}
             >
               <div className="flex items-center gap-2">
                 {option.code && (
-                  <span className="shrink-0 rounded bg-white/10 px-2 py-0.5 font-mono text-xs text-[#9AA4BF]">
+                  <span className="shrink-0 rounded bg-surface-hover px-2 py-0.5 font-mono text-xs text-text-dim">
                     {option.code}
                   </span>
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{option.label}</p>
-                  {option.sublabel && <p className="truncate text-xs text-[#9AA4BF]">{option.sublabel}</p>}
+                  {option.sublabel && <p className="truncate text-xs text-text-dim">{option.sublabel}</p>}
                 </div>
                 {option.category && (
                   <span className="whitespace-nowrap text-xs font-medium text-[#FFB454]">{option.category}</span>
@@ -228,7 +228,7 @@ export const AutocompleteInput = forwardRef<HTMLInputElement, UseAutocompleteOpt
       )}
 
       {isOpen && filteredOptions.length === 0 && query.length > 0 && (
-        <div className="absolute z-[60] mt-2 w-full rounded-xl border border-white/15 bg-bg-elevated p-3 text-center text-sm text-[#9AA4BF] shadow-card-hover">
+        <div className="absolute z-[60] mt-2 w-full rounded-xl border border-border bg-bg-elevated p-3 text-center text-sm text-text-dim shadow-card-hover">
           No matches found
         </div>
       )}

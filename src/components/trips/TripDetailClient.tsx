@@ -40,7 +40,7 @@ export default function TripDetailClient({ id }: { id: string }) {
             <Link href="/plan" onClick={() => setCurrentTrip(trip)} className="inline-flex min-h-[44px] items-center rounded-xl bg-white/10 border border-white/20 px-4 text-sm font-medium text-white hover:bg-white/20">
               Edit Trip
             </Link>
-            <Link href={`/assistance?type=CUSTOM_TRIP`} className="inline-flex min-h-[44px] items-center rounded-xl bg-saffron-500 px-4 text-sm font-semibold text-white hover:bg-saffron-600">
+            <Link href={`/assistance?type=CUSTOM_TRIP`} className="inline-flex min-h-[44px] items-center rounded-xl bg-saffron-500 px-4 text-sm font-semibold text-[#10161C] hover:bg-saffron-600">
               Request Booking
             </Link>
             <button onClick={() => { deleteTrip(trip.id); window.location.href = "/trips"; }} className="inline-flex min-h-[44px] items-center rounded-xl px-3 text-sm text-white/60 hover:text-white">

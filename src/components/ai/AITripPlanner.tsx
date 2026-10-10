@@ -367,7 +367,7 @@ function MessageBubble({
         "flex-1 max-w-[80%] glass rounded-2xl p-4",
         message.role === "user" ? "rounded-tr-sm" : "rounded-tl-sm"
       )}>
-        <div className="prose prose-invert max-w-none text-body">
+        <div className="prose dark:prose-invert max-w-none text-body">
           {message.content.split("\n").map((line, i) => (
             <p key={i} className="whitespace-pre-wrap">{line}</p>
           ))}
