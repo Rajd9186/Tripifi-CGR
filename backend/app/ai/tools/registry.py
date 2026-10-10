@@ -105,6 +105,41 @@ async def get_activity_options(destination: str) -> dict:
     return {"activities": ACTIVITIES.get(destination.lower(), ACTIVITIES["sikkim"]), "source": "DEMO"}
 
 
+async def get_destination_weather(destination: str) -> dict:
+    """Live weather facts for a destination: Nominatim geocode → Open-Meteo.
+
+    Returns measured/forecast values only — never best-time prose.
+    On any provider failure returns {"available": False, ...} so the LLM
+    says weather is unavailable instead of inventing it.
+    """
+    from app.providers.free import NominatimGeocodingProvider, ProviderError
+    from app.providers.weather.open_meteo import ATTRIBUTION, OpenMeteoWeatherProvider
+
+    try:
+        geo = await NominatimGeocodingProvider().geocode(f"{destination}, India", limit=1)
+        lat, lon = geo[0]["lat"], geo[0]["lon"]
+    except ProviderError as e:
+        return {"available": False, "reason": f"geocoding:{e.args[0] if e.args else 'failed'}"}
+    except Exception:
+        return {"available": False, "reason": "geocoding:failed"}
+    try:
+        forecast = await OpenMeteoWeatherProvider().forecast(lat, lon, days=3)
+    except ProviderError as e:
+        return {"available": False, "reason": f"weather:{e.args[0] if e.args else 'failed'}"}
+    except Exception:
+        return {"available": False, "reason": "weather:failed"}
+    data = forecast.get("data", {})
+    return {
+        "available": True,
+        "destination": destination,
+        "current_temp_c": data.get("current_temp_c"),
+        "current_condition": data.get("current_condition"),
+        "daily": data.get("daily", []),
+        "source": "open_meteo",
+        "attribution": ATTRIBUTION,
+    }
+
+
 def _items_total(items: list[dict]) -> int:
     return sum(int(i.get("amount", 0) or 0) for i in items)
 
@@ -232,6 +267,7 @@ TOOL_REGISTRY: dict[str, dict] = {
     "search_activities": {"fn": search_activities, "safety": "READ_ONLY", "description": "Activity options for a destination"},
     "get_route": {"fn": get_route, "safety": "READ_ONLY", "description": "Estimated route distance/duration"},
     "get_activity_options": {"fn": get_activity_options, "safety": "READ_ONLY", "description": "Activity options for a destination"},
+    "get_destination_weather": {"fn": get_destination_weather, "safety": "READ_ONLY", "description": "Live weather via Open-Meteo (measured values only)"},
     "create_trip": {"fn": create_trip, "safety": "SAFE_WRITE", "description": "Initialize the working trip state"},
     "get_trip": {"fn": get_trip, "safety": "READ_ONLY", "description": "Read the working trip state"},
     "update_trip": {"fn": update_trip, "safety": "SAFE_WRITE", "description": "Update trip fields"},

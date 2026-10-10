@@ -3,10 +3,10 @@
 import json
 import uuid
 
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from sse_starlette.sse import EventSourceResponse
 
-from app.ai.gateway import TripifiAIGateway
+from app.ai.gateway import AIUnavailable, TripifiAIGateway
 from app.ai.schemas.actions import SAFETY, ActionSafety
 from app.core.config import get_settings
 from app.providers.demo import DemoAIProvider
@@ -38,7 +38,8 @@ def get_gateway() -> TripifiAIGateway:
 
 @router.post("/chat", response_model=AIChatOut)
 async def chat(body: AIChatIn):
-    """Gateway-backed chat. Falls back to the demo planner if the model is down."""
+    """Gateway-backed chat. Raises retryable 503 when no provider can serve —
+    never a fabricated plan."""
     try:
         response = await get_gateway().chat(body.message, body.conversation_id or "default", body.trip_context)
         legacy_actions = [
@@ -50,13 +51,14 @@ async def chat(body: AIChatIn):
             message=response.message,
             trip_plan=(response.trip_update or {}) or None,
             actions=legacy_actions,
-            is_demo=True,
+            is_demo=response.is_demo,
             narrated_live=response.narrated_live,
         )
-    except RuntimeError:
-        result = await DemoAIProvider().chat(body.message, {"trip_id": body.trip_id})
-        actions = [a for a in result.get("actions", []) if a.get("type") in ALLOWED_ACTION_TYPES]
-        return AIChatOut(message=result["message"], trip_plan=result.get("trip_plan"), actions=actions, is_demo=True)
+    except AIUnavailable as e:
+        raise HTTPException(
+            status_code=503,
+            detail={"message": "Tripifi AI is temporarily unavailable. All providers failed — please retry in a moment.", "retryable": True, "cause": str(e)[:120]},
+        )
 
 
 @router.post("/stream")
@@ -93,12 +95,18 @@ async def reject_action(body: dict):
 
 @router.get("/health")
 async def ai_health():
-    try:
-        status = await get_gateway().provider.health()
-    except Exception:
-        status = {"provider": get_settings().ai_provider, "configured": False, "reachable": False}
-    status.pop("api_key", None)
-    return status
+    from app.ai.providers import get_provider_chain
+
+    statuses: list[dict] = []
+    for provider in get_provider_chain():
+        try:
+            statuses.append(await provider.health())
+        except Exception:
+            statuses.append({"provider": provider.name, "configured": False, "reachable": False})
+    for status in statuses:
+        status.pop("api_key", None)
+    primary = statuses[0] if statuses else {"provider": get_settings().ai_provider, "configured": False, "reachable": False}
+    return {**primary, "chain": statuses}
 
 
 @router.post("/plan-trip", response_model=AIChatOut)

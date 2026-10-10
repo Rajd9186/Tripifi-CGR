@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
     cors_origins: str = "http://localhost:3000"
 
-    ai_provider: str = "groq"
+    ai_provider: str = "ollama"
     ai_api_key: str = ""
     ai_model: str = "tripifi-demo-planner"
 
@@ -32,6 +32,13 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen2.5:3b"
     ollama_timeout: int = 60
+    # Ollama Cloud (https://docs.ollama.com/cloud): set OLLAMA_API_KEY (from
+    # https://ollama.com/settings/keys, server-side only) to use hosted models
+    # with no local install. List valid cloud model names via:
+    #   curl https://ollama.com/api/tags
+    ollama_api_key: str = ""
+    ollama_cloud_base_url: str = "https://ollama.com"
+    ollama_cloud_model: str = "gemma4:31b"
     ai_temperature: float = 0.3
     ai_max_tokens: int = 2000
     ai_max_tool_calls: int = 6
@@ -54,9 +61,6 @@ class Settings(BaseSettings):
     geocoding_provider: str = "nominatim"
     weather_provider: str = "demo"
     aviation_api_key: str = ""
-    aviationstack_base_url: str = "https://api.aviationstack.com/v1"
-    aviationstack_paid_key: bool = False
-    aviationstack_monthly_quota: int = 100
     aviationstack_base_url: str = "https://api.aviationstack.com/v1"
     aviationstack_paid_key: bool = False
     aviationstack_monthly_quota: int = 100

@@ -31,7 +31,11 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: AI_PROVIDER
-        value: groq
+        value: ollama
+      - key: OLLAMA_API_KEY
+        sync: false
+      - key: OLLAMA_CLOUD_MODEL
+        value: gemma4:31b
       - key: GROQ_API_KEY
         sync: false
       - key: NVIDIA_API_KEY

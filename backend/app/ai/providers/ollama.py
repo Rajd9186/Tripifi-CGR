@@ -1,4 +1,9 @@
-"""Ollama provider. Local-first runtime; normalized outputs only."""
+"""Ollama provider. Local-first runtime; Ollama Cloud when OLLAMA_API_KEY is set.
+
+Local:  http://localhost:11434 (no key, model = OLLAMA_MODEL).
+Cloud:  https://ollama.com/api/chat with Bearer OLLAMA_API_KEY
+        (https://docs.ollama.com/cloud, model = OLLAMA_CLOUD_MODEL).
+Same native /api/chat protocol both ways; normalized outputs only."""
 
 import json
 from typing import Any, AsyncIterator
@@ -16,11 +21,36 @@ class OllamaError(AIProviderError):
 class OllamaProvider:
     name = "ollama"
 
+    def _cloud(self) -> bool:
+        return bool(get_settings().ollama_api_key)
+
     def _base(self) -> str:
-        return get_settings().ollama_base_url.rstrip("/")
+        settings = get_settings()
+        if self._cloud():
+            return settings.ollama_cloud_base_url.rstrip("/")
+        return settings.ollama_base_url.rstrip("/")
 
     def _model(self, override: str | None = None) -> str:
-        return override or get_settings().ollama_model
+        settings = get_settings()
+        default = settings.ollama_cloud_model if self._cloud() else settings.ollama_model
+        return override or default
+
+    def _headers(self) -> dict[str, str]:
+        headers = {"Content-Type": "application/json"}
+        if self._cloud():
+            headers["Authorization"] = f"Bearer {get_settings().ollama_api_key}"
+        return headers
+
+    @staticmethod
+    def _raise_for_status(status: int) -> None:
+        if status == 401:
+            raise OllamaError("AUTH_ERROR", "Ollama Cloud: invalid API key")
+        if status == 404:
+            raise OllamaError("MODEL_ERROR", "Model not found on Ollama server")
+        if status == 429:
+            raise OllamaError("MODEL_ERROR", "Ollama rate limited")
+        if status < 200 or status >= 300:
+            raise OllamaError("MODEL_ERROR", f"Ollama HTTP {status}")
 
     async def chat(self, messages: list[dict[str, str]], **kwargs: Any) -> dict[str, Any]:
         settings = get_settings()
@@ -28,6 +58,7 @@ class OllamaProvider:
             async with httpx.AsyncClient(timeout=settings.ollama_timeout) as client:
                 res = await client.post(
                     f"{self._base()}/api/chat",
+                    headers=self._headers(),
                     json={
                         "model": self._model(kwargs.get("model")),
                         "messages": messages,
@@ -42,10 +73,7 @@ class OllamaProvider:
             raise OllamaError("TIMEOUT", str(e))
         except httpx.ConnectError as e:
             raise OllamaError("UNAVAILABLE", str(e))
-        if res.status_code == 404:
-            raise OllamaError("MODEL_ERROR", "Model not found on Ollama server")
-        if res.status_code < 200 or res.status_code >= 300:
-            raise OllamaError("MODEL_ERROR", f"Ollama HTTP {res.status_code}")
+        self._raise_for_status(res.status_code)
         try:
             data = res.json()
             content = (data.get("message") or {}).get("content", "")
@@ -62,6 +90,7 @@ class OllamaProvider:
                 async with client.stream(
                     "POST",
                     f"{self._base()}/api/chat",
+                    headers=self._headers(),
                     json={
                         "model": self._model(kwargs.get("model")),
                         "messages": messages,
@@ -72,10 +101,7 @@ class OllamaProvider:
                         },
                     },
                 ) as res:
-                    if res.status_code == 404:
-                        raise OllamaError("MODEL_ERROR", "Model not found on Ollama server")
-                    if res.status_code != 200:
-                        raise OllamaError("MODEL_ERROR", f"Ollama HTTP {res.status_code}")
+                    self._raise_for_status(res.status_code)
                     async for line in res.aiter_lines():
                         if not line.strip():
                             continue
@@ -123,6 +149,7 @@ class OllamaProvider:
             async with httpx.AsyncClient(timeout=settings.ollama_timeout) as client:
                 res = await client.post(
                     f"{self._base()}/api/chat",
+                    headers=self._headers(),
                     json={
                         "model": self._model(kwargs.get("model")),
                         "messages": messages,
@@ -135,10 +162,7 @@ class OllamaProvider:
             raise OllamaError("TIMEOUT", str(e))
         except httpx.ConnectError as e:
             raise OllamaError("UNAVAILABLE", str(e))
-        if res.status_code == 404:
-            raise OllamaError("MODEL_ERROR", "Model not found on Ollama server")
-        if res.status_code < 200 or res.status_code >= 300:
-            raise OllamaError("MODEL_ERROR", f"Ollama HTTP {res.status_code}")
+        self._raise_for_status(res.status_code)
         try:
             data = res.json()
             message = data.get("message", {})
@@ -153,21 +177,23 @@ class OllamaProvider:
 
     async def health(self) -> dict[str, Any]:
         settings = get_settings()
+        cloud = self._cloud()
         try:
             async with httpx.AsyncClient(timeout=5) as client:
-                res = await client.get(f"{self._base()}/api/tags")
+                res = await client.get(f"{self._base()}/api/tags", headers=self._headers())
         except (httpx.TimeoutException, httpx.ConnectError):
-            return {"provider": "ollama", "configured": True, "model": settings.ollama_model, "reachable": False}
+            return {"provider": "ollama", "mode": "cloud" if cloud else "local", "configured": True, "model": self._model(), "reachable": False}
         if res.status_code < 200 or res.status_code >= 300:
-            return {"provider": "ollama", "configured": True, "model": settings.ollama_model, "reachable": False}
+            return {"provider": "ollama", "mode": "cloud" if cloud else "local", "configured": True, "model": self._model(), "reachable": False}
         try:
             models = [m.get("name", "") for m in res.json().get("models", [])]
         except Exception:
             models = []
         return {
             "provider": "ollama",
+            "mode": "cloud" if cloud else "local",
             "configured": True,
-            "model": settings.ollama_model,
+            "model": self._model(),
             "reachable": True,
-            "model_available": any(settings.ollama_model in m for m in models),
+            "model_available": any(self._model() in m for m in models),
         }

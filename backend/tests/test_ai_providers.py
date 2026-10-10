@@ -210,7 +210,7 @@ def test_nvidia_health_unconfigured(monkeypatch):
 
 
 def test_factory_selection(monkeypatch):
-    from app.ai.providers import get_ai_provider
+    from app.ai.providers import get_ai_provider, get_provider_chain
 
     monkeypatch.setenv("AI_PROVIDER", "groq")
     get_settings.cache_clear()
@@ -220,17 +220,26 @@ def test_factory_selection(monkeypatch):
     get_settings.cache_clear()
     assert get_ai_provider().name == "nvidia"
 
-    # Requested provider without a key falls back to a keyed one.
+    # Requested provider without a key: Ollama leads the chain now.
     monkeypatch.setenv("AI_PROVIDER", "groq")
     monkeypatch.setenv("GROQ_API_KEY", "")
     get_settings.cache_clear()
-    assert get_ai_provider().name == "nvidia"
+    assert get_ai_provider().name == "ollama"
+    assert [p.name for p in get_provider_chain()] == ["ollama", "nvidia"]
 
-    # No keys at all -> local Ollama (fails safe at call time).
+    # No keys at all -> Ollama only (fails safe at call time).
     monkeypatch.setenv("GROQ_API_KEY", "")
     monkeypatch.setenv("NVIDIA_API_KEY", "")
     get_settings.cache_clear()
     assert get_ai_provider().name == "ollama"
+    assert [p.name for p in get_provider_chain()] == ["ollama"]
+
+    # All keyed, default preference -> ollama, groq, nvidia.
+    monkeypatch.setenv("AI_PROVIDER", "ollama")
+    monkeypatch.setenv("GROQ_API_KEY", "g")
+    monkeypatch.setenv("NVIDIA_API_KEY", "n")
+    get_settings.cache_clear()
+    assert [p.name for p in get_provider_chain()] == ["ollama", "groq", "nvidia"]
 
 
 def test_gateway_narration_flag():
@@ -251,3 +260,98 @@ def test_gateway_narration_flag():
 
     text, live = asyncio.run(TripifiAIGateway(provider=DeadProvider())._narrate("hi", "fallback"))
     assert (text, live) == ("fallback", False)
+
+
+def test_chain_skips_dead_provider():
+    from app.ai.gateway import AIUnavailable, TripifiAIGateway
+
+    class DeadProvider:
+        name = "ollama"
+
+        async def chat(self, messages, **kwargs):
+            raise AIProviderError("UNAVAILABLE", "local down")
+
+    class LiveProvider:
+        name = "groq"
+
+        async def chat(self, messages, **kwargs):
+            return {"content": "hello from groq", "provider": "groq"}
+
+    gw = TripifiAIGateway(chain=[DeadProvider(), LiveProvider()])
+    result, served = asyncio.run(gw._chat_chain([{"role": "user", "content": "hi"}]))
+    assert served == "groq"
+    assert result["content"] == "hello from groq"
+    assert gw.served_by == "groq"
+
+
+def test_chain_all_dead_raises():
+    from app.ai.gateway import AIUnavailable, TripifiAIGateway
+
+    class DeadProvider:
+        name = "ollama"
+
+        async def chat(self, messages, **kwargs):
+            raise AIProviderError("TIMEOUT", "down")
+
+    gw = TripifiAIGateway(chain=[DeadProvider()])
+    try:
+        asyncio.run(gw._chat_chain([{"role": "user", "content": "hi"}]))
+    except AIUnavailable:
+        return
+    raise AssertionError("expected AIUnavailable")
+
+
+def test_conversational_answer_grounded():
+    from app.ai.gateway import TripifiAIGateway
+
+    class LiveProvider:
+        name = "ollama"
+
+        async def chat(self, messages, **kwargs):
+            # Echo proves the LLM answers directly (not a rephrase template).
+            user = messages[-1]["content"]
+            assert "QUESTION:" in user
+            return {"content": "Ladakh is best visited May to September.", "provider": "ollama"}
+
+    async def fake_weather(destination: str):
+        return {"available": False, "reason": "weather:unavailable"}
+
+    import app.ai.gateway as gateway_module
+
+    real_call_tool = gateway_module.call_tool
+
+    async def fake_call_tool(name: str, **kwargs):
+        if name == "get_destination_weather":
+            return await fake_weather(kwargs.get("destination", ""))
+        if name == "get_destination_details":
+            return {"found": True, "name": "Ladakh", "themes": ["mountains"], "days_min": 6, "days_max": 8}
+        return await real_call_tool(name, **kwargs)
+
+    gateway_module.call_tool = fake_call_tool
+    try:
+        gw = TripifiAIGateway(chain=[LiveProvider()])
+        response = asyncio.run(gw.chat("Best time to visit Ladakh?", "test-conv"))
+    finally:
+        gateway_module.call_tool = real_call_tool
+    assert response.message == "Ladakh is best visited May to September."
+    assert response.intent == "DESTINATION_QUESTION"
+    assert response.narrated_live is True
+    assert response.is_demo is True  # catalog-grounded sample data
+    assert "ollama" in response.sources
+
+
+def test_ollama_cloud_headers(monkeypatch):
+    from app.ai.providers.ollama import OllamaProvider
+
+    monkeypatch.setenv("OLLAMA_API_KEY", "secret")
+    monkeypatch.setenv("OLLAMA_CLOUD_MODEL", "gemma4:31b")
+    get_settings.cache_clear()
+    provider = OllamaProvider()
+    assert provider._base() == "https://ollama.com"
+    assert provider._model() == "gemma4:31b"
+    assert provider._headers()["Authorization"] == "Bearer secret"
+
+    monkeypatch.setenv("OLLAMA_API_KEY", "")
+    get_settings.cache_clear()
+    assert provider._base() == "http://localhost:11434"
+    assert "Authorization" not in provider._headers()

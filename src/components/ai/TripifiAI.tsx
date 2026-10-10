@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import JourneyLoader from "@/components/ui/JourneyLoader";
 import { useApp } from "@/lib/store";
-import { briefSummary, parseTripBrief, type TripBrief } from "@/lib/ai";
-import { formatINR } from "@/lib/utils";
 import { confirmAction, isAIBackendAvailable, streamMessage } from "@/lib/ai/client";
 import { progressLabel } from "@/lib/ai/events";
 import { executeAction } from "@/lib/ai/actions";
@@ -17,7 +15,6 @@ interface Message {
   type: "user" | "assistant";
   content: string;
   timestamp: Date;
-  brief?: TripBrief;
   cards?: ResponseCard[];
   actions?: UIAction[];
   pendingAction?: UIAction | null;
@@ -43,7 +40,7 @@ export default function TripifiAI({
 }) {
   const router = useRouter();
   const store = useApp();
-  const { ensureDraftTrip, currentTrip } = store;
+  const { currentTrip } = store;
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
@@ -56,6 +53,8 @@ export default function TripifiAI({
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const lastQuestion = useRef<string>("");
   const abortRef = useRef<AbortController | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -68,17 +67,15 @@ export default function TripifiAI({
   const pushAssistant = (msg: Omit<Message, "id" | "type" | "timestamp">) =>
     setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, type: "assistant", timestamp: new Date() }]);
 
-  /** Local deterministic fallback when the AI backend is unreachable. */
-  const handleLocal = (messageText: string) => {
-    const brief = parseTripBrief(messageText);
-    const summary = briefSummary(brief);
-    pushAssistant({
-      content: summary
-        ? `Here's a demo draft for ${summary}. Estimated ${formatINR(42000)}–${formatINR(52000)} for 2 travellers — sample pricing, not a booking. Add it to the Trip Builder to customize day by day.`
-        : "I can help you build a complete itinerary with flights/trains, hotels, cabs, activities and a detailed budget. Tell me your origin, destination, days, travellers and budget — for example, 'Kolkata to Sikkim, 6 days, 2 people, under ₹50,000'.",
-      brief: summary ? brief : undefined,
-      demo: true,
-    });
+  /** No fabricated plans: failures surface as an error with Retry. */
+  const showError = (messageText: string, err: unknown) => {
+    const msg = err instanceof Error ? err.message : "";
+    setError(
+      msg.includes("503") || /unavailable|failed|no result/i.test(msg)
+        ? "Tripifi AI is temporarily unavailable — all providers failed. Nothing was planned or booked."
+        : "Tripifi AI couldn't answer that. Nothing was planned or booked."
+    );
+    lastQuestion.current = messageText;
     setIsThinking(false);
     setProgress(null);
   };
@@ -91,11 +88,13 @@ export default function TripifiAI({
       { id: `${Date.now()}`, type: "user", content: messageText, timestamp: new Date() },
     ]);
     setInput("");
+    setError(null);
     setIsThinking(true);
     setProgress("Tripifi AI thinking…");
 
     if (!isAIBackendAvailable()) {
-      setTimeout(() => handleLocal(messageText), 600);
+      showError(messageText, new Error("backend not configured"));
+      setError("AI backend isn't connected (NEXT_PUBLIC_API_URL is unset). Connect it and retry — I won't guess a plan.");
       return;
     }
 
@@ -118,9 +117,14 @@ export default function TripifiAI({
         demo: result.is_demo,
         live: result.narrated_live ?? false,
       });
-    } catch {
-      // Graceful unavailable mode: local planning still works.
-      handleLocal(messageText);
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        setIsThinking(false);
+        setProgress(null);
+        abortRef.current = null;
+        return;
+      }
+      showError(messageText, err);
       return;
     } finally {
       setIsThinking(false);
@@ -173,17 +177,6 @@ export default function TripifiAI({
     const outcome = executeAction(action, store as never, (currentTrip?.items as never[]) ?? []);
     pushAssistant({ content: outcome.message });
     if (outcome.href) router.push(outcome.href);
-  };
-
-  const addBriefToTrip = (brief: TripBrief) => {
-    ensureDraftTrip({
-      name: brief.destination ? `${brief.destination} Escape` : "My Journey",
-      origin: brief.origin,
-      destination: brief.destination,
-      travellers: brief.travellers ?? 2,
-      ...(brief.budget ? { budget: brief.budget } : {}),
-    });
-    store.toast("Draft added to the Trip Builder", "success");
   };
 
   return (
@@ -272,16 +265,6 @@ export default function TripifiAI({
                     : "Demo planning — connect the AI backend for live intelligence."}
                 </p>
               )}
-              {msg.type === "assistant" && msg.brief && (
-                <div className="mt-2 flex gap-2">
-                  <button
-                    onClick={() => addBriefToTrip(msg.brief as TripBrief)}
-                    className="btn-primary-sm min-h-[44px]"
-                  >
-                    Add to Trip Builder
-                  </button>
-                </div>
-              )}
               {msg.type === "assistant" && msg.cards && msg.cards.length > 0 && (
                 <div className="mt-3 space-y-2">
                   {msg.cards.map((card, i) => (
@@ -327,7 +310,20 @@ export default function TripifiAI({
             </div>
           </div>
         )}
-        {messages.length === 1 && (
+        {error && !isThinking && (
+          <div className="flex justify-start journey-msg-in" role="alert">
+            <div className="max-w-[85%] rounded-2xl border border-error/30 bg-error/5 px-4 py-3">
+              <p className="text-sm leading-relaxed text-text">{error}</p>
+              <button
+                onClick={() => handleSend(lastQuestion.current)}
+                className="btn-primary-sm mt-2 min-h-[44px]"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+        {messages.length === 1 && !error && (
           <div className="space-y-2 pt-4">
             <p className="text-xs text-ink-500 mb-2">Suggested prompts</p>
             {SUGGESTED_PROMPTS.map((prompt) => (

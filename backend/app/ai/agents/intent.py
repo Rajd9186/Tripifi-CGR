@@ -93,10 +93,11 @@ def _keyword_intent(text: str) -> IntentType:
         return IntentType.SAVE_WISHLIST
     if re.search(r"\bbook\b", lower):
         return IntentType.BOOKING_ASSISTANCE
+    # Question words win over generic plan verbs ("best time to visit X").
+    if re.search(r"\b(where|best time|when|how to reach|places|things to do|s safe|compare|vs\.?)\b", lower):
+        return IntentType.DESTINATION_QUESTION
     if re.search(r"\b(plan|trip|visit|holiday|vacation|honeymoon|go to|going to|\bgo\b|journey|need|want)\b", lower):
         return IntentType.PLAN_TRIP
-    if re.search(r"\b(where|best time|when|how to reach|places|things to do)\b", lower):
-        return IntentType.DESTINATION_QUESTION
     return IntentType.GENERAL_TRAVEL_QUESTION
 
 
