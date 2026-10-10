@@ -223,13 +223,13 @@ export default function PackageCard({
               </div>
               <div className="text-xs text-ink-500">per person</div>
             </div>
-            <Link
-              href={`/packages/${pkg.slug}`}
+            <span
+              aria-hidden="true"
               className="btn-primary-sm group"
             >
               View
               <ArrowRightIcon className="w-3 h-3 transition-transform group-hover:translate-x-1" />
-            </Link>
+            </span>
           </div>
         </div>
       </Link>
@@ -418,13 +418,13 @@ export default function PackageCard({
           </div>
           <div className="flex items-center gap-2">
             <PackageWishlistButton slug={pkg.slug} title={pkg.title} />
-            <Link
-              href={`/packages/${pkg.slug}`}
+            <span
+              aria-hidden="true"
               className="btn-ghost-sm group"
             >
               View Details
               <ArrowRightIcon className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+            </span>
           </div>
         </div>
       </div>
