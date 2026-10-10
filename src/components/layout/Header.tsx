@@ -32,7 +32,7 @@ function Logo({ overlay }: { overlay?: boolean }) {
       <motion.span
         className={cn(
           "text-display-sm font-display font-bold",
-          overlay ? "text-white" : "text-text"
+          overlay ? "text-white [text-shadow:0_1px_12px_rgba(6,15,32,0.65)]" : "text-text"
         )}
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -41,7 +41,7 @@ function Logo({ overlay }: { overlay?: boolean }) {
       >
         Tripifi
       </motion.span>
-      <span className="text-caption font-medium text-saffron uppercase tracking-wider hidden sm:block">CGR</span>
+      <span className={cn("text-caption font-medium uppercase tracking-wider hidden sm:block", overlay ? "text-saffron-300 [text-shadow:0_1px_10px_rgba(6,15,32,0.6)]" : "text-saffron")}>CGR</span>
     </Link>
   );
 }
@@ -55,7 +55,9 @@ function DesktopNav({ overlay }: { overlay?: boolean }) {
           href={item.href}
           className={cn(
             "relative inline-flex min-h-[44px] items-center px-4 py-2 text-body-sm font-medium transition-colors duration-200 rounded-lg",
-            overlay ? "text-white/85 hover:text-white hover:bg-white/10" : "text-text-muted hover:text-text hover:bg-surface"
+            overlay
+              ? "text-white/95 hover:text-white hover:bg-white/10 [text-shadow:0_1px_10px_rgba(6,15,32,0.6)]"
+              : "text-text-muted hover:text-text hover:bg-surface"
           )}
         >
           {item.label}
@@ -80,7 +82,9 @@ function ThemeToggle({ overlay }: { overlay?: boolean }) {
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
       className={cn(
         "inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl transition-colors duration-200",
-        overlay ? "text-white/85 hover:text-white hover:bg-white/10" : "text-text-muted hover:text-text hover:bg-surface"
+        overlay
+          ? "text-white/95 hover:text-white hover:bg-white/10 [text-shadow:0_1px_10px_rgba(6,15,32,0.6)]"
+          : "text-text-muted hover:text-text hover:bg-surface"
       )}
     >
       {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -97,7 +101,9 @@ function DesktopActions({ overlay }: { overlay?: boolean }) {
           href={action.href}
           className={cn(
             "relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-2 transition-all duration-200",
-            overlay ? "text-white/85 hover:text-white hover:bg-white/10" : "text-text-muted hover:text-text hover:bg-surface"
+            overlay
+              ? "text-white/95 hover:text-white hover:bg-white/10 [text-shadow:0_1px_10px_rgba(6,15,32,0.6)]"
+              : "text-text-muted hover:text-text hover:bg-surface"
           )}
           aria-label={action.label}
         >
