@@ -26,6 +26,7 @@ def test_capability_matrix_modes(_env, monkeypatch):
     monkeypatch.setenv("FLIGHT_PROVIDER", "demo")
     monkeypatch.setenv("HOTEL_PROVIDER", "demo")
     monkeypatch.setenv("CAB_PROVIDER", "demo")
+    monkeypatch.setenv("TRAIN_PROVIDER", "demo")
     monkeypatch.setenv("ROUTING_PROVIDER", "demo")
     monkeypatch.setenv("WEATHER_PROVIDER", "demo")
     get_settings.cache_clear()
@@ -132,11 +133,17 @@ def test_chain_disabled_raises_unavailable(_env):
         reg.get_provider_chain = orig
 
 
-def test_search_envelope_has_mode_source_fetched_at(_env):
+def test_search_envelope_has_mode_source_fetched_at(_env, monkeypatch):
     from app.services.search import flight_service
 
-    payload = run(flight_service.search_flights(
-        {"origin": "CCU", "destination": "DEL", "departure_date": "2099-11-10"}, "t1"))
+    # Service-logic test pins demo explicitly; production default is live-only.
+    monkeypatch.setenv("FLIGHT_PROVIDER", "demo")
+    get_settings.cache_clear()
+    try:
+        payload = run(flight_service.search_flights(
+            {"origin": "CCU", "destination": "DEL", "departure_date": "2099-11-10"}, "t1"))
+    finally:
+        get_settings.cache_clear()
     data = payload["data"]
     assert data["mode"] == "ASSISTED"
     assert data["source"] == "demo"

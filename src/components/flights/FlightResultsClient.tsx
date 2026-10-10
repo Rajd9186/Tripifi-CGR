@@ -247,10 +247,10 @@ export default function FlightResultsClient() {
             </>
           ) : visible.length === 0 ? (
             <EmptyState
-              title="No flights found for these dates."
-              description="Try changing your dates, destination, or removing filters."
-              actionLabel="Modify search"
-              actionHref="/flights"
+              title="No live flight availability right now."
+              description="Share your trip details and a travel associate will connect with confirmed options."
+              actionLabel="Request flight assistance"
+              actionHref="/assistance?type=FLIGHT"
             />
           ) : (
             <div className="space-y-4">
@@ -265,13 +265,6 @@ export default function FlightResultsClient() {
               ))}
             </div>
           )}
-
-          <Card className="mt-6 text-center" padding="md">
-            <p className="text-sm text-ink-600">
-              <span className="font-medium">Note:</span> These are simulated fares for demonstration purposes only. Actual prices and availability may
-              vary.
-            </p>
-          </Card>
 
           <div className="mt-6">
             <AssistedFallbackCard

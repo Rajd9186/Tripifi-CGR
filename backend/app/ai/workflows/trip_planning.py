@@ -148,29 +148,33 @@ async def format_response(state: dict) -> dict:
     total = budget.get("total", 0)
     travellers = trip_state.get("travellers", 2)
     per_person = (total + travellers - 1) // travellers if travellers else total
+    has_pricing = total > 0
 
     lines = [f"I've drafted your {dest_name} trip — {len(itinerary)} days for {travellers} traveller(s)."]
     if intent.assumptions:
         lines.append("Note: " + " ".join(intent.assumptions))
-    lines.append(f"Estimated total ₹{total:,} (₹{per_person:,} per person, sample pricing).")
+    if has_pricing:
+        lines.append(f"Estimated total ₹{total:,} (₹{per_person:,} per person, sample pricing).")
+    else:
+        lines.append("Live pricing isn't available for these services — raise an assisted enquiry and a travel associate will confirm exact fares.")
     if state.get("validation_issues"):
         lines.append("I flagged a couple of details to review in the Trip Builder.")
     lines.append("Open the Trip Builder to customize day by day, or ask me to make it cheaper.")
-    if intent.budget and total > intent.budget:
+    if intent.budget and has_pricing and total > intent.budget:
         lines.append(f"This is over your ₹{intent.budget:,} budget — ask me to optimize and I'll find real savings.")
 
     cards = [
         ResponseCard(
             kind="destination",
             title=dest_name,
-            subtitle=f"{len(itinerary)} days · From ₹{total:,} estimated",
+            subtitle=f"{len(itinerary)} days" + (f" · From ₹{total:,} estimated" if has_pricing else " · Pricing on request"),
             details={"days": len(itinerary), "travellers": travellers},
             actions=[UIAction(type="OPEN_TRIP", payload={})],
         ).model_dump(),
         ResponseCard(
             kind="budget",
-            title=f"Estimated total ₹{total:,}",
-            subtitle=f"₹{per_person:,} per person",
+            title=f"Estimated total ₹{total:,}" if has_pricing else "Pricing on request — raise an enquiry",
+            subtitle=f"₹{per_person:,} per person" if has_pricing else "A travel associate will confirm exact fares",
             details={k: budget.get(k, 0) for k in ("transport", "hotels", "activities", "taxes")},
             actions=[UIAction(type="OPTIMIZE_TRIP", payload={"target": intent.budget} if intent.budget else {})],
         ).model_dump(),

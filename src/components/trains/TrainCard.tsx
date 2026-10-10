@@ -5,7 +5,7 @@ import type { TrainOffer } from "@/lib/api/types";
 import { PriceText } from "@/components/ui/PriceText";
 import { formatINR } from "@/lib/utils";
 
-/** Legacy mock shape (see src/data/mockTrains.ts). Prefer TrainOffer for new code. */
+/** Train offer card. Renders live offers; demo badges appear only if an offer is demo-flagged. */
 export interface Train {
   id: string;
   number: string;

@@ -5,7 +5,7 @@ import type { FlightOffer } from "@/lib/api/types";
 import { PriceText } from "@/components/ui/PriceText";
 import { formatINR } from "@/lib/utils";
 
-/** Legacy mock shape (see src/data/mockFlights.ts). Prefer FlightOffer for new code. */
+/** Flight offer card. Renders live offers; demo badges appear only if an offer is demo-flagged. */
 export interface Flight {
   id: string;
   airline: string;

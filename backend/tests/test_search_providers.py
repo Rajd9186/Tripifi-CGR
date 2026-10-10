@@ -16,12 +16,12 @@ from app.services.search.recommendation_service import recommend
 
 
 def test_registry_defaults_to_demo():
-    # Phase 4 live-first defaults: hotels try Overpass listings, routing OSRM,
-    # weather Open-Meteo; flights/trains stay demo by design.
-    assert registry.get_flight_provider().name == "demo"
-    assert registry.get_train_provider().name == "demo"
+    # Live-only defaults: no demo fallbacks for inventory. Demo adapters stay
+    # available as explicit config (see _demo fixture below).
+    assert registry.get_flight_provider().name == "aviationstack"
+    assert registry.get_train_provider().name == "disabled"
     assert registry.get_hotel_provider().name == "overpass"
-    assert [p.name for p in registry.get_provider_chain("hotel")] == ["overpass", "demo"]
+    assert [p.name for p in registry.get_provider_chain("hotel")] == ["overpass"]
     assert registry.get_cab_provider().name == "demo"
     assert registry.get_activity_provider().name == "demo"
     assert registry.get_routing_provider().name == "osrm"
@@ -63,7 +63,21 @@ def _run(coro):
     return asyncio.run(coro)
 
 
-def test_flight_search_valid():
+@pytest.fixture()
+def _demo(monkeypatch):
+    """Pin demo adapters for service-logic tests (validation/filters/sorts).
+    Production defaults are live-only; demo remains available as explicit config."""
+    from app.core.config import get_settings
+
+    monkeypatch.setenv("FLIGHT_PROVIDER", "demo")
+    monkeypatch.setenv("TRAIN_PROVIDER", "demo")
+    monkeypatch.setenv("HOTEL_PROVIDER", "demo")
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
+
+
+def test_flight_search_valid(_demo):
     payload = _run(flight_service.search_flights(
         {"origin": "CCU", "destination": "DEL", "departure_date": "2099-11-10", "travellers": 2}, "t1"))
     assert payload["success"] is True
@@ -82,7 +96,7 @@ def test_flight_search_validation():
         _run(flight_service.search_flights({"origin": "", "destination": "DEL"}, "t"))
 
 
-def test_flight_filters_and_sort():
+def test_flight_filters_and_sort(_demo):
     cheapest = _run(flight_service.search_flights(
         {"origin": "CCU", "destination": "DEL"}, "t", {"non_stop": True}, "cheapest"))
     fares = [r["fare"] for r in cheapest["data"]["results"]]
@@ -92,7 +106,7 @@ def test_flight_filters_and_sort():
     assert all(r["refundable"] for r in refundable["data"]["results"])
 
 
-def test_train_search_and_class_filter():
+def test_train_search_and_class_filter(_demo):
     payload = _run(train_service.search_trains({"origin": "HWH", "destination": "NDLS"}, "t"))
     assert payload["success"] is True
     assert len(payload["data"]["results"]) == 2
@@ -102,7 +116,7 @@ def test_train_search_and_class_filter():
     assert filtered["data"]["results"][0]["travel_class"] == "2A"
 
 
-def test_hotel_search_validation_and_sort():
+def test_hotel_search_validation_and_sort(_demo):
     with pytest.raises(SearchError) as e:
         _run(hotel_service.search_hotels({"destination": "Goa", "checkin": "2099-05-10", "checkout": "2099-05-10"}, "t"))
     assert e.value.code == "INVALID_SEARCH"

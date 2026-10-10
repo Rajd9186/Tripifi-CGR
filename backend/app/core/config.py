@@ -52,9 +52,10 @@ class Settings(BaseSettings):
     ai_timeout: int = 60
 
     # Phase 5 — free-first provider selection (env-driven, replaceable)
-    flight_provider: str = "demo"
-    train_provider: str = "demo"
-    hotel_provider: str = "overpass,demo"
+    # Live-only: demo fallbacks removed. No live adapter -> assisted enquiry.
+    flight_provider: str = "aviationstack"
+    train_provider: str = "disabled"
+    hotel_provider: str = "overpass"
     cab_provider: str = "demo"
     map_provider: str = "demo"
     routing_provider: str = "osrm,estimate"

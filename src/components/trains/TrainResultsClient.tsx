@@ -80,7 +80,7 @@ export default function TrainResultsClient() {
       date,
       amount: train.fare ?? 0,
       status: "upcoming",
-      details: { Class: travelClass, Departure: train.departure, Arrival: train.arrival, Availability: `${train.availability} (simulated)` },
+      details: { Class: travelClass, Departure: train.departure, Arrival: train.arrival, Availability: train.availability },
     });
     toast(`Train added to ${trip.name}`, "success");
   };
@@ -147,7 +147,7 @@ export default function TrainResultsClient() {
               <p className="mt-3 text-center text-sm text-ink-600" role="alert">{error}</p>
             </>
           ) : visible.length === 0 ? (
-            <EmptyState title="No trains found for these inputs." description="Try another date, class, or station." actionLabel="Modify search" actionHref="/trains" />
+            <EmptyState title="No live train data available." description="Share your journey details and a travel associate will arrange your tickets." actionLabel="Request train assistance" actionHref="/assistance?type=TRAIN" />
           ) : (
             <div className="space-y-4">
               {visible.map((train) => (
@@ -164,8 +164,8 @@ export default function TrainResultsClient() {
           )}
 
           <div className="mt-2 flex items-center gap-2 text-sm text-ink-600">
-            <Badge variant="default">Simulated availability</Badge>
-            <span>Do NOT scrape IRCTC — booking via assistance.</span>
+            <Badge variant="default">Assisted booking</Badge>
+            <span>Live railway inventory isn't available — booking via assistance.</span>
           </div>
 
           <div className="mt-6">
@@ -191,7 +191,7 @@ export default function TrainResultsClient() {
 
           <Card className="mt-6 text-center" padding="md">
             <p className="text-sm text-ink-600">
-              <span className="font-medium">Note:</span> Simulated train data for planning. Actual availability and fares are subject to IRCTC.
+              <span className="font-medium">Note:</span> Live railway inventory isn't available — share your details below and a travel associate will arrange tickets.
             </p>
           </Card>
 
