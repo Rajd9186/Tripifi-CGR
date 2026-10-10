@@ -207,7 +207,10 @@ export default function Header() {
       )}
       role="banner"
     >
-      <div className="mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
+      {!scrolled && (
+        <div aria-hidden="true" className="bg-gradient-header-veil pointer-events-none absolute inset-0" />
+      )}
+      <div className="relative mx-auto max-w-8xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-[var(--header-h)]">
           {/* Logo */}
           <Logo overlay={!scrolled} />
@@ -218,10 +221,15 @@ export default function Header() {
 
           {/* Mobile Menu Button */}
           <div className="flex items-center gap-1 md:hidden">
-            <ThemeToggle overlay={false} />
+            <ThemeToggle overlay={!scrolled && !mobileMenuOpen} />
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <button
-                className="touch-target rounded-xl p-2 text-text-muted hover:text-text hover:bg-surface transition-colors"
+                className={cn(
+                  "touch-target rounded-xl p-2 transition-colors",
+                  !scrolled && !mobileMenuOpen
+                    ? "text-white/95 hover:bg-white/10 [text-shadow:0_1px_10px_rgba(6,15,32,0.6)]"
+                    : "text-text-muted hover:text-text hover:bg-surface"
+                )}
                 aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileMenuOpen}
                 aria-controls="mobile-menu"

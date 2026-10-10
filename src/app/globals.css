@@ -1001,6 +1001,16 @@ div[id],
     transparent 100%
   );
 }
+/* Header-local overlay veil: guarantees nav contrast whatever photo sits
+   beneath (stacks with the hero scrim, fades out on scroll). */
+.bg-gradient-header-veil {
+  background: linear-gradient(
+    to bottom,
+    rgba(6, 15, 32, 0.6) 0%,
+    rgba(6, 15, 32, 0.3) 55%,
+    transparent 100%
+  );
+}
 .bg-gradient-vignette {
   background: var(--gradient-vignette);
 }
