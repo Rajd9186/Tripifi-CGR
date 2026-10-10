@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import JourneyLoader from "@/components/ui/JourneyLoader";
 import { useApp } from "@/lib/store";
 import { briefSummary, parseTripBrief, type TripBrief } from "@/lib/ai";
 import { formatINR } from "@/lib/utils";
@@ -56,6 +57,13 @@ export default function TripifiAI({
   const [isThinking, setIsThinking] = useState(false);
   const [progress, setProgress] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Keep the latest message in view (transform-safe: scroll only).
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, isThinking, progress]);
 
   const pushAssistant = (msg: Omit<Message, "id" | "type" | "timestamp">) =>
     setMessages((prev) => [...prev, { ...msg, id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, type: "assistant", timestamp: new Date() }]);
@@ -239,11 +247,11 @@ export default function TripifiAI({
       </div>
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 thin-scrollbar">
+      <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 thin-scrollbar">
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex ${
+            className={`flex journey-msg-in ${
               msg.type === "user" ? "justify-end" : "justify-start"
             }`}
           >
@@ -313,16 +321,9 @@ export default function TripifiAI({
           </div>
         ))}
         {isThinking && (
-          <div className="flex justify-start">
-            <div className="bg-ink-50 rounded-2xl px-4 py-3">
-              <p className="text-xs text-ink-600" role="status">
-                <span className="mr-2 inline-flex gap-1 align-middle" aria-hidden="true">
-                  <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse"></span>
-                  <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse delay-75"></span>
-                  <span className="h-2 w-2 rounded-full bg-teal-500 animate-pulse delay-150"></span>
-                </span>
-                {progress ?? "Tripifi AI thinking…"}
-              </p>
+          <div className="flex justify-start journey-msg-in">
+            <div className="bg-ink-50 rounded-2xl px-4 py-3 max-w-[85%]" role="status">
+              <JourneyLoader label={progress ?? "Tripifi AI thinking…"} />
             </div>
           </div>
         )}

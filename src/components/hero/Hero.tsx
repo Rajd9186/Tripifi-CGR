@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -179,24 +179,26 @@ function HeroJourney({ reducedMotion }: { reducedMotion: boolean }) {
             </text>
           </g>
         ))}
-        {/* Airplane */}
+        {/* Paper plane (travel motif) with sun-glow halo */}
         {reducedMotion ? (
           <g transform="translate(580 45)">
-            <path d="M-9 0 L9 0 M0 -7 L0 7 M-5 -5 L5 5 M-5 5 L5 -5" stroke="#F5F7FF" strokeWidth="2.4" strokeLinecap="round" />
+            <path d="M-10 1 L10 1 L-2 6 L-4 1 L-2 -4 Z" fill="#F5F7FF" />
           </g>
         ) : (
           <g>
-            <circle r="10" fill="#FFB454" opacity="0.25">
+            <circle r="12" fill="#FFB454" opacity="0.25">
               <animateMotion dur="9s" repeatCount="indefinite" path={pathD} />
             </circle>
             <g className="journey-plane-bob">
               <animateMotion dur="9s" repeatCount="indefinite" rotate="auto" path={pathD} />
               <path
-                d="M-10 0 L10 0 M0 -8 L0 8 M-6 -6 L6 6 M-6 6 L6 -6"
-                stroke="#F5F7FF"
-                strokeWidth="2.6"
-                strokeLinecap="round"
+                d="M-11 1 L11 1 L-3 7 L-5 1 L-3 -5 Z"
+                fill="#FFF7E8"
+                stroke="#FFB454"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
               />
+              <path d="M-5 1 L11 1" stroke="#C74A00" strokeWidth="1" opacity="0.6" />
             </g>
           </g>
         )}
@@ -227,8 +229,31 @@ function ScrollIndicator({ reducedMotion }: { reducedMotion: boolean }) {
 export default function Hero() {
   const reducedMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setMounted(true), []);
+
+  // Subtle scroll parallax on the hero copy (one transform write per frame).
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el || reducedMotion) return;
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      const y = Math.min(window.scrollY, window.innerHeight);
+      el.style.transform = `translate3d(0, ${(y * 0.18).toFixed(1)}px, 0)`;
+      el.style.opacity = String(Math.max(0, 1 - y / (window.innerHeight * 0.85)));
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [reducedMotion]);
 
   return (
     <section
@@ -237,8 +262,16 @@ export default function Hero() {
     >
       <ImageSlider />
       <AuroraBackdrop />
+      {/* Sun glow over the daylight sky */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -z-10 left-1/2 top-[8%] h-[46vmin] w-[46vmin] -translate-x-1/2 rounded-full"
+        style={{
+          background: "radial-gradient(closest-side, rgba(255,236,190,0.9), rgba(255,200,120,0.35) 55%, transparent 72%)",
+        }}
+      />
 
-      <div className="relative z-10 mx-auto max-w-8xl px-4 pb-32 pt-20 sm:px-6 lg:px-8">
+      <div ref={contentRef} className="relative z-10 mx-auto max-w-8xl px-4 pb-32 pt-20 sm:px-6 lg:px-8 will-change-transform">
         <div className="mx-auto max-w-4xl text-center">
           <motion.h1
             id="hero-title"
@@ -286,7 +319,7 @@ export default function Hero() {
               href="/ai"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="btn-primary journey-press journey-cta-glow min-h-[56px] px-10 text-body-lg"
+              className="btn-primary journey-press journey-cta-glow cta-plane min-h-[56px] px-10 text-body-lg"
             >
               <Sparkles className="mr-2 h-5 w-5" aria-hidden="true" />
               Plan My Trip with AI
@@ -295,9 +328,12 @@ export default function Hero() {
               href="/destinations"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="btn-outline min-h-[56px] px-10 text-body-lg"
+              className="cta-plane inline-flex min-h-[56px] items-center justify-center gap-2 rounded-xl border-2 border-white/40 bg-white/10 px-10 text-body-lg font-semibold text-white backdrop-blur transition hover:bg-white/20"
             >
               Explore Destinations
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" />
+              </svg>
             </motion.a>
           </motion.div>
 

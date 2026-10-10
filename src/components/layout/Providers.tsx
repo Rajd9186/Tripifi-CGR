@@ -4,6 +4,7 @@ import { ReactNode, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
+import { MotionConfig } from "motion/react";
 import { AppProvider } from "@/lib/store";
 
 export function Providers({ children }: { children: ReactNode }) {
@@ -28,9 +29,11 @@ export function Providers({ children }: { children: ReactNode }) {
         defaultTheme="light"
         enableSystem={false}
       >
-        <AppProvider>
-          {children}
-        </AppProvider>
+        <MotionConfig reducedMotion="user">
+          <AppProvider>
+            {children}
+          </AppProvider>
+        </MotionConfig>
         {process.env.NODE_ENV === "development" && <ReactQueryDevtools initialIsOpen={false} />}
       </ThemeProvider>
     </QueryClientProvider>

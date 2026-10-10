@@ -24,7 +24,7 @@ export default function WishlistButton({ id, label, className, dark = false }: {
         className
       )}
     >
-      <HeartIcon className="w-5 h-5" filled={saved} />
+      <HeartIcon key={saved ? "saved" : "unsaved"} className="w-5 h-5 journey-heart-pop" filled={saved} />
     </button>
   );
 }

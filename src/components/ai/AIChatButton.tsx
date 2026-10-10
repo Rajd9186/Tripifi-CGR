@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import TripifiAI from "./TripifiAI";
 import { cn } from "@/lib/utils";
 
@@ -70,17 +71,34 @@ export default function AIChatButton() {
         </button>
       </div>
 
-      {isOpen && (
-        <div className={cn("fixed inset-0 z-modal")} role="dialog" aria-modal="true" aria-label="Tripifi AI assistant">
-          <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute inset-x-3 bottom-3 top-auto max-h-[86dvh] overflow-hidden rounded-3xl border border-ink-100 bg-surface shadow-lift animate-slide-up safe-bottom md:inset-auto md:bottom-6 md:right-6 md:top-auto md:h-[640px] md:w-[420px] md:rounded-2xl">
-            <TripifiAI onClose={() => setIsOpen(false)} />
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className={cn("fixed inset-0 z-modal")}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Tripifi AI assistant"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setIsOpen(false)}
+            />
+            <motion.div
+              className="absolute inset-x-3 bottom-3 top-auto max-h-[86dvh] overflow-hidden rounded-3xl border border-ink-100 bg-surface shadow-lift safe-bottom md:inset-auto md:bottom-6 md:right-6 md:top-auto md:h-[640px] md:w-[420px] md:rounded-2xl"
+              initial={{ opacity: 0, y: 48, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 32, scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 380, damping: 34 }}
+            >
+              <TripifiAI onClose={() => setIsOpen(false)} />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
