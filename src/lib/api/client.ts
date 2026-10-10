@@ -15,8 +15,22 @@ export class ApiError extends Error {
   }
 }
 
+const RENDER_FALLBACK = "https://tripifi-cgr-1.onrender.com/api/v1";
+
+/** Backend base URL. Explicit env wins; on the deployed site fall back to the
+ *  live Render backend so a missing dashboard var degrades to working AI
+ *  instead of a dead end. Local dev falls back to localhost. */
+export function resolveApiBase(): string {
+  const env = (process.env.NEXT_PUBLIC_API_URL ?? "").trim();
+  if (env) return env.replace(/\/$/, "");
+  if (typeof window !== "undefined" && /\.onrender\.com$/.test(window.location.hostname)) {
+    return RENDER_FALLBACK;
+  }
+  return "http://localhost:8000/api/v1";
+}
+
 function baseUrl(): string {
-  return (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1").replace(/\/$/, "");
+  return resolveApiBase();
 }
 
 function requestId(): string {
@@ -30,7 +44,12 @@ function getToken(): string | null {
 }
 
 export function isBackendConfigured(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_API_URL);
+  // Explicit env always counts. On the deployed site the Render fallback
+  // backend exists even when the dashboard var is missing. Plain localhost
+  // without env keeps local mock data (backend optional in dev).
+  if ((process.env.NEXT_PUBLIC_API_URL ?? "").trim()) return true;
+  if (typeof window !== "undefined" && /\.onrender\.com$/.test(window.location.hostname)) return true;
+  return false;
 }
 
 interface RequestOpts extends RequestInit {

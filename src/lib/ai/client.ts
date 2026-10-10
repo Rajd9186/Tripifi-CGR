@@ -1,6 +1,6 @@
 "use client";
 
-import { apiRequest, isBackendConfigured } from "@/lib/api/client";
+import { apiRequest, isBackendConfigured, resolveApiBase } from "@/lib/api/client";
 import type { AIEvent, AIResult } from "./types";
 
 function conversationId(): string {
@@ -51,7 +51,7 @@ export async function streamMessage(
   onEvent: (event: AIEvent) => void,
   signal?: AbortSignal
 ): Promise<AIResult> {
-  const base = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1").replace(/\/$/, "");
+  const base = resolveApiBase();
   let res: Response;
   try {
     res = await fetch(`${base}/ai/stream`, {

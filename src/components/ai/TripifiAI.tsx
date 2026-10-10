@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import JourneyLoader from "@/components/ui/JourneyLoader";
 import { useApp } from "@/lib/store";
-import { confirmAction, isAIBackendAvailable, streamMessage } from "@/lib/ai/client";
+import { confirmAction, streamMessage } from "@/lib/ai/client";
 import { progressLabel } from "@/lib/ai/events";
 import { executeAction } from "@/lib/ai/actions";
 import type { ResponseCard, UIAction } from "@/lib/ai/types";
@@ -91,12 +91,6 @@ export default function TripifiAI({
     setError(null);
     setIsThinking(true);
     setProgress("Tripifi AI thinking…");
-
-    if (!isAIBackendAvailable()) {
-      showError(messageText, new Error("backend not configured"));
-      setError("AI backend isn't connected (NEXT_PUBLIC_API_URL is unset). Connect it and retry — I won't guess a plan.");
-      return;
-    }
 
     const controller = new AbortController();
     abortRef.current = controller;
