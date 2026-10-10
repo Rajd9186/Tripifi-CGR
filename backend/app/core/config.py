@@ -54,12 +54,12 @@ class Settings(BaseSettings):
     # Phase 5 — free-first provider selection (env-driven, replaceable)
     flight_provider: str = "demo"
     train_provider: str = "demo"
-    hotel_provider: str = "demo"
+    hotel_provider: str = "overpass,demo"
     cab_provider: str = "demo"
     map_provider: str = "demo"
-    routing_provider: str = "demo"
+    routing_provider: str = "osrm,estimate"
     geocoding_provider: str = "nominatim"
-    weather_provider: str = "demo"
+    weather_provider: str = "open_meteo"
     aviation_api_key: str = ""
     aviationstack_base_url: str = "https://api.aviationstack.com/v1"
     aviationstack_paid_key: bool = False

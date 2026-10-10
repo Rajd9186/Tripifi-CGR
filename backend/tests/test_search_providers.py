@@ -16,13 +16,28 @@ from app.services.search.recommendation_service import recommend
 
 
 def test_registry_defaults_to_demo():
+    # Phase 4 live-first defaults: hotels try Overpass listings, routing OSRM,
+    # weather Open-Meteo; flights/trains stay demo by design.
     assert registry.get_flight_provider().name == "demo"
     assert registry.get_train_provider().name == "demo"
-    assert registry.get_hotel_provider().name == "demo"
+    assert registry.get_hotel_provider().name == "overpass"
+    assert [p.name for p in registry.get_provider_chain("hotel")] == ["overpass", "demo"]
     assert registry.get_cab_provider().name == "demo"
     assert registry.get_activity_provider().name == "demo"
-    assert registry.get_routing_provider().name == "demo"
+    assert registry.get_routing_provider().name == "osrm"
+    assert [p.name for p in registry.get_provider_chain("routing")] == ["osrm", "estimate"]
+    assert registry.get_weather_provider().name == "open_meteo"
     assert registry.get_package_provider().name == "demo"
+
+
+def test_envelope_mode_follows_serving_provider():
+    from app.services import capability
+
+    # Config-first view: overpass chain reports DISCOVERY.
+    assert capability.service_mode("hotel")["mode"] == "DISCOVERY"
+    # Served-by view: demo fallback reports ASSISTED (never fake DISCOVERY).
+    assert capability.service_mode("hotel", first_override="demo")["mode"] == "ASSISTED"
+    assert capability.service_mode("hotel", first_override="overpass")["mode"] == "DISCOVERY"
 
 
 def test_registry_rejects_unknown_provider(monkeypatch):

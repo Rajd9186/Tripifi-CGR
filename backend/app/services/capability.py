@@ -52,13 +52,15 @@ def booking_capability(service: str, provider_ok: bool) -> dict:
     return {"mode": "ASSISTED_BOOKING", "bookable": False, "enquiry": True}
 
 
-def service_mode(service: str) -> dict:
+def service_mode(service: str, first_override: str | None = None) -> dict:
     """Per-service capability matrix computed from registry config + health.
 
     Returns {mode, live_data, estimate, schedule_only, bookable, assisted,
     source, reason}. mode in LIVE|ESTIMATE|SCHEDULE_ONLY|DISCOVERY|ASSISTED.
     Demo and disabled adapters always resolve to ASSISTED (demo payloads stay
-    flagged is_demo; nothing bookable is claimed).
+    flagged is_demo; nothing bookable is claimed). first_override lets the
+    search envelope report the SERVING provider when a chain falls back
+    (e.g. overpass down -> demo served: ASSISTED, not DISCOVERY).
     """
     from app.providers import registry as reg
 
@@ -72,7 +74,7 @@ def service_mode(service: str) -> dict:
     }.get(service, "")
     raw = getattr(settings, setting_name, "demo") if setting_name else "demo"
     chain = reg.parse_chain(raw) or ["demo"]
-    first = chain[0]
+    first = first_override or chain[0]
 
     base = {
         "service": service, "mode": "ASSISTED", "live_data": False,

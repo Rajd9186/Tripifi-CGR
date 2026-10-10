@@ -77,7 +77,7 @@ def envelope_with_mode(
     from app.services.envelope import utcnow_iso
 
     name = getattr(provider, "name", "") or "unknown"
-    matrix = capability.service_mode(service)
+    matrix = capability.service_mode(service, first_override=name if name != "unknown" else None)
     payload = envelope(
         results,
         {"name": name, "status": "DEMO" if name == "demo" else "LIVE"},

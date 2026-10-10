@@ -43,7 +43,7 @@ export default function HotelCard({ hotel, nights = 3, selected, onSelect, onAdd
 
         <div className="mt-4 flex flex-col sm:flex-row sm:items-end gap-3 border-t border-ink-100 pt-4">
           <div className="flex-1">
-            <div className="text-xs text-ink-500">{hotel.is_demo ? "Sample price" : "Price per night"}</div>
+            <div className="text-xs text-ink-500">{hotel.is_demo ? "Sample price" : hotel.price_per_night != null ? "Price per night" : "Listing — price on request"}</div>
             <div className="text-xl font-semibold text-ink-900">
               <PriceText value={hotel.price_per_night} /><span className="text-sm font-normal text-ink-500">/night</span>
             </div>
