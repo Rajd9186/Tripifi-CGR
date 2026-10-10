@@ -36,7 +36,12 @@ def test_envelope_mode_follows_serving_provider(monkeypatch):
     from app.services import capability
 
     # Unconfigured serpapi-hotels chain reports ASSISTED (never fake LIVE).
-    assert capability.service_mode("hotel")["mode"] == "ASSISTED"
+    monkeypatch.delenv("SERPAPI_API_KEY", raising=False)
+    get_settings.cache_clear()
+    try:
+        assert capability.service_mode("hotel")["mode"] == "ASSISTED"
+    finally:
+        get_settings.cache_clear()
     # Keyed chain reports LIVE.
     monkeypatch.setenv("SERPAPI_API_KEY", "k")
     get_settings.cache_clear()

@@ -41,14 +41,14 @@ export default async function FlightsPage(props: {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
-              { from: "Delhi", to: "Mumbai", price: 4999 },
-              { from: "Kolkata", to: "Delhi", price: 10299 },
-              { from: "Mumbai", to: "Bengaluru", price: 5499 },
-              { from: "Delhi", to: "Goa", price: 7499 },
-              { from: "Bengaluru", to: "Hyderabad", price: 3999 },
-              { from: "Kolkata", to: "Mumbai", price: 9499 },
-              { from: "Chennai", to: "Delhi", price: 11999 },
-              { from: "Hyderabad", to: "Delhi", price: 8999 },
+              { from: "Delhi", to: "Mumbai" },
+              { from: "Kolkata", to: "Delhi" },
+              { from: "Mumbai", to: "Bengaluru" },
+              { from: "Delhi", to: "Goa" },
+              { from: "Bengaluru", to: "Hyderabad" },
+              { from: "Kolkata", to: "Mumbai" },
+              { from: "Chennai", to: "Delhi" },
+              { from: "Hyderabad", to: "Delhi" },
             ].map((route) => {
               const params = new URLSearchParams({ from: route.from, to: route.to, date: todayISO(), travellers: "1", class: "Economy", trip: "oneway" });
               return (
@@ -63,10 +63,7 @@ export default async function FlightsPage(props: {
                   </div>
                 </div>
                 <div className="text-sm text-ink-600">
-                  Starting from{" "}
-                  <span className="font-semibold text-ink-900">
-                    ₹{route.price.toLocaleString("en-IN")}
-                  </span>
+                  Check live fares <span aria-hidden="true">→</span>
                 </div>
               </Link>
               );

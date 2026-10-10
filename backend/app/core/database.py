@@ -1,5 +1,12 @@
 """Async SQLAlchemy engine/session. Business logic must not touch the engine directly."""
 
+import asyncio
+import sys
+
+# async psycopg is incompatible with Windows' default ProactorEventLoop.
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
