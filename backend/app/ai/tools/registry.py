@@ -25,10 +25,62 @@ ACTIVITIES = {
     "kashmir": [
         {"id": "ACT-KSH-001", "title": "Gulmarg Gondola", "duration": "4–5 hours", "price": 1800},
         {"id": "ACT-KSH-002", "title": "Dal Lake shikara ride", "duration": "2 hours", "price": 900},
+        {"id": "ACT-KSH-003", "title": "Pahalgam valley day trip", "duration": "Full day", "price": 2500},
     ],
     "kerala": [
         {"id": "ACT-KER-001", "title": "Alleppey houseboat day cruise", "duration": "Full day", "price": 8500},
         {"id": "ACT-KER-002", "title": "Kathakali performance", "duration": "2 hours", "price": 500},
+        {"id": "ACT-KER-003", "title": "Munnar tea garden walk", "duration": "Half day", "price": 800},
+    ],
+    "goa": [
+        {"id": "ACT-GOA-001", "title": "Baga water sports combo", "duration": "Half day", "price": 1500},
+        {"id": "ACT-GOA-002", "title": "Dudhsagar jeep safari", "duration": "Full day", "price": 1800},
+        {"id": "ACT-GOA-003", "title": "Mandovi sunset cruise", "duration": "2 hours", "price": 800},
+    ],
+    "rajasthan": [
+        {"id": "ACT-RAJ-001", "title": "Amber Fort guided tour", "duration": "Half day", "price": 1000},
+        {"id": "ACT-RAJ-002", "title": "Sam dunes desert camp evening", "duration": "Evening + night", "price": 3500},
+        {"id": "ACT-RAJ-003", "title": "Ranthambore tiger safari", "duration": "Half day", "price": 1500},
+    ],
+    "ladakh": [
+        {"id": "ACT-LAD-001", "title": "Pangong Lake day excursion", "duration": "Full day", "price": 4000},
+        {"id": "ACT-LAD-002", "title": "Nubra camel safari", "duration": "2 hours", "price": 1200},
+        {"id": "ACT-LAD-003", "title": "Thiksey & Hemis monastery circuit", "duration": "Full day", "price": 2000},
+    ],
+    "himachal-pradesh": [
+        {"id": "ACT-HIM-001", "title": "Solang paragliding flight", "duration": "2–3 hours", "price": 2500},
+        {"id": "ACT-HIM-002", "title": "Kalka–Shimla toy train ride", "duration": "5 hours", "price": 600},
+        {"id": "ACT-HIM-003", "title": "Triund trek from McLeodganj", "duration": "Full day", "price": 1500},
+    ],
+    "uttarakhand": [
+        {"id": "ACT-UTT-001", "title": "Rishikesh river rafting (16 km)", "duration": "Half day", "price": 1800},
+        {"id": "ACT-UTT-002", "title": "Ganga aarti at Triveni Ghat", "duration": "Evening", "price": 0},
+        {"id": "ACT-UTT-003", "title": "Jim Corbett jeep safari", "duration": "Half day", "price": 5500},
+    ],
+    "tamil-nadu": [
+        {"id": "ACT-TN-001", "title": "Mahabalipuram Shore Temple tour", "duration": "Half day", "price": 800},
+        {"id": "ACT-TN-002", "title": "Nilgiri toy train to Ooty", "duration": "5 hours", "price": 500},
+        {"id": "ACT-TN-003", "title": "Madurai Meenakshi temple tour", "duration": "Half day", "price": 600},
+    ],
+    "northeast-india": [
+        {"id": "ACT-NE-001", "title": "Dawki river boating", "duration": "2 hours", "price": 900},
+        {"id": "ACT-NE-002", "title": "Kaziranga rhino safari", "duration": "Half day", "price": 4000},
+        {"id": "ACT-NE-003", "title": "Double-decker root bridge trek", "duration": "Full day", "price": 1200},
+    ],
+    "darjeeling": [
+        {"id": "ACT-DRJ-001", "title": "Tiger Hill sunrise viewpoint", "duration": "Early morning", "price": 800},
+        {"id": "ACT-DRJ-002", "title": "Darjeeling toy-train joy ride", "duration": "2 hours", "price": 1500},
+        {"id": "ACT-DRJ-003", "title": "Sundarbans boat safari", "duration": "Full day", "price": 3500},
+    ],
+    "meghalaya": [
+        {"id": "ACT-MEG-001", "title": "Living root bridge trek", "duration": "Full day", "price": 1200},
+        {"id": "ACT-MEG-002", "title": "Dawki crystal river boating", "duration": "2 hours", "price": 900},
+        {"id": "ACT-MEG-003", "title": "Nohkalikai Falls viewpoint", "duration": "Half day", "price": 500},
+    ],
+    "andaman": [
+        {"id": "ACT-AND-001", "title": "Havelock scuba dive (beginner)", "duration": "Half day", "price": 3500},
+        {"id": "ACT-AND-002", "title": "Radhanagar sunset evening", "duration": "Evening", "price": 0},
+        {"id": "ACT-AND-003", "title": "Cellular Jail light & sound show", "duration": "1 hour", "price": 300},
     ],
 }
 
@@ -39,6 +91,9 @@ async def search_destinations(query: str) -> dict:
 
 
 async def get_destination_details(slug: str) -> dict:
+    from app.ai.agents.intent import resolve_slug
+
+    slug = resolve_slug(slug)
     results = destination_service.search_destinations({"query": slug.replace("-", " "), "limit": 6})
     match = next((r for r in results if r["slug"] == slug.lower()), None)
     if match is None:
@@ -102,8 +157,11 @@ async def get_route(origin: str, destination: str) -> dict:
 
 
 async def get_activity_options(destination: str) -> dict:
+    from app.ai.agents.intent import resolve_slug
+
     # Unknown destinations get NO activities — never another region's.
-    return {"activities": ACTIVITIES.get(destination.lower(), []), "source": "DEMO"}
+    key = resolve_slug(destination) or destination.lower()
+    return {"activities": ACTIVITIES.get(key, []), "source": "DEMO"}
 
 
 async def get_destination_weather(destination: str) -> dict:

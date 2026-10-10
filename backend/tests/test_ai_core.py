@@ -108,6 +108,42 @@ def test_validator_rejects_unknown_actions_and_bad_itinerary():
     assert validator_agent.validate_plan.__name__ == "validate_plan"
 
 
+def test_every_catalog_destination_has_activities():
+    import asyncio
+
+    from app.data.destinations import DESTINATIONS
+
+    assert len(DESTINATIONS) >= 12  # frontend's 12 + standalone Meghalaya/Darjeeling entries
+    for dest in DESTINATIONS:
+        details = asyncio.run(call_tool("get_destination_details", slug=dest["slug"]))
+        assert details.get("found") is True, dest["slug"]
+        acts = asyncio.run(call_tool("get_activity_options", destination=dest["slug"]))
+        assert len(acts["activities"]) >= 2, dest["slug"]
+        for act in acts["activities"]:
+            assert act["title"] and act.get("id"), (dest["slug"], act)
+
+
+def test_unknown_place_plan_uses_ai_knowledge():
+    import asyncio
+
+    from app.ai.gateway import TripifiAIGateway
+
+    class LiveProvider:
+        name = "ollama"
+
+        async def chat(self, messages, **kwargs):
+            assert "Switzerland" in messages[-1]["content"]
+            return {"content": "Switzerland in 3 days: Zurich, Interlaken, Zermatt.", "provider": "ollama"}
+
+    gw = TripifiAIGateway(chain=[LiveProvider()])
+    response = asyncio.run(gw.chat("Plan 3 days in Switzerland", "test-unknown-place"))
+    assert response.intent == "PLAN_TRIP"
+    assert "Switzerland" in response.message
+    assert response.narrated_live is True
+    assert response.is_demo is False  # pure LLM knowledge, no sample data
+    assert response.sources == ["ollama"]
+
+
 def test_hallucination_guardrails():
     import asyncio
 

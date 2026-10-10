@@ -6,5 +6,11 @@
   {"message": "Book a cab from Bagdogra to Gangtok", "expect_intent": "SEARCH_CAB"},
   {"message": "Plan a trip to Goa", "expect_intent": "PLAN_TRIP", "expect_missing": ["duration_days"]},
   {"message": "Keep it below ₹50,000", "expect_budget": 50000},
-  {"message": "Make it cheaper", "expect_intent": "OPTIMIZE_BUDGET"}
+  {"message": "Make it cheaper", "expect_intent": "OPTIMIZE_BUDGET"},
+  {"message": "Plan 4 days in Himachal from Delhi", "expect_intent": "PLAN_TRIP", "expect_destination": "Himachal Pradesh", "expect_origin": "Delhi", "expect_days": 4},
+  {"message": "Plan 5 days in Tamil Nadu under ₹40,000", "expect_intent": "PLAN_TRIP", "expect_destination": "Tamil Nadu", "expect_days": 5, "expect_budget": 40000},
+  {"message": "Shimla trip for the weekend", "expect_intent": "PLAN_TRIP", "expect_destination": "Himachal Pradesh"},
+  {"message": "Is Goa safe for solo women?", "expect_intent": "DESTINATION_QUESTION", "expect_destination": "Goa"},
+  {"message": "Best time to visit Ladakh?", "expect_intent": "DESTINATION_QUESTION", "expect_destination": "Ladakh"},
+  {"message": "Plan 3 days in Switzerland", "expect_intent": "PLAN_TRIP", "expect_destination": "Switzerland"}
 ]

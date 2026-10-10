@@ -9,6 +9,7 @@ import re
 from app.ai.schemas.intent import IntentType, TravelIntent
 
 DESTINATIONS = {
+    # Canonical 12 (+ aliases below).
     "sikkim": ("Sikkim", "sikkim"),
     "kashmir": ("Kashmir", "kashmir"),
     "kerala": ("Kerala", "kerala"),
@@ -17,7 +18,56 @@ DESTINATIONS = {
     "ladakh": ("Ladakh", "ladakh"),
     "darjeeling": ("Darjeeling", "darjeeling"),
     "meghalaya": ("Meghalaya", "meghalaya"),
+    "himachal-pradesh": ("Himachal Pradesh", "himachal-pradesh"),
+    "himachal": ("Himachal Pradesh", "himachal-pradesh"),
+    "uttarakhand": ("Uttarakhand", "uttarakhand"),
+    "tamil-nadu": ("Tamil Nadu", "tamil-nadu"),
+    "tamil nadu": ("Tamil Nadu", "tamil-nadu"),
+    "northeast-india": ("Northeast India", "northeast-india"),
+    "northeast": ("Northeast India", "northeast-india"),
+    "andaman": ("Andaman", "andaman"),
+    "west bengal": ("Darjeeling & West Bengal", "darjeeling"),
+    "andaman nicobar": ("Andaman & Nicobar", "andaman"),
+    # City/attraction aliases resolve to their region.
+    "gangtok": ("Sikkim", "sikkim"),
+    "srinagar": ("Kashmir", "kashmir"),
+    "gulmarg": ("Kashmir", "kashmir"),
+    "pahalgam": ("Kashmir", "kashmir"),
+    "leh": ("Ladakh", "ladakh"),
+    "pangong": ("Ladakh", "ladakh"),
+    "nubra": ("Ladakh", "ladakh"),
+    "shimla": ("Himachal Pradesh", "himachal-pradesh"),
+    "manali": ("Himachal Pradesh", "himachal-pradesh"),
+    "nainital": ("Uttarakhand", "uttarakhand"),
+    "rishikesh": ("Uttarakhand", "uttarakhand"),
+    "ooty": ("Tamil Nadu", "tamil-nadu"),
+    "madurai": ("Tamil Nadu", "tamil-nadu"),
+    "munnar": ("Kerala", "kerala"),
+    "alleppey": ("Kerala", "kerala"),
+    "kochi": ("Kerala", "kerala"),
+    "jaipur": ("Rajasthan", "rajasthan"),
+    "udaipur": ("Rajasthan", "rajasthan"),
+    "jodhpur": ("Rajasthan", "rajasthan"),
+    "jaisalmer": ("Rajasthan", "rajasthan"),
+    "baga": ("Goa", "goa"),
+    "palolem": ("Goa", "goa"),
+    "shillong": ("Northeast India", "northeast-india"),
+    "cherrapunji": ("Northeast India", "northeast-india"),
+    "kaziranga": ("Northeast India", "northeast-india"),
+    "havelock": ("Andaman", "andaman"),
 }
+
+# Frontend slugs that alias backend catalog slugs.
+SLUG_ALIASES = {
+    "west-bengal": "darjeeling",
+    "andaman-nicobar": "andaman",
+}
+
+
+def resolve_slug(slug: str | None) -> str | None:
+    if not slug:
+        return None
+    return SLUG_ALIASES.get(slug.lower(), slug.lower())
 
 NUMBER_WORDS = {
     "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
@@ -30,6 +80,23 @@ def _destination(text: str) -> tuple[str, str] | None:
     for key in sorted(DESTINATIONS, key=len, reverse=True):
         if key in lower:
             return DESTINATIONS[key]
+    return None
+
+
+def _freeform_destination(text: str, origin: str | None) -> str | None:
+    """A mentioned place outside the catalog (e.g. 'to Switzerland', 'in Coorg'):
+    returned as a name with no slug so the gateway answers from LLM knowledge
+    instead of a dead-end follow-up. Never echoes the origin city back."""
+    for pattern in (
+        r"\bto\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,2})",
+        r"\bin\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,2})",
+        r"\bvisit\s+([A-Z][A-Za-z]+(?:\s+[A-Z][A-Za-z]+){0,2})",
+    ):
+        m = re.search(pattern, text)
+        if m:
+            name = m.group(1).strip()
+            if name and (origin is None or name.lower() != origin.lower()):
+                return name
     return None
 
 
@@ -106,6 +173,7 @@ def classify(message: str, trip_context: dict | None = None) -> TravelIntent:
     intent = _keyword_intent(message)
     dest = _destination(message)
     origin = _origin(message)
+    freeform = _freeform_destination(message, origin) if dest is None else None
     days = _days(message)
     travellers, traveller_type = _travellers(message)
     budget = _budget(message)
@@ -120,8 +188,10 @@ def classify(message: str, trip_context: dict | None = None) -> TravelIntent:
 
     missing: list[str] = []
     assumptions: list[str] = []
+    dest_name = dest[0] if dest else freeform
+    dest_slug = dest[1] if dest else None
     if intent == IntentType.PLAN_TRIP:
-        if not dest:
+        if not dest_name:
             missing.append("destination")
         if days is None:
             if trip_context.get("duration_days"):
@@ -135,13 +205,13 @@ def classify(message: str, trip_context: dict | None = None) -> TravelIntent:
     return TravelIntent(
         intent=intent,
         origin=origin or trip_context.get("origin"),
-        destination=dest[0] if dest else None,
-        destination_slug=dest[1] if dest else None,
+        destination=dest_name,
+        destination_slug=dest_slug,
         duration_days=days,
         travellers=travellers,
         traveller_type=traveller_type,
         budget=budget if budget is not None else trip_context.get("budget"),
         missing=missing,
         assumptions=assumptions,
-        confidence=0.85 if dest or intent != IntentType.PLAN_TRIP else 0.6,
+        confidence=0.85 if dest or intent != IntentType.PLAN_TRIP else (0.7 if freeform else 0.6),
     )

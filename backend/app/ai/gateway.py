@@ -229,7 +229,15 @@ class TripifiAIGateway:
 
         # Conversational path: general/destination questions get a direct,
         # tool-grounded LLM answer with history — never a rephrased plan.
-        if (intent.intent if intent else IntentType.GENERAL_TRAVEL_QUESTION) in CONVERSATIONAL_INTENTS:
+        # Plans for places outside the catalog also go conversational: the LLM
+        # answers from its own knowledge instead of a defaulted Sikkim plan.
+        plan_intent = intent.intent if intent else IntentType.GENERAL_TRAVEL_QUESTION
+        unknown_place_plan = (
+            plan_intent == IntentType.PLAN_TRIP
+            and (intent.destination if intent else None)
+            and not (intent.destination_slug if intent else None)
+        )
+        if plan_intent in CONVERSATIONAL_INTENTS or unknown_place_plan:
             response = await self._answer_conversational(
                 intent if intent else TravelIntent(intent=IntentType.GENERAL_TRAVEL_QUESTION),
                 message, conversation_id, request_id, emit,
