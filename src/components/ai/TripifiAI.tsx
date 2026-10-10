@@ -372,6 +372,20 @@ function actionLabel(type: string): string {
   return type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+function formatDetailValue(v: unknown): string {
+  if (Array.isArray(v)) return v.map(formatDetailValue).join(" · ");
+  if (v !== null && typeof v === "object") {
+    const o = v as Record<string, unknown>;
+    // Day entries render as "Day 2: title"; anything else joins its values.
+    if ("day" in o || "title" in o) {
+      const day = "day" in o ? `Day ${String(o.day)}: ` : "";
+      return `${day}${"title" in o ? String(o.title) : Object.values(o).map(String).join(" — ")}`;
+    }
+    return Object.values(o).map((x) => (x === null || typeof x !== "object" ? String(x) : JSON.stringify(x))).join(" · ");
+  }
+  return String(v);
+}
+
 function ResponseCardView({ card, onAction }: { card: ResponseCard; onAction: (a: UIAction) => void }) {
   return (
     <div className="rounded-xl border border-ink-100 bg-surface p-3">
@@ -383,7 +397,7 @@ function ResponseCardView({ card, onAction }: { card: ResponseCard; onAction: (a
           {Object.entries(card.details).slice(0, 5).map(([k, v]) => (
             <div key={k} className="flex justify-between gap-2">
               <dt className="text-ink-500">{k.replace(/_/g, " ")}</dt>
-              <dd className="text-right font-medium text-ink-800">{String(v)}</dd>
+              <dd className="text-right font-medium text-ink-800">{formatDetailValue(v)}</dd>
             </div>
           ))}
         </dl>

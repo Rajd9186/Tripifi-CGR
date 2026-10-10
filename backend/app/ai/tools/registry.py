@@ -102,7 +102,8 @@ async def get_route(origin: str, destination: str) -> dict:
 
 
 async def get_activity_options(destination: str) -> dict:
-    return {"activities": ACTIVITIES.get(destination.lower(), ACTIVITIES["sikkim"]), "source": "DEMO"}
+    # Unknown destinations get NO activities — never another region's.
+    return {"activities": ACTIVITIES.get(destination.lower(), []), "source": "DEMO"}
 
 
 async def get_destination_weather(destination: str) -> dict:

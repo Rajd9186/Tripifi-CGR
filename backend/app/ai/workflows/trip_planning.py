@@ -51,6 +51,8 @@ async def run_tools(state: dict) -> dict:
     events: list[str] = list(state.get("events", []))
 
     slug = intent.destination_slug
+    # Display label prefers the proper name ("Rajasthan", not "rajasthan").
+    dest_label = intent.destination or slug or "sikkim"
     if slug:
         results["destination"] = await call_tool("get_destination_details", slug=slug)
         results["activities"] = await call_tool("get_activity_options", destination=slug)
@@ -63,7 +65,7 @@ async def run_tools(state: dict) -> dict:
         )
         events.append("SEARCHING_TRANSPORT")
     if intent.intent in (IntentType.PLAN_TRIP, IntentType.SEARCH_HOTEL):
-        results["hotels"] = await call_tool("search_hotels", destination=slug or "sikkim")
+        results["hotels"] = await call_tool("search_hotels", destination=dest_label)
         events.append("SEARCHING_HOTELS")
 
     await call_tool("create_trip", trip_state=trip_state, patch={
@@ -102,7 +104,7 @@ async def run_tools(state: dict) -> dict:
         })
     days = intent.duration_days or trip_state.get("duration_days") or 5
     activities = (results.get("activities") or {}).get("activities", [])
-    itinerary = await itinerary_agent.build_itinerary(slug or "sikkim", days, activities)
+    itinerary = await itinerary_agent.build_itinerary(dest_label, days, activities)
     await call_tool("create_itinerary", trip_state=trip_state, days=[{"day": e["day"], "title": e["title"]} for e in itinerary])
     events.append("BUILDING_ITINERARY")
 
@@ -176,7 +178,7 @@ async def format_response(state: dict) -> dict:
             kind="itinerary",
             title=f"{len(itinerary)}-day outline",
             subtitle=" · ".join(e["title"] for e in itinerary[:3]) + (" …" if len(itinerary) > 3 else ""),
-            details={"days": [{"day": e["day"], "title": e["title"]} for e in itinerary]},
+            details={"days": "; ".join(f"Day {e['day']}: {e['title']}" for e in itinerary)},
             actions=[UIAction(type="OPEN_TRIP", payload={})],
         ).model_dump(),
     ]
